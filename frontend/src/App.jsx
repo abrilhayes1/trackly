@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabaseClient'
+import { apiFetch } from './lib/api'
 import MisLeads from './pages/MisLeads'
 import Sidebar from './components/Sidebar'
+import Topbar from './components/Topbar'
+import ResultadosBusqueda from './components/ResultadosBusqueda'
 
 function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [sesion, setSesion] = useState(null)
+  const [perfil, setPerfil] = useState(null)
+  const [busqueda, setBusqueda] = useState('')
   const [error, setError] = useState(null)
   const [cargando, setCargando] = useState(true)
 
@@ -22,6 +27,18 @@ function App() {
 
     return () => listener.subscription.unsubscribe()
   }, [])
+
+  const userId = sesion?.user.id
+
+  useEffect(() => {
+    if (!userId) {
+      setPerfil(null)
+      return
+    }
+    apiFetch('/api/me')
+      .then(setPerfil)
+      .catch(() => setPerfil(null))
+  }, [userId])
 
   async function iniciarSesion(e) {
     e.preventDefault()
@@ -43,18 +60,37 @@ function App() {
   function cerrarSesion() {
     supabase.auth.signOut()
     setSesion(null)
+    setBusqueda('')
   }
 
   if (cargando) {
-    return <div className="min-h-screen flex items-center justify-center text-text-secondary text-sm">Cargando...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center text-text-secondary text-sm">
+        Cargando...
+      </div>
+    )
   }
 
   if (sesion) {
+    const textoBusqueda = busqueda.trim()
+    const buscando = textoBusqueda.length >= 2
+
     return (
-      <div className="flex">
-        <Sidebar usuario={sesion.user} onCerrarSesion={cerrarSesion} />
-        <main className="flex-1 bg-bg-primary overflow-auto">
-          <MisLeads />
+      <div className="flex min-h-screen">
+        <Sidebar
+          email={sesion.user.email}
+          perfil={perfil}
+          onCerrarSesion={cerrarSesion}
+        />
+        <main className="flex-1 min-w-0 bg-bg-primary">
+          <Topbar busqueda={busqueda} onBuscar={setBusqueda} />
+
+          {buscando && <ResultadosBusqueda q={textoBusqueda} userId={userId} />}
+
+          {/* Mis leads queda montada pero oculta mientras se busca, así no se vuelve a cargar */}
+          <div className={buscando ? 'hidden' : ''}>
+            <MisLeads />
+          </div>
         </main>
       </div>
     )
