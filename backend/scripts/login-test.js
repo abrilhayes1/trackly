@@ -5,7 +5,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANO
 
 async function main() {
     const { data, error } = await supabase.auth.signInWithPassword({
-        email: 'nuevo4@test.com',
+        email: 'lider@davinci.test',
         password: 'Test1234!'
     });
 
