@@ -131,7 +131,13 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
 
       <Seccion>Vistas</Seccion>
       <Item icono={iconos.charlas} label="Charlas" />
-      <Item icono={iconos.archivo} label="Archivo" />
+      <Item
+        icono={iconos.archivo}
+        label="Archivo"
+        habilitado
+        activo={vista === 'archivo'}
+        onClick={() => onNavegar('archivo')}
+      />
       <Item
         icono={iconos.exitosos}
         label="Casos exitosos"

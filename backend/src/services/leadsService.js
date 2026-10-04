@@ -10,8 +10,26 @@ function fechaValida(valor) {
   return typeof valor === 'string' && !Number.isNaN(new Date(valor).getTime());
 }
 
-async function listar(supabase) {
-  const { data, error } = await supabase.from('leads').select('*');
+const ESTADOS_VALIDOS = ['activo', 'vencido', 'archivo', 'ganado', 'perdido'];
+
+// Sin filtro devuelve todos los leads del equipo. Con ?estado=vencido,archivo devuelve solo
+// esos (y trae el nombre del asesor), que es lo que necesita la pantalla Archivo.
+async function listar(supabase, estados) {
+  if (estados === undefined || estados === '') {
+    const { data, error } = await supabase.from('leads').select('*');
+    lanzarSiError(error);
+    return data;
+  }
+
+  const lista = String(estados).split(',').map((e) => e.trim());
+  if (lista.some((e) => !ESTADOS_VALIDOS.includes(e))) {
+    throw new ErrorHttp(400, 'Estado inválido (usá activo, vencido, archivo, ganado o perdido)');
+  }
+
+  const { data, error } = await supabase
+    .from('leads')
+    .select('*, asesor:profiles(nombre)')
+    .in('estado', lista);
   lanzarSiError(error);
   return data;
 }
@@ -197,4 +215,19 @@ async function agregarHistorial(supabase, user, leadId, body) {
   return data;
 }
 
-module.exports = { listar, buscar, crear, actualizar, listarHistorial, agregarHistorial };
+// Reactiva un lead vencido o archivado: queda activo, a nombre de quien lo reactiva, y el conteo de
+// días sin contacto vuelve a empezar. La función reactivar_lead de la base hace todo junto.
+async function reactivar(supabase, leadId) {
+  const { data, error } = await supabase.rpc('reactivar_lead', { p_lead_id: leadId });
+
+  if (error) {
+    if (error.code === '42501') throw new ErrorHttp(403, 'No tenés permiso para reactivar este lead');
+    if (error.code === 'P0002') throw new ErrorHttp(404, 'Lead no encontrado');
+    if (error.code === '23514') throw new ErrorHttp(400, 'Solo se pueden reactivar leads vencidos o archivados');
+    throw new ErrorHttp(400, error.message);
+  }
+
+  return data;
+}
+
+module.exports = { listar, buscar, crear, actualizar, listarHistorial, agregarHistorial, reactivar };

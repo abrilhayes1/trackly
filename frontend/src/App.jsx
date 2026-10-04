@@ -5,6 +5,7 @@ import MisLeads from './pages/MisLeads'
 import AlertasHoy from './pages/AlertasHoy'
 import CasosCerrados from './pages/CasosCerrados'
 import Agenda from './pages/Agenda'
+import Archivo from './pages/Archivo'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
@@ -123,6 +124,16 @@ function App() {
           )}
 
           {!buscando && vista === 'agenda' && <Agenda />}
+
+          {!buscando && vista === 'archivo' && (
+            <Archivo
+              userId={userId}
+              rol={perfil?.rol}
+              onAbrirLead={setLeadAbierto}
+              cambios={cambios}
+              onReactivado={() => setCambios((n) => n + 1)}
+            />
+          )}
 
           {!buscando && (vista === 'exitosos' || vista === 'perdidos') && (
             <CasosCerrados
