@@ -6,7 +6,7 @@ import { fechaHoraCorta } from '../lib/formato'
 
 const secciones = [
   { clave: 'vencenHoy', titulo: 'Vencen hoy', badge: 'bg-red-bg text-urgent-red', dot: 'bg-dot-red' },
-  { clave: 'vencenManana', titulo: 'Vencen mañana', badge: 'bg-amber-bg text-urgent-amber', dot: 'bg-dot-amber' },
+  { clave: 'porVencer', titulo: 'Por vencer', badge: 'bg-amber-bg text-urgent-amber', dot: 'bg-dot-amber' },
   { clave: 'recordatorios', titulo: 'Recordatorios', badge: 'bg-avatar-bg text-urgent-blue', dot: 'bg-dot-blue' },
 ]
 
@@ -22,8 +22,11 @@ function etiquetaAlerta(clave, lead, ahora) {
       ? { texto: 'vence hoy', color: 'text-urgent-red' }
       : { texto: `venció hace ${lead.diasPasados}d`, color: 'text-urgent-red' }
   }
-  if (clave === 'vencenManana') {
-    return { texto: 'vence mañana', color: 'text-urgent-amber' }
+  if (clave === 'porVencer') {
+    return {
+      texto: lead.diasRestantes === 1 ? 'vence mañana' : `vence en ${lead.diasRestantes} días`,
+      color: 'text-urgent-amber',
+    }
   }
   if (lead.atrasado) {
     return { texto: `atrasado · ${fechaHoraCorta(lead.fechaRecordatorio)}`, color: 'text-urgent-red' }
