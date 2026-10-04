@@ -4,4 +4,9 @@ Ejecutar en este orden (se pueden volver a correr sin duplicar nada, salvo 2_cie
   1_cerrar_base.sql              completa historial, charlas, notificados y recordatorios
   2_cierres.sql                  tabla cierres + función cerrar_lead (correr una sola vez)
   3_seed_cierres_opcional.sql    datos de ejemplo para los 2 leads cerrados del seed
+  4_agenda.sql                   lo que necesita la pantalla Agenda
+  5_vencimiento.sql              funciones marcar_leads_vencidos (proceso diario) y reactivar_lead
+  6_programar_vencimiento.sql    activa pg_cron y programa el vencimiento todas las noches (00:05 hora argentina)
   chequeo_cierres.sql            solo lectura: tiene que dar 1, 1, 1, 3, 2
+
+Antes de correr 6_programar_vencimiento.sql hay que haber corrido 5_vencimiento.sql.
