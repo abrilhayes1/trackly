@@ -16,6 +16,7 @@ app.use('/api/leads', require('./routes/leads'));
 app.use('/api/onboarding', require('./routes/onboarding'));
 app.use('/api/config', require('./routes/config'));
 app.use('/api/me', require('./routes/me'));
+app.use('/api/cierres', require('./routes/cierres'));
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);

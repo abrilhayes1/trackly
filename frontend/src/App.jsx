@@ -3,6 +3,7 @@ import { supabase } from './lib/supabaseClient'
 import { apiFetch } from './lib/api'
 import MisLeads from './pages/MisLeads'
 import AlertasHoy from './pages/AlertasHoy'
+import CasosCerrados from './pages/CasosCerrados'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
@@ -118,6 +119,16 @@ function App() {
 
           {!buscando && vista === 'alertas' && (
             <AlertasHoy userId={userId} onAbrirLead={setLeadAbierto} cambios={cambios} />
+          )}
+
+          {!buscando && (vista === 'exitosos' || vista === 'perdidos') && (
+            <CasosCerrados
+              key={vista}
+              tipo={vista === 'exitosos' ? 'ganado' : 'perdido'}
+              rol={perfil?.rol}
+              onAbrirLead={setLeadAbierto}
+              cambios={cambios}
+            />
           )}
 
           {/* Mis leads queda montada pero oculta cuando se busca o se ve otra pantalla, así no se vuelve a cargar */}

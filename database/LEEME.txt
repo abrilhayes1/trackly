@@ -1,0 +1,7 @@
+Scripts SQL de Trackly para el SQL Editor de Supabase.
+Ejecutar en este orden (se pueden volver a correr sin duplicar nada, salvo 2_cierres.sql que se corre UNA sola vez):
+
+  1_cerrar_base.sql              completa historial, charlas, notificados y recordatorios
+  2_cierres.sql                  tabla cierres + función cerrar_lead (correr una sola vez)
+  3_seed_cierres_opcional.sql    datos de ejemplo para los 2 leads cerrados del seed
+  chequeo_cierres.sql            solo lectura: tiene que dar 1, 1, 1, 3, 2

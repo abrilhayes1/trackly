@@ -126,8 +126,20 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
       <Seccion>Vistas</Seccion>
       <Item icono={iconos.charlas} label="Charlas" />
       <Item icono={iconos.archivo} label="Archivo" />
-      <Item icono={iconos.exitosos} label="Casos exitosos" />
-      <Item icono={iconos.perdidos} label="Cerrados perdidos" />
+      <Item
+        icono={iconos.exitosos}
+        label="Casos exitosos"
+        habilitado
+        activo={vista === 'exitosos'}
+        onClick={() => onNavegar('exitosos')}
+      />
+      <Item
+        icono={iconos.perdidos}
+        label="Cerrados perdidos"
+        habilitado
+        activo={vista === 'perdidos'}
+        onClick={() => onNavegar('perdidos')}
+      />
       <Item icono={iconos.stats} label="Estadísticas" />
 
       <div className="mt-auto px-4 pt-3.5 border-t border-border-tertiary">

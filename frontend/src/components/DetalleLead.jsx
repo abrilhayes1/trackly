@@ -9,6 +9,7 @@ import {
   desdeInputDateTime,
   numeroWhatsApp,
 } from '../lib/formato'
+import CierreLead from './CierreLead'
 
 const niveles = Object.keys(etiquetaInteres)
 
@@ -104,6 +105,12 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
     } finally {
       setGuardando(false)
     }
+  }
+
+  // al guardar un cierre: el lead cambia de estado y el historial tiene una línea nueva
+  function alGuardarCierre(cierre) {
+    onCambio({ estado: cierre.tipo })
+    cargarHistorial()
   }
 
   const dias = diasDesde(lead.ultimo_contacto || lead.fecha_ingreso)
@@ -296,6 +303,10 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
               </button>
             )}
           </div>
+        </Seccion>
+
+        <Seccion titulo="Cierre">
+          <CierreLead lead={lead} puedeEditar={puedeEditar} onGuardado={alGuardarCierre} />
         </Seccion>
 
         <Seccion titulo="Historial">
