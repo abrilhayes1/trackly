@@ -121,7 +121,13 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
         activo={vista === 'alertas'}
         onClick={() => onNavegar('alertas')}
       />
-      <Item icono={iconos.agenda} label="Agenda" />
+      <Item
+        icono={iconos.agenda}
+        label="Agenda"
+        habilitado
+        activo={vista === 'agenda'}
+        onClick={() => onNavegar('agenda')}
+      />
 
       <Seccion>Vistas</Seccion>
       <Item icono={iconos.charlas} label="Charlas" />

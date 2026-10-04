@@ -1,20 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
+const me = require('../controllers/meController');
 
-router.get('/', requireAuth, async (req, res) => {
-  const { data, error } = await req.supabase
-    .from('profiles')
-    .select('nombre, rol, avatar_iniciales, tenants(nombre)')
-    .eq('id', req.user.id)
-    .maybeSingle();
-
-  if (error) {
-    return res.status(400).json({ error: error.message });
-  }
-
-  // devuelve null si el usuario todavía no completó el onboarding
-  res.json(data);
-});
+router.get('/', requireAuth, me.perfil);
 
 module.exports = router;

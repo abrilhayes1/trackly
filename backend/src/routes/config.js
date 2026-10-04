@@ -1,18 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
+const config = require('../controllers/configController');
 
-router.get('/', requireAuth, async (req, res) => {
-    const { data, error } = await req.supabase
-        .from('tenant_config')
-        .select('*')
-        .maybeSingle();
-
-    if (error) {
-        return res.status(400).json({ error: error.message });
-    }
-
-    res.json(data);
-});
+router.get('/', requireAuth, config.obtener);
 
 module.exports = router;

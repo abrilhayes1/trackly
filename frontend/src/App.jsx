@@ -4,6 +4,7 @@ import { apiFetch } from './lib/api'
 import MisLeads from './pages/MisLeads'
 import AlertasHoy from './pages/AlertasHoy'
 import CasosCerrados from './pages/CasosCerrados'
+import Agenda from './pages/Agenda'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
@@ -120,6 +121,8 @@ function App() {
           {!buscando && vista === 'alertas' && (
             <AlertasHoy userId={userId} onAbrirLead={setLeadAbierto} cambios={cambios} />
           )}
+
+          {!buscando && vista === 'agenda' && <Agenda />}
 
           {!buscando && (vista === 'exitosos' || vista === 'perdidos') && (
             <CasosCerrados
