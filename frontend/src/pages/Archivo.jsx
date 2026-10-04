@@ -8,17 +8,17 @@ function primerNombre(nombre) {
   return (nombre || '').split(' ')[0]
 }
 
-function Chip({ activo, onClick, children, conAvatar = false }) {
+// como en el prototipo: el filtro de interés se marca en oscuro y el de asesor en violeta
+function Chip({ activo, onClick, children, conAvatar = false, oscuro = false }) {
+  const colorActivo = oscuro
+    ? 'bg-text-primary text-bg-primary border-text-primary'
+    : 'bg-accent text-white border-accent'
   return (
     <button
       onClick={onClick}
       className={`flex items-center gap-1.5 text-[11px] rounded-full border ${
         conAvatar ? 'pl-[5px] pr-2.5 py-1' : 'px-3 py-1'
-      } ${
-        activo
-          ? 'bg-accent text-white border-accent'
-          : 'bg-bg-primary text-text-secondary border-border-secondary'
-      }`}
+      } ${activo ? colorActivo : 'bg-bg-primary text-text-secondary border-border-secondary'}`}
     >
       {children}
     </button>
@@ -113,8 +113,8 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onReactivad
       </h1>
       <p className="text-xs text-text-secondary mb-5">
         {vencidos} vencido{vencidos === 1 ? '' : 's'}
-        {archivados > 0 ? ` · ${archivados} archivado${archivados === 1 ? '' : 's'}` : ''} · cualquier
-        asesor puede reactivarlos
+        {archivados > 0 ? ` · ${archivados} archivado${archivados === 1 ? '' : 's'}` : ''}
+        {esLider ? ' del equipo · filtrá por asesor' : ' · cualquier asesor puede reactivarlos'}
       </p>
 
       {cargando && <p className="text-sm text-text-secondary">Cargando...</p>}
@@ -140,11 +140,11 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onReactivad
       {!cargando && !error && total > 0 && (
         <>
           <div className="flex flex-wrap gap-[5px] mb-3">
-            <Chip activo={interesActivo === ''} onClick={() => setFiltroInteres('')}>
+            <Chip oscuro activo={interesActivo === ''} onClick={() => setFiltroInteres('')}>
               Todos
             </Chip>
             {niveles.map((n) => (
-              <Chip key={n} activo={interesActivo === n} onClick={() => setFiltroInteres(n)}>
+              <Chip key={n} oscuro activo={interesActivo === n} onClick={() => setFiltroInteres(n)}>
                 {n === 'sin' ? 'Sin categoría' : etiquetaInteres[n]}
               </Chip>
             ))}
@@ -153,7 +153,7 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onReactivad
           {duenios.length > 1 && (
             <div className="flex flex-wrap items-center gap-[5px] mb-4">
               <Chip activo={asesorActivo === ''} onClick={() => setFiltroAsesor('')}>
-                De todos
+                {esLider ? 'Todo el equipo' : 'De todos'}
               </Chip>
               {duenios.map((d) => (
                 <Chip
@@ -201,9 +201,22 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onReactivad
                 <div className="text-[11px] text-text-secondary truncate mt-px">
                   {textoVencimiento(lead, plazo, ahora)}
                   {lead.origen ? ` · ${lead.origen}` : ''}
-                  {!esMio && lead.asesor?.nombre ? ` · de ${primerNombre(lead.asesor.nombre)}` : ''}
+                  {!esLider && !esMio && lead.asesor?.nombre
+                    ? ` · de ${primerNombre(lead.asesor.nombre)}`
+                    : ''}
                 </div>
               </div>
+              {/* el líder ve de quién era cada lead con su avatar, como en el prototipo */}
+              {esLider && lead.asesor?.nombre && (
+                <span className="inline-flex items-center gap-1.5 shrink-0">
+                  <span className="w-5 h-5 rounded-full bg-avatar-bg text-avatar-text inline-flex items-center justify-center text-[8px] font-semibold">
+                    {iniciales(lead.asesor.nombre)}
+                  </span>
+                  <span className="text-xs text-text-secondary">
+                    {primerNombre(lead.asesor.nombre)}
+                  </span>
+                </span>
+              )}
               <span
                 className={`text-[10px] px-1.5 py-px rounded-full border shrink-0 ${colores.bg} ${colores.text} ${colores.border}`}
               >
