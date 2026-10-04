@@ -79,3 +79,22 @@ No se pueden ver desde el repo porque el esquema base y algunas políticas se cr
 - El estilo de las pantallas es compacto: textos de 11 a 13px, títulos `text-base font-semibold`,
   tarjetas `border border-border-tertiary rounded-(--radius-lg)` y chips redondeados
   (`rounded-full`) con el activo en `bg-accent text-white`.
+
+## Prototipo
+
+El diseño de referencia es `docs/prototipos/trackly_prototipo_4_1.html`: un HTML con todo en línea
+que se abre en el navegador. Usa los mismos colores que `index.css`.
+
+- **Pantallas del prototipo que todavía no están hechas**: Charlas informativas (con detalle de
+  charla e invitados), Estadísticas, Panel de líder (pestañas Asesores, Leads del equipo y Sin
+  asignar, con reasignación de leads), detalle de un asesor, Onboarding y los badges con números en
+  el menú lateral.
+- **Patrones del prototipo**:
+  - Filtros de interés (`.fbtn`): el seleccionado va en oscuro (`bg-text-primary`).
+  - Filtro por asesor (`.af-chip`): solo para el líder, con "Todo el equipo" y avatares; el
+    seleccionado va en violeta (`bg-accent`).
+  - En las listas del líder, el dueño del lead se muestra con un mini avatar y su nombre.
+- **Archivo ya está alineado con el prototipo.** Diferencias que quedaron a propósito:
+  - Los asesores también pueden filtrar por dueño.
+  - Al reactivar, el conteo de días empieza desde ahora. El prototipo dice "como sin contactar",
+    pero si se tomara así el lead volvería a vencer esa misma noche.
