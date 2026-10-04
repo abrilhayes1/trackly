@@ -103,6 +103,8 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onReactivad
   }
 
   const total = leads.length
+  const archivados = leads.filter((l) => l.estado === 'archivo').length
+  const vencidos = total - archivados
 
   return (
     <div className="p-5">
@@ -110,8 +112,9 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onReactivad
         {esLider ? 'Archivo del equipo' : 'Archivo de leads'}
       </h1>
       <p className="text-xs text-text-secondary mb-5">
-        {total} lead{total === 1 ? '' : 's'} vencido{total === 1 ? '' : 's'} · cualquier asesor
-        puede reactivarlos
+        {vencidos} vencido{vencidos === 1 ? '' : 's'}
+        {archivados > 0 ? ` · ${archivados} archivado${archivados === 1 ? '' : 's'}` : ''} · cualquier
+        asesor puede reactivarlos
       </p>
 
       {cargando && <p className="text-sm text-text-secondary">Cargando...</p>}

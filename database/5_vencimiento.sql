@@ -63,10 +63,22 @@ declare
   v_nombre text;
   v_anterior text;
   v_texto text;
+  v_estado text;
 begin
-  select * into v_antes from leads where id = p_lead_id;
+  -- "for update" bloquea el lead hasta terminar: si dos asesores tocan Reactivar a la vez,
+  -- el segundo espera a que termine el primero y después recibe un error (no se lo pisa).
+  -- Con la RLS, "for update" solo encuentra el lead si además lo puede modificar.
+  select * into v_antes from leads where id = p_lead_id for update;
   if not found then
-    raise exception 'Lead no encontrado' using errcode = 'P0002';
+    select estado into v_estado from leads where id = p_lead_id;
+    if not found then
+      raise exception 'Lead no encontrado' using errcode = 'P0002';
+    end if;
+    -- lo ve pero no lo pudo tomar: o alguien lo reactivó recién, o no tiene permiso
+    if v_estado not in ('vencido', 'archivo') then
+      raise exception 'Solo se pueden reactivar leads vencidos o archivados' using errcode = '23514';
+    end if;
+    raise exception 'No tenés permiso para reactivar este lead' using errcode = '42501';
   end if;
 
   if v_antes.estado not in ('vencido', 'archivo') then
