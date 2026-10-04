@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../lib/api'
 import { diasDesde } from '../lib/urgencia'
+import { iniciales } from '../lib/formato'
 import { colorPorInteres, sinCategoria, etiquetaInteres } from '../lib/interes'
 
 const colorEstado = {
@@ -26,15 +27,6 @@ function Resaltado({ texto, q }) {
   )
 }
 
-function iniciales(nombre) {
-  return nombre
-    .split(/[\s,]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0].toUpperCase())
-    .join('')
-}
-
 function Dato({ label, valor }) {
   return (
     <div className="bg-bg-secondary rounded-md px-2 py-1.5">
@@ -44,7 +36,7 @@ function Dato({ label, valor }) {
   )
 }
 
-export default function ResultadosBusqueda({ q, userId }) {
+export default function ResultadosBusqueda({ q, userId, onAbrirLead, cambios }) {
   const [resultados, setResultados] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
@@ -73,7 +65,7 @@ export default function ResultadosBusqueda({ q, userId }) {
       cancelado = true
       clearTimeout(espera)
     }
-  }, [q])
+  }, [q, cambios])
 
   return (
     <div className="p-5">
@@ -106,7 +98,8 @@ export default function ResultadosBusqueda({ q, userId }) {
         return (
           <div
             key={lead.id}
-            className="border border-border-tertiary rounded-(--radius-lg) px-4 py-3.5 mb-2 hover:border-border-secondary hover:bg-bg-secondary transition-colors"
+            onClick={() => onAbrirLead(lead)}
+            className="border border-border-tertiary rounded-(--radius-lg) px-4 py-3.5 mb-2 cursor-pointer hover:border-border-secondary hover:bg-bg-secondary transition-colors"
           >
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 rounded-full bg-avatar-bg text-avatar-text flex items-center justify-center text-[11px] font-semibold shrink-0">

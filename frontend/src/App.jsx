@@ -5,6 +5,7 @@ import MisLeads from './pages/MisLeads'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
+import DetalleLead from './components/DetalleLead'
 
 function App() {
   const [email, setEmail] = useState('')
@@ -12,6 +13,8 @@ function App() {
   const [sesion, setSesion] = useState(null)
   const [perfil, setPerfil] = useState(null)
   const [busqueda, setBusqueda] = useState('')
+  const [leadAbierto, setLeadAbierto] = useState(null)
+  const [cambios, setCambios] = useState(0)
   const [error, setError] = useState(null)
   const [cargando, setCargando] = useState(true)
 
@@ -61,6 +64,14 @@ function App() {
     supabase.auth.signOut()
     setSesion(null)
     setBusqueda('')
+    setLeadAbierto(null)
+  }
+
+  // cuando se modifica un lead desde la tarjeta: la tarjeta se actualiza
+  // y las listas (Mis leads / búsqueda) se vuelven a cargar
+  function alCambiarLead(datos) {
+    setLeadAbierto((actual) => (actual ? { ...actual, ...datos } : actual))
+    setCambios((n) => n + 1)
   }
 
   if (cargando) {
@@ -85,13 +96,31 @@ function App() {
         <main className="flex-1 min-w-0 bg-bg-primary">
           <Topbar busqueda={busqueda} onBuscar={setBusqueda} />
 
-          {buscando && <ResultadosBusqueda q={textoBusqueda} userId={userId} />}
+          {buscando && (
+            <ResultadosBusqueda
+              q={textoBusqueda}
+              userId={userId}
+              onAbrirLead={setLeadAbierto}
+              cambios={cambios}
+            />
+          )}
 
           {/* Mis leads queda montada pero oculta mientras se busca, así no se vuelve a cargar */}
           <div className={buscando ? 'hidden' : ''}>
-            <MisLeads />
+            <MisLeads onAbrirLead={setLeadAbierto} cambios={cambios} />
           </div>
         </main>
+
+        {leadAbierto && (
+          <DetalleLead
+            key={leadAbierto.id}
+            lead={leadAbierto}
+            userId={userId}
+            rol={perfil?.rol}
+            onCerrar={() => setLeadAbierto(null)}
+            onCambio={alCambiarLead}
+          />
+        )}
       </div>
     )
   }

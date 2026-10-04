@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { apiFetch } from '../lib/api'
 import { agruparLeads } from '../lib/urgencia'
@@ -18,7 +18,7 @@ const tarjetas = [
   { clave: 'sinContactar', label: 'Sin contactar', color: 'text-urgent-blue' },
 ]
 
-export default function MisLeads() {
+export default function MisLeads({ onAbrirLead, cambios }) {
   const [leads, setLeads] = useState([])
   const [config, setConfig] = useState(null)
   const [userId, setUserId] = useState(null)
@@ -30,15 +30,23 @@ export default function MisLeads() {
     supabase.auth.getSession().then(({ data }) => {
       setUserId(data.session?.user.id ?? null)
     })
+  }, [])
 
-    Promise.all([apiFetch('/api/leads'), apiFetch('/api/config')])
+  const cargar = useCallback(() => {
+    return Promise.all([apiFetch('/api/leads'), apiFetch('/api/config')])
       .then(([leadsData, configData]) => {
         setLeads(leadsData)
         setConfig(configData)
+        setError(null)
       })
       .catch((e) => setError(e.message))
       .finally(() => setCargando(false))
   }, [])
+
+  // se vuelve a cargar al abrir la pantalla y cada vez que se modifica un lead desde la tarjeta
+  useEffect(() => {
+    cargar()
+  }, [cargar, cambios])
 
   const grupos = useMemo(
     () => agruparLeads(leads, config, userId),
@@ -125,7 +133,7 @@ export default function MisLeads() {
                   </span>
                 </div>
                 {grupos[clave].map((lead) => (
-                  <LeadCard key={lead.id} lead={lead} grupo={clave} />
+                  <LeadCard key={lead.id} lead={lead} grupo={clave} onAbrir={onAbrirLead} />
                 ))}
               </div>
             ) : null
