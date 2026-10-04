@@ -7,13 +7,16 @@ const estiloPorGrupo = {
   alDia: { dot: 'bg-green-border', dias: 'text-text-tertiary' },
 }
 
-export default function LeadCard({ lead, grupo }) {
+export default function LeadCard({ lead, grupo, onAbrir }) {
   const estilo = estiloPorGrupo[grupo]
   const colores = lead.interes ? colorPorInteres[lead.interes] : sinCategoria
   const etiqueta = lead.interes ? etiquetaInteres[lead.interes] : 'Sin categoría'
 
   return (
-    <div className="flex items-center gap-[9px] bg-bg-primary border border-border-tertiary rounded-(--radius-lg) px-[0.9rem] py-[0.65rem] mb-1.5 cursor-pointer hover:border-accent transition-colors">
+    <div
+      onClick={() => onAbrir(lead)}
+      className="flex items-center gap-[9px] bg-bg-primary border border-border-tertiary rounded-(--radius-lg) px-[0.9rem] py-[0.65rem] mb-1.5 cursor-pointer hover:border-accent transition-colors"
+    >
       <span className={`w-2 h-2 rounded-full shrink-0 ${estilo.dot}`} />
 
       <div className="flex-1 min-w-0">

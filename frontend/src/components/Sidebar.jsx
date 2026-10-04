@@ -60,16 +60,20 @@ const iconos = {
 
 const etiquetaRol = { lider: 'Líder de equipo', asesor: 'Asesor comercial' }
 
-function Item({ icono, label, activo = false }) {
+// habilitado = la pantalla existe y se puede abrir; activo = es la que se está viendo
+function Item({ icono, label, habilitado = false, activo = false, onClick }) {
   const base = 'flex items-center gap-[9px] w-full text-left px-4 py-[7px] text-[13px]'
   const estilo = activo
     ? 'bg-bg-primary text-text-primary font-medium shadow-[inset_-2px_0_0_var(--color-accent)]'
-    : 'text-text-tertiary opacity-60 cursor-not-allowed'
+    : habilitado
+      ? 'text-text-secondary hover:bg-bg-primary hover:text-text-primary'
+      : 'text-text-tertiary opacity-60 cursor-not-allowed'
 
   return (
     <button
-      disabled={!activo}
-      title={activo ? undefined : 'Todavía no está conectada esta vista'}
+      disabled={!habilitado}
+      onClick={onClick}
+      title={habilitado ? undefined : 'Todavía no está conectada esta vista'}
       className={`${base} ${estilo}`}
     >
       <span className="w-4 h-4 flex items-center justify-center shrink-0">{icono}</span>
@@ -86,7 +90,7 @@ function Seccion({ children }) {
   )
 }
 
-export default function Sidebar({ email, perfil, onCerrarSesion }) {
+export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesion }) {
   const nombre = perfil?.nombre || email
   const iniciales =
     perfil?.avatar_iniciales || (email || '??').split('@')[0].slice(0, 2).toUpperCase()
@@ -103,8 +107,20 @@ export default function Sidebar({ email, perfil, onCerrarSesion }) {
       </div>
 
       <Seccion>Principal</Seccion>
-      <Item icono={iconos.leads} label="Mis leads" activo />
-      <Item icono={iconos.alertas} label="Alertas de hoy" />
+      <Item
+        icono={iconos.leads}
+        label="Mis leads"
+        habilitado
+        activo={vista === 'leads'}
+        onClick={() => onNavegar('leads')}
+      />
+      <Item
+        icono={iconos.alertas}
+        label="Alertas de hoy"
+        habilitado
+        activo={vista === 'alertas'}
+        onClick={() => onNavegar('alertas')}
+      />
       <Item icono={iconos.agenda} label="Agenda" />
 
       <Seccion>Vistas</Seccion>

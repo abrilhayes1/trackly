@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabaseClient'
 import { apiFetch } from './lib/api'
 import MisLeads from './pages/MisLeads'
+import AlertasHoy from './pages/AlertasHoy'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
@@ -12,6 +13,7 @@ function App() {
   const [password, setPassword] = useState('')
   const [sesion, setSesion] = useState(null)
   const [perfil, setPerfil] = useState(null)
+  const [vista, setVista] = useState('leads')
   const [busqueda, setBusqueda] = useState('')
   const [leadAbierto, setLeadAbierto] = useState(null)
   const [cambios, setCambios] = useState(0)
@@ -65,10 +67,17 @@ function App() {
     setSesion(null)
     setBusqueda('')
     setLeadAbierto(null)
+    setVista('leads')
+  }
+
+  // al cambiar de pantalla se limpia la búsqueda, para no quedar viendo resultados viejos
+  function navegar(nuevaVista) {
+    setVista(nuevaVista)
+    setBusqueda('')
   }
 
   // cuando se modifica un lead desde la tarjeta: la tarjeta se actualiza
-  // y las listas (Mis leads / búsqueda) se vuelven a cargar
+  // y las pantallas (Mis leads, Alertas, búsqueda) se vuelven a cargar
   function alCambiarLead(datos) {
     setLeadAbierto((actual) => (actual ? { ...actual, ...datos } : actual))
     setCambios((n) => n + 1)
@@ -91,6 +100,8 @@ function App() {
         <Sidebar
           email={sesion.user.email}
           perfil={perfil}
+          vista={vista}
+          onNavegar={navegar}
           onCerrarSesion={cerrarSesion}
         />
         <main className="flex-1 min-w-0 bg-bg-primary">
@@ -105,8 +116,12 @@ function App() {
             />
           )}
 
-          {/* Mis leads queda montada pero oculta mientras se busca, así no se vuelve a cargar */}
-          <div className={buscando ? 'hidden' : ''}>
+          {!buscando && vista === 'alertas' && (
+            <AlertasHoy userId={userId} onAbrirLead={setLeadAbierto} cambios={cambios} />
+          )}
+
+          {/* Mis leads queda montada pero oculta cuando se busca o se ve otra pantalla, así no se vuelve a cargar */}
+          <div className={buscando || vista !== 'leads' ? 'hidden' : ''}>
             <MisLeads onAbrirLead={setLeadAbierto} cambios={cambios} />
           </div>
         </main>
