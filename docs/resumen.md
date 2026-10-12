@@ -1,7 +1,7 @@
-# Trackly: resumen para retomar en otro chat
+# Trackly: resumen del proyecto
 
-> Pegá este archivo en un chat nuevo de Claude para darle contexto. Está al día con la rama
-> `claude/optimistic-franklin-9g352l` (octubre 2026).
+> Estado del proyecto y decisiones tomadas, para retomar el trabajo con contexto. Al día con `main`
+> (octubre 2026).
 
 ## Qué es
 
