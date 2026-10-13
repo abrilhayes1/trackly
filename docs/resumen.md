@@ -18,6 +18,13 @@ producto o curso). Cada equipo es un *tenant*, con un rol `lider` y asesores. To
   Los scripts SQL están en `database/` y se corren a mano en el SQL Editor, en el orden de
   `database/LEEME.txt`.
 
+## Escritorio, no celular
+
+La web está pensada para la compu, como Salesforce o HubSpot. Tiene un ancho mínimo de 1024 px: en
+una ventana más angosta aparece la barra para desplazarse hacia el costado. El celular lo cubre la
+app mobile (RF41 a RF44). El RNF11 de la documentación hay que corregirlo para que diga esto, porque
+hoy pide de 360 a 1920 px.
+
 ## Pantallas hechas
 
 Login, Mis leads (ordenados por urgencia), Nuevo lead, Detalle del lead (interés, seguimiento,

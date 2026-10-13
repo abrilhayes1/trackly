@@ -98,8 +98,10 @@ function App() {
     const textoBusqueda = busqueda.trim()
     const buscando = textoBusqueda.length >= 2
 
+    // la web es de escritorio (el celular lo cubre la app mobile): en una ventana más angosta que
+    // 1024 px se desplaza hacia el costado en vez de aplastarse
     return (
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen min-w-[1024px]">
         <Sidebar
           email={sesion.user.email}
           perfil={perfil}
