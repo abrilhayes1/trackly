@@ -51,6 +51,8 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
     política de edición de `leads`. Bloquean la fila: si dos asesores reclaman a la vez, el segundo
     recibe "Este lead ya no está disponible".
   - Probado en un Postgres local: vencer, archivar, reclamar a la vez, otro equipo y sin sesión.
+- Verificado en Supabase: `lead_historial.autor_id` acepta vacío y `leads` tiene una sola FK a
+  `profiles`.
 - Backend: `POST /api/leads/:id/reclamar` y `POST /api/leads/:id/reactivar` (409 si otro llegó
   antes, 404 si no existe). El onboarding pide `diasArchivo` si el vencimiento está prendido.
 - Frontend: `pages/Archivo.jsx` tiene dos pestañas. En **Vencidos** se reclama con confirmación y
@@ -58,12 +60,8 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 
 ## Pendientes
 
-- Verificar en Supabase:
-  1. ¿`lead_historial.autor_id` acepta `null`? Si no, el proceso nocturno falla.
-  2. ¿`leads` tiene una sola clave foránea hacia `profiles`? Si tiene más de una, el
-     `asesor:profiles(nombre)` da un error de ambigüedad y hay que nombrar la FK.
-  3. `PATCH /api/leads/:id` todavía deja cambiar `estado` directo, porque está en
-     `CAMPOS_EDITABLES`. Con eso se pueden saltear `reclamar_lead` y `reactivar_lead`.
+- `PATCH /api/leads/:id` todavía deja cambiar `estado` directo, porque está en `CAMPOS_EDITABLES`.
+  Con eso se pueden saltear `reclamar_lead` y `reactivar_lead`.
 - Del MVP según la documentación (`docs/documentacion.pdf`): inicio con Google (RF01), invitar
   miembros (RF02), onboarding de 5 pasos y terminología configurable (RF05, RF06), campos de cierre
   configurables por el líder (RF06; hoy son fijos) y una pantalla para editar la configuración del
