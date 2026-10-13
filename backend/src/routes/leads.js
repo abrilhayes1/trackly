@@ -9,6 +9,7 @@ router.post('/', requireAuth, leads.crear);
 router.patch('/:id', requireAuth, leads.actualizar);
 router.get('/:id/historial', requireAuth, leads.listarHistorial);
 router.post('/:id/historial', requireAuth, leads.agregarHistorial);
+router.post('/:id/reclamar', requireAuth, leads.reclamar);
 router.post('/:id/reactivar', requireAuth, leads.reactivar);
 
 module.exports = router;

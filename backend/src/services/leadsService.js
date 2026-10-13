@@ -215,19 +215,23 @@ async function agregarHistorial(supabase, user, leadId, body) {
   return data;
 }
 
-// Reactiva un lead vencido o archivado: queda activo, a nombre de quien lo reactiva, y el conteo de
-// días sin contacto vuelve a empezar. La función reactivar_lead de la base hace todo junto.
-async function reactivar(supabase, leadId) {
-  const { data, error } = await supabase.rpc('reactivar_lead', { p_lead_id: leadId });
+// Reclamar un vencido (CU06) o reactivar un archivado (CU10): el lead queda activo, a nombre de
+// quien lo toma, y el conteo de días sin contacto vuelve a empezar. Las funciones de la base hacen
+// todo junto (estado, asesor e historial) y frenan a un segundo asesor que llegue tarde.
+async function tomarLead(supabase, funcion, leadId) {
+  const { data, error } = await supabase.rpc(funcion, { p_lead_id: leadId });
 
   if (error) {
-    if (error.code === '42501') throw new ErrorHttp(403, 'No tenés permiso para reactivar este lead');
+    if (error.code === '42501') throw new ErrorHttp(403, error.message);
     if (error.code === 'P0002') throw new ErrorHttp(404, 'Lead no encontrado');
-    if (error.code === '23514') throw new ErrorHttp(400, 'Solo se pueden reactivar leads vencidos o archivados');
+    if (error.code === '23514') throw new ErrorHttp(409, error.message);
     throw new ErrorHttp(400, error.message);
   }
 
   return data;
 }
 
-module.exports = { listar, buscar, crear, actualizar, listarHistorial, agregarHistorial, reactivar };
+const reclamar = (supabase, leadId) => tomarLead(supabase, 'reclamar_lead', leadId);
+const reactivar = (supabase, leadId) => tomarLead(supabase, 'reactivar_lead', leadId);
+
+module.exports = { listar, buscar, crear, actualizar, listarHistorial, agregarHistorial, reclamar, reactivar };

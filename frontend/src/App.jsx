@@ -131,7 +131,7 @@ function App() {
               rol={perfil?.rol}
               onAbrirLead={setLeadAbierto}
               cambios={cambios}
-              onReactivado={() => setCambios((n) => n + 1)}
+              onCambio={() => setCambios((n) => n + 1)}
             />
           )}
 

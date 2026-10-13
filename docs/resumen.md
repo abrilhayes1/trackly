@@ -22,47 +22,54 @@ producto o curso). Cada equipo es un *tenant*, con un rol `lider` y asesores. To
 
 Login, Mis leads (ordenados por urgencia), Nuevo lead, Detalle del lead (interés, seguimiento,
 historial automático y manual), Buscador global, Alertas de hoy, Agenda (recordatorios), Cierre de
-lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (la más nueva).
+lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos para reclamar y archivados para reactivar).
 
 ## Estados de un lead
 
 `activo`, `vencido`, `archivo`, `ganado` y `perdido`.
 - Para pasar a `ganado` o `perdido` hay que registrar un cierre (función `cerrar_lead`). Un trigger
   lo exige.
-- Un lead **vence** cuando pasaron `tenant_config.dias_vencimiento_lead` días (de 24 h) desde
-  `ultimo_contacto`, o desde `fecha_ingreso` si nunca lo contactaron. El vencimiento se puede
-  apagar por equipo (`vencimiento_habilitado`). El aviso previo es `dias_alerta_previa`.
+- Ciclo sin contacto, según la documentación (RF17, RF18, RF36):
+  - **activo → vencido** cuando pasaron `tenant_config.dias_vencimiento_lead` días (de 24 h) desde
+    `ultimo_contacto`, o desde `fecha_ingreso` si nunca lo contactaron. Cualquier asesor del equipo
+    lo puede **reclamar** (CU06).
+  - **vencido → archivo** si nadie lo reclama en `tenant_config.dias_archivo` días. Cualquier asesor
+    lo puede **reactivar** (CU10).
+  - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
+    `dias_alerta_previa`.
 
-## Último trabajo: vencimiento automático + Archivo + reactivación
+## Último trabajo: vencido → archivo, reclamo y reactivación
 
-- `database/5_vencimiento.sql`:
-  - `marcar_leads_vencidos()` pasa a `vencido` los leads activos que pasaron el plazo de su equipo
-    y escribe una línea en el historial con `autor_id = null`. Solo la puede ejecutar el sistema.
-  - `reactivar_lead(p_lead_id)`: un lead vencido o archivado vuelve a `activo`, queda a nombre de
-    quien lo reactiva, pone `ultimo_contacto = now()` y escribe una línea en el historial. Bloquea
-    la fila (`for update`), así que si dos asesores reactivan a la vez, el segundo recibe un error
-    y no le pisa el lead al primero. Esto se probó en un Postgres local.
-- `database/6_programar_vencimiento.sql` programa la función con pg_cron todos los días a las
-  03:05 UTC (00:05 en Argentina).
-- Backend:
-  - `GET /api/leads?estado=vencido,archivo` filtra por estado y trae el nombre del asesor
-    (`asesor:profiles(nombre)`).
-  - `POST /api/leads/:id/reactivar` devuelve 403 si no hay permiso, 404 si el lead no existe y
-    400 si el lead no está vencido ni archivado.
-- Frontend: la pantalla `pages/Archivo.jsx`, con filtros por interés y por asesor y el botón
-  Reactivar. Los cálculos están en `lib/archivo.js`.
+- `database/7_archivo_y_reclamo.sql` (corre después del 5 y el 6):
+  - Columnas nuevas: `tenant_config.dias_archivo`, `leads.vencido_at` y `leads.archivado_at`.
+  - `procesar_vencimientos()` es el proceso nocturno (CU16): archiva los vencidos que nadie reclamó
+    y vence los activos que pasaron el plazo. Deja una línea en el historial sin autor. Reemplaza a
+    `marcar_leads_vencidos()`, y la tarea de pg_cron pasa a llamarla (00:05 en Argentina).
+  - `reclamar_lead(id)` (solo vencidos) y `reactivar_lead(id)` (solo archivados) dejan el lead
+    activo, a nombre de quien lo toma y con `ultimo_contacto = now()`. Escriben el historial. Son
+    `security definer`: validan a mano que el lead sea del mismo equipo, así no dependen de la
+    política de edición de `leads`. Bloquean la fila: si dos asesores reclaman a la vez, el segundo
+    recibe "Este lead ya no está disponible".
+  - Probado en un Postgres local: vencer, archivar, reclamar a la vez, otro equipo y sin sesión.
+- Backend: `POST /api/leads/:id/reclamar` y `POST /api/leads/:id/reactivar` (409 si otro llegó
+  antes, 404 si no existe). El onboarding pide `diasArchivo` si el vencimiento está prendido.
+- Frontend: `pages/Archivo.jsx` tiene dos pestañas. En **Vencidos** se reclama con confirmación y
+  se ve cuántos días quedan antes de archivarse. En **Archivados** se reactiva.
 
-## Pendientes para verificar en Supabase
+## Pendientes
 
-No se pueden ver desde el repo porque el esquema base y algunas políticas se crearon en Supabase.
-
-1. ¿`lead_historial.autor_id` acepta `null`? Si no, el proceso nocturno falla.
-2. ¿La política UPDATE de `leads` deja a un asesor modificar un lead `vencido` **y** `archivo` de
-   otro asesor? Si no, reactivar ese lead da "No tenés permiso".
-3. ¿`leads` tiene una sola clave foránea hacia `profiles`? Si tiene más de una, el
-   `asesor:profiles(nombre)` da un error de ambigüedad y hay que nombrar la FK.
-4. `PATCH /api/leads/:id` todavía deja cambiar `estado` directo, porque está en
-   `CAMPOS_EDITABLES`. Con eso se puede saltear `reactivar_lead`. Hay que decidir si se saca.
+- Verificar en Supabase:
+  1. ¿`lead_historial.autor_id` acepta `null`? Si no, el proceso nocturno falla.
+  2. ¿`leads` tiene una sola clave foránea hacia `profiles`? Si tiene más de una, el
+     `asesor:profiles(nombre)` da un error de ambigüedad y hay que nombrar la FK.
+  3. `PATCH /api/leads/:id` todavía deja cambiar `estado` directo, porque está en
+     `CAMPOS_EDITABLES`. Con eso se pueden saltear `reclamar_lead` y `reactivar_lead`.
+- Del MVP según la documentación (`docs/documentacion.pdf`): inicio con Google (RF01), invitar
+  miembros (RF02), onboarding de 5 pasos y terminología configurable (RF05, RF06), campos de cierre
+  configurables por el líder (RF06; hoy son fijos) y una pantalla para editar la configuración del
+  equipo, incluido `dias_archivo` (RF07).
+- Etapa 2: destacados, charlas, email diario, estadísticas, panel del líder (reasignar, sin
+  asignar, resumen por asesor), contadores en el menú y app mobile.
 
 ## Estilos (Tailwind 4, `frontend/src/index.css`)
 
@@ -94,7 +101,8 @@ que se abre en el navegador. Usa los mismos colores que `index.css`.
   - Filtro por asesor (`.af-chip`): solo para el líder, con "Todo el equipo" y avatares; el
     seleccionado va en violeta (`bg-accent`).
   - En las listas del líder, el dueño del lead se muestra con un mini avatar y su nombre.
-- **Archivo ya está alineado con el prototipo.** Diferencias que quedaron a propósito:
+- **Archivo sigue el estilo del prototipo, pero separa Vencidos y Archivados en pestañas** (el
+  prototipo los mezcla y la documentación los distingue). Otras diferencias a propósito:
   - Los asesores también pueden filtrar por dueño.
-  - Al reactivar, el conteo de días empieza desde ahora. El prototipo dice "como sin contactar",
+  - Al reclamar o reactivar, el conteo de días empieza desde ahora. El prototipo dice "como sin contactar",
     pero si se tomara así el lead volvería a vencer esa misma noche.
