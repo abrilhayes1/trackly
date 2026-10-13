@@ -2,24 +2,28 @@ import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../lib/api'
 import { iniciales, fechaHoraCorta } from '../lib/formato'
 import { etiquetaModalidad, formatearImporte } from '../lib/cierre'
+import { useTerminos } from '../lib/configEquipo'
 
-const textos = {
-  ganado: {
-    titulo: 'Casos exitosos',
-    tituloLider: 'Casos exitosos del equipo',
-    sub: 'Leads que se convirtieron en alumnos',
-    subLider: 'Alumnos ganados por el equipo',
-    vacio: (filtrado) =>
-      `Aún no hay casos exitosos${filtrado ? ' para este asesor' : ''}. Cerrá un lead como ganado desde la tarjeta de contacto.`,
-  },
-  perdido: {
-    titulo: 'Cerrados perdidos',
-    tituloLider: 'Cerrados perdidos del equipo',
-    sub: 'Leads que no convirtieron',
-    subLider: 'Leads que no convirtieron en el equipo',
-    vacio: (filtrado) =>
-      `Aún no hay cierres perdidos${filtrado ? ' para este asesor' : ''} registrados.`,
-  },
+// textos de cada vista, con el nombre que el equipo usa para sus contactos
+function textosDe({ Varios }) {
+  return {
+    ganado: {
+      titulo: 'Casos exitosos',
+      tituloLider: 'Casos exitosos del equipo',
+      sub: `${Varios} cerrados como ganados`,
+      subLider: `${Varios} ganados por el equipo`,
+      vacio: (filtrado) =>
+        `Aún no hay casos exitosos${filtrado ? ' para este asesor' : ''}. Se cierran como ganados desde la tarjeta de contacto.`,
+    },
+    perdido: {
+      titulo: 'Cerrados perdidos',
+      tituloLider: 'Cerrados perdidos del equipo',
+      sub: `${Varios} que no convirtieron`,
+      subLider: `${Varios} que no convirtieron en el equipo`,
+      vacio: (filtrado) =>
+        `Aún no hay cierres perdidos${filtrado ? ' para este asesor' : ''} registrados.`,
+    },
+  }
 }
 
 function Chip({ children, clases = 'bg-bg-secondary text-text-secondary border-border-tertiary' }) {
@@ -48,7 +52,7 @@ export default function CasosCerrados({ tipo, rol, onAbrirLead, cambios }) {
   const [error, setError] = useState(null)
   const [filtro, setFiltro] = useState('')
 
-  const t = textos[tipo]
+  const t = textosDe(useTerminos())[tipo]
   const esLider = rol === 'lider'
 
   // se carga al abrir la pantalla y cada vez que se modifica un lead desde la tarjeta
@@ -147,7 +151,7 @@ export default function CasosCerrados({ tipo, rol, onAbrirLead, cambios }) {
               <div className="flex items-center gap-2 mb-[3px]">
                 <Avatar nombre={c.lead?.nombre} tamano="w-7 h-7 text-[10px]" />
                 <div className="text-[13px] font-medium text-text-primary">
-                  {c.lead?.nombre || 'Lead no disponible'}
+                  {c.lead?.nombre || 'Contacto no disponible'}
                 </div>
                 {esLider && c.lead?.asesor?.nombre && (
                   <span className="ml-auto inline-flex items-center gap-1.5">

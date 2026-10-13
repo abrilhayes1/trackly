@@ -245,8 +245,8 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
     return (
       <p className="text-xs text-text-tertiary">
         {lead.estado === 'ganado' || lead.estado === 'perdido'
-          ? `Este lead figura como ${lead.estado}.`
-          : 'Este lead todavía no tiene un cierre registrado.'}
+          ? `Figura como ${lead.estado}.`
+          : 'Todavía no tiene un cierre registrado.'}
       </p>
     )
   }

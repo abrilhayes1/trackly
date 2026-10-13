@@ -4,6 +4,7 @@ import { apiFetch } from '../lib/api'
 import { agruparLeads } from '../lib/urgencia'
 import LeadCard from '../components/LeadCard'
 import NuevoLeadModal from '../components/NuevoLeadModal'
+import { useTerminos } from '../lib/configEquipo'
 
 const secciones = [
   { clave: 'porVencer', titulo: 'Por vencer', badge: 'bg-red-bg text-urgent-red' },
@@ -25,6 +26,7 @@ export default function MisLeads({ onAbrirLead, cambios }) {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [modalAbierto, setModalAbierto] = useState(false)
+  const { uno, varios } = useTerminos()
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -80,7 +82,7 @@ export default function MisLeads({ onAbrirLead, cambios }) {
   return (
     <div className="p-5">
       <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">
-        Mis leads
+        Mis {varios}
       </h1>
       <p className="text-xs text-text-secondary mb-5">{subtitulo}</p>
 
@@ -97,7 +99,7 @@ export default function MisLeads({ onAbrirLead, cambios }) {
           {vencenPronto > 0 && (
             <div className="flex items-center justify-between gap-2.5 bg-green-bg border border-green-border rounded-md px-4 py-[11px] mb-4">
               <span className="text-xs text-green-text">
-                {vencenPronto} {vencenPronto === 1 ? 'lead vence' : 'leads vencen'} hoy o mañana
+                {vencenPronto} {vencenPronto === 1 ? `${uno} vence` : `${varios} vencen`} hoy o mañana
               </span>
               <button
                 onClick={irAPorVencer}
@@ -118,7 +120,7 @@ export default function MisLeads({ onAbrirLead, cambios }) {
           </div>
 
           {totalVisibles === 0 && (
-            <p className="text-sm text-text-secondary">Todavía no tenés leads cargados.</p>
+            <p className="text-sm text-text-secondary">Todavía no tenés {varios} cargados.</p>
           )}
 
           {secciones.map(({ clave, titulo, badge }) =>
@@ -143,7 +145,7 @@ export default function MisLeads({ onAbrirLead, cambios }) {
 
       <button
         onClick={() => setModalAbierto(true)}
-        title="Agregar lead"
+        title={`Agregar ${uno}`}
         className="fixed bottom-6 right-6 w-13 h-13 rounded-full bg-accent hover:bg-accent-dark text-white flex items-center justify-center z-40 transition-transform hover:-translate-y-0.5"
         style={{ boxShadow: '0 6px 20px rgba(83, 74, 183, 0.4)' }}
       >

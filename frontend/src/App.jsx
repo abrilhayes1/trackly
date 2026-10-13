@@ -6,16 +6,26 @@ import AlertasHoy from './pages/AlertasHoy'
 import CasosCerrados from './pages/CasosCerrados'
 import Agenda from './pages/Agenda'
 import Archivo from './pages/Archivo'
+import Onboarding from './pages/Onboarding'
+import Configuracion from './pages/Configuracion'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
 import DetalleLead from './components/DetalleLead'
+import { ConfigEquipoContext } from './lib/configEquipo'
 
 function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [sesion, setSesion] = useState(null)
-  const [perfil, setPerfil] = useState(null)
+  // undefined = todavía no se sabe; null = no tiene equipo (va al onboarding)
+  const [perfil, setPerfil] = useState(undefined)
+  const [errorPerfil, setErrorPerfil] = useState(null)
+  const [recargasPerfil, setRecargasPerfil] = useState(0)
+  const [configEquipo, setConfigEquipo] = useState(null)
+  const [recargasConfig, setRecargasConfig] = useState(0)
+  const [modoLogin, setModoLogin] = useState('ingresar') // 'ingresar' | 'crear'
+  const [mensajeLogin, setMensajeLogin] = useState(null)
   const [vista, setVista] = useState('leads')
   const [busqueda, setBusqueda] = useState('')
   const [leadAbierto, setLeadAbierto] = useState(null)
@@ -40,17 +50,50 @@ function App() {
 
   useEffect(() => {
     if (!userId) {
-      setPerfil(null)
+      setPerfil(undefined)
       return
     }
     apiFetch('/api/me')
-      .then(setPerfil)
-      .catch(() => setPerfil(null))
-  }, [userId])
+      .then((data) => {
+        setPerfil(data)
+        setErrorPerfil(null)
+      })
+      .catch((e) => setErrorPerfil(e.message))
+  }, [userId, recargasPerfil])
+
+  // configuración del equipo (terminología, vencimiento...), compartida por toda la app
+  const tieneEquipo = !!perfil
+  useEffect(() => {
+    if (!tieneEquipo) return
+    apiFetch('/api/config')
+      .then(setConfigEquipo)
+      .catch(() => setConfigEquipo(null))
+  }, [tieneEquipo, recargasConfig])
 
   async function iniciarSesion(e) {
     e.preventDefault()
     setError(null)
+    setMensajeLogin(null)
+
+    if (modoLogin === 'crear') {
+      if (password.length < 6) {
+        setError('La contraseña tiene que tener al menos 6 caracteres.')
+        return
+      }
+      const { data, error } = await supabase.auth.signUp({ email, password })
+      if (error) {
+        setError(error.message)
+        return
+      }
+      // si Supabase pide confirmar el email, todavía no hay sesión
+      if (!data.session) {
+        setMensajeLogin('Te mandamos un email para confirmar tu cuenta. Después volvé e ingresá.')
+        setModoLogin('ingresar')
+        return
+      }
+      setSesion(data.session)
+      return
+    }
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -71,6 +114,7 @@ function App() {
     setBusqueda('')
     setLeadAbierto(null)
     setVista('leads')
+    setPerfil(undefined)
   }
 
   // al cambiar de pantalla se limpia la búsqueda, para no quedar viendo resultados viejos
@@ -94,13 +138,44 @@ function App() {
     )
   }
 
+  if (sesion && perfil === undefined) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 text-text-secondary text-sm">
+        {errorPerfil ? (
+          <>
+            <p>No pudimos cargar tu cuenta: {errorPerfil}</p>
+            <button onClick={() => setRecargasPerfil((n) => n + 1)} className="text-xs text-accent underline">
+              Reintentar
+            </button>
+          </>
+        ) : (
+          'Cargando...'
+        )}
+      </div>
+    )
+  }
+
+  // usuario sin equipo: arma el suyo (si alguien lo invitó, /api/me ya lo sumó a ese equipo)
+  if (sesion && perfil === null) {
+    return (
+      <Onboarding
+        email={sesion.user.email}
+        onListo={() => setRecargasPerfil((n) => n + 1)}
+        onCerrarSesion={cerrarSesion}
+      />
+    )
+  }
+
   if (sesion) {
     const textoBusqueda = busqueda.trim()
     const buscando = textoBusqueda.length >= 2
 
     // la web es de escritorio (el celular lo cubre la app mobile): en una ventana más angosta que
     // 1024 px se desplaza hacia el costado en vez de aplastarse
+    const contextoConfig = { config: tieneEquipo ? configEquipo : null, recargar: () => setRecargasConfig((n) => n + 1) }
+
     return (
+      <ConfigEquipoContext.Provider value={contextoConfig}>
       <div className="flex min-h-screen min-w-[1024px]">
         <Sidebar
           email={sesion.user.email}
@@ -126,6 +201,17 @@ function App() {
           )}
 
           {!buscando && vista === 'agenda' && <Agenda />}
+
+          {!buscando && vista === 'config' && (
+            <Configuracion
+              rol={perfil?.rol}
+              nombreEquipo={perfil?.tenants?.nombre}
+              onGuardado={() => {
+                setRecargasPerfil((n) => n + 1)
+                setCambios((n) => n + 1)
+              }}
+            />
+          )}
 
           {!buscando && vista === 'archivo' && (
             <Archivo
@@ -164,6 +250,7 @@ function App() {
           />
         )}
       </div>
+      </ConfigEquipoContext.Provider>
     )
   }
 
@@ -181,7 +268,7 @@ function App() {
           Trackly<span className="text-green-border">.</span>
         </h1>
         <p className="text-center text-xs text-text-secondary mb-7">
-          Ingresá a tu cuenta
+          {modoLogin === 'crear' ? 'Creá tu cuenta' : 'Ingresá a tu cuenta'}
         </p>
 
         <div className="mb-3">
@@ -208,12 +295,30 @@ function App() {
           type="submit"
           className="w-full text-sm font-medium text-white bg-accent hover:bg-accent-dark rounded-md py-2.5 mt-1"
         >
-          Ingresar
+          {modoLogin === 'crear' ? 'Crear cuenta' : 'Ingresar'}
         </button>
 
         {error && (
           <p className="text-red-border text-xs mt-3 text-center">{error}</p>
         )}
+        {mensajeLogin && (
+          <p className="text-green-text text-xs mt-3 text-center">{mensajeLogin}</p>
+        )}
+
+        <p className="text-center text-[11px] text-text-tertiary mt-6">
+          {modoLogin === 'crear' ? '¿Ya tenés cuenta? ' : '¿Todavía no tenés cuenta? '}
+          <button
+            type="button"
+            onClick={() => {
+              setModoLogin(modoLogin === 'crear' ? 'ingresar' : 'crear')
+              setError(null)
+              setMensajeLogin(null)
+            }}
+            className="text-accent hover:underline"
+          >
+            {modoLogin === 'crear' ? 'Ingresá' : 'Creá una'}
+          </button>
+        </p>
       </form>
     </div>
   )
