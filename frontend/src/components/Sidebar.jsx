@@ -1,3 +1,6 @@
+import { useTerminos } from '../lib/configEquipo'
+import { iniciales as inicialesDe } from '../lib/formato'
+
 const Svg = ({ children }) => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
     {children}
@@ -56,6 +59,16 @@ const iconos = {
       <polyline points="1,11 4,7 7,9 10,4 13,6" strokeLinejoin="round" strokeLinecap="round" {...trazo} />
     </Svg>
   ),
+  config: (
+    <Svg>
+      <circle cx="7" cy="7" r="2" {...trazo} />
+      <path
+        d="M7 1.5v1.6M7 10.9v1.6M1.5 7h1.6M10.9 7h1.6M3.1 3.1l1.1 1.1M9.8 9.8l1.1 1.1M3.1 10.9l1.1-1.1M9.8 4.2l1.1-1.1"
+        strokeLinecap="round"
+        {...trazo}
+      />
+    </Svg>
+  ),
 }
 
 const etiquetaRol = { lider: 'Líder de equipo', asesor: 'Asesor comercial' }
@@ -92,8 +105,10 @@ function Seccion({ children }) {
 
 export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesion }) {
   const nombre = perfil?.nombre || email
+  const { varios } = useTerminos()
   const iniciales =
-    perfil?.avatar_iniciales || (email || '??').split('@')[0].slice(0, 2).toUpperCase()
+    perfil?.avatar_iniciales ||
+    (perfil?.nombre ? inicialesDe(perfil.nombre) : (email || '??').split('@')[0].slice(0, 2).toUpperCase())
 
   return (
     <aside className="w-[210px] shrink-0 bg-bg-secondary border-r border-border-tertiary flex flex-col sticky top-0 h-screen py-[17px]">
@@ -109,7 +124,7 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
       <Seccion>Principal</Seccion>
       <Item
         icono={iconos.leads}
-        label="Mis leads"
+        label={`Mis ${varios}`}
         habilitado
         activo={vista === 'leads'}
         onClick={() => onNavegar('leads')}
@@ -153,6 +168,19 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
         onClick={() => onNavegar('perdidos')}
       />
       <Item icono={iconos.stats} label="Estadísticas" />
+
+      {perfil?.rol === 'lider' && (
+        <>
+          <Seccion>Equipo</Seccion>
+          <Item
+            icono={iconos.config}
+            label="Configuración"
+            habilitado
+            activo={vista === 'config'}
+            onClick={() => onNavegar('config')}
+          />
+        </>
+      )}
 
       <div className="mt-auto px-4 pt-3.5 border-t border-border-tertiary">
         <div className="flex items-center gap-[9px]">

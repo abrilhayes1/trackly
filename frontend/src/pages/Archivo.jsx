@@ -3,6 +3,7 @@ import { apiFetch } from '../lib/api'
 import { iniciales } from '../lib/formato'
 import { colorPorInteres, sinCategoria, etiquetaInteres } from '../lib/interes'
 import { textoArchivo, ordenarArchivo, claveInteres } from '../lib/archivo'
+import { useTerminos } from '../lib/configEquipo'
 
 function primerNombre(nombre) {
   return (nombre || '').split(' ')[0]
@@ -44,19 +45,22 @@ function Pestana({ activa, onClick, children, cantidad }) {
   )
 }
 
-const TEXTOS = {
-  vencido: {
-    vacio: 'No hay leads vencidos. Cuando un lead pase el plazo sin contacto, aparece acá para que alguien lo reclame.',
-    accion: 'Reclamar',
-    enCurso: 'Reclamando...',
-    ok: (nombre) => `Reclamaste a ${nombre}: ahora está en Mis leads, con el conteo de días en cero.`,
-  },
-  archivo: {
-    vacio: 'No hay leads archivados. Un vencido pasa acá si nadie lo reclama a tiempo.',
-    accion: 'Reactivar',
-    enCurso: 'Reactivando...',
-    ok: (nombre) => `Reactivaste a ${nombre}: ahora está en Mis leads, con el conteo de días en cero.`,
-  },
+// textos de cada pestaña, con el nombre que el equipo usa para sus contactos
+function textosDe({ varios }) {
+  return {
+    vencido: {
+      vacio: `No hay ${varios} vencidos. Cuando alguno pase el plazo sin contacto, aparece acá para que alguien lo reclame.`,
+      accion: 'Reclamar',
+      enCurso: 'Reclamando...',
+      ok: (nombre) => `Reclamaste a ${nombre}: ahora está en Mis ${varios}, con el conteo de días en cero.`,
+    },
+    archivo: {
+      vacio: `No hay ${varios} archivados. Un vencido pasa acá si nadie lo reclama a tiempo.`,
+      accion: 'Reactivar',
+      enCurso: 'Reactivando...',
+      ok: (nombre) => `Reactivaste a ${nombre}: ahora está en Mis ${varios}, con el conteo de días en cero.`,
+    },
+  }
 }
 
 export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio }) {
@@ -73,6 +77,8 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
   const [errorAccion, setErrorAccion] = useState(null)
 
   const esLider = rol === 'lider'
+  const terminos = useTerminos()
+  const TEXTOS = textosDe(terminos)
   const textos = TEXTOS[pestana]
 
   // se carga al abrir la pantalla y cada vez que algo cambia (por ejemplo, un lead reclamado)
@@ -157,11 +163,11 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
   return (
     <div className="p-5">
       <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">
-        {esLider ? 'Archivo del equipo' : 'Archivo de leads'}
+        {esLider ? 'Archivo del equipo' : `Archivo de ${terminos.varios}`}
       </h1>
       <p className="text-xs text-text-secondary mb-4">
         {esLider
-          ? 'Leads vencidos y archivados del equipo · filtrá por asesor'
+          ? `${terminos.Varios} vencidos y archivados del equipo · filtrá por asesor`
           : 'Cualquier asesor puede reclamar un vencido o reactivar un archivado'}
       </p>
 
@@ -243,7 +249,7 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
       )}
 
       {!cargando && !error && dePestana.length > 0 && visibles.length === 0 && (
-        <p className="text-center py-8 text-xs text-text-tertiary">Sin leads para este filtro.</p>
+        <p className="text-center py-8 text-xs text-text-tertiary">Nada para este filtro.</p>
       )}
 
       {!cargando &&

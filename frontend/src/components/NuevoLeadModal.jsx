@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { apiFetch } from '../lib/api'
+import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
 
 export default function NuevoLeadModal({ onCerrar, onCreado }) {
   const [nombre, setNombre] = useState('')
@@ -10,6 +11,11 @@ export default function NuevoLeadModal({ onCerrar, onCreado }) {
   const [errores, setErrores] = useState({})
   const [errorServidor, setErrorServidor] = useState(null)
   const [guardando, setGuardando] = useState(false)
+  const { config } = useConfigEquipo()
+  const { uno } = useTerminos()
+  // categorías de origen del equipo (RF06); "otra" deja escribir una a mano
+  const categorias = config?.categorias_origen || []
+  const [origenOtro, setOrigenOtro] = useState(false)
 
   async function guardar() {
     const nuevosErrores = {}
@@ -57,7 +63,7 @@ export default function NuevoLeadModal({ onCerrar, onCreado }) {
       >
         <div className="flex items-start gap-3 px-5 py-4 border-b border-border-tertiary">
           <div>
-            <div className="text-[15px] font-semibold text-text-primary">Nuevo lead</div>
+            <div className="text-[15px] font-semibold text-text-primary">Agregar {uno}</div>
             <div className="text-[11px] text-text-secondary mt-px">
               Cargá un contacto manualmente
             </div>
@@ -113,14 +119,37 @@ export default function NuevoLeadModal({ onCerrar, onCreado }) {
 
           <div className="mb-3">
             <label className="block text-xs text-text-secondary mb-1">
-              Carrera / origen
+              Origen
             </label>
-            <input
-              className={inputClase}
-              placeholder="Ej: marketing digital"
-              value={origen}
-              onChange={(e) => setOrigen(e.target.value)}
-            />
+            {categorias.length > 0 && !origenOtro ? (
+              <select
+                className={inputClase}
+                value={origen}
+                onChange={(e) => {
+                  if (e.target.value === '__otra') {
+                    setOrigenOtro(true)
+                    setOrigen('')
+                  } else {
+                    setOrigen(e.target.value)
+                  }
+                }}
+              >
+                <option value="">Sin especificar</option>
+                {categorias.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+                <option value="__otra">Otra...</option>
+              </select>
+            ) : (
+              <input
+                className={inputClase}
+                placeholder="Ej: Instagram, Referido, Web..."
+                value={origen}
+                onChange={(e) => setOrigen(e.target.value)}
+              />
+            )}
           </div>
 
           <div className="mb-4">
@@ -145,7 +174,7 @@ export default function NuevoLeadModal({ onCerrar, onCreado }) {
             disabled={guardando}
             className="w-full text-sm font-medium text-white bg-accent hover:bg-accent-dark disabled:opacity-60 rounded-md py-2.5"
           >
-            {guardando ? 'Guardando...' : 'Guardar lead'}
+            {guardando ? 'Guardando...' : 'Guardar'}
           </button>
         </div>
       </div>

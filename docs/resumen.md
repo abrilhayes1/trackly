@@ -45,7 +45,35 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: vencido → archivo, reclamo y reactivación
+## Último trabajo: onboarding, configuración del equipo e invitaciones
+
+- `database/8_configuracion_equipo.sql` (va después del 7):
+  - Columnas nuevas en `tenant_config`: `termino_contacto` y `termino_contacto_plural` (por
+    defecto Lead/Leads), `categorias_origen`, `eventos_habilitado`, `termino_evento` y
+    `email_diario`.
+  - Tabla `invitaciones`: el líder carga emails y, cuando esa persona crea su cuenta e inicia
+    sesión, `aceptar_invitacion()` la suma sola al equipo como asesor. Todavía no se manda ningún
+    email: eso queda para cuando se configure el envío de correos.
+  - `crear_equipo(p)` hace todo el onboarding en una sola operación (equipo, perfil del líder,
+    configuración e invitaciones). `guardar_config_equipo(p)` e `invitar_miembros(emails)` son
+    solo para el líder. Todas validan los datos en la base (`validar_config_equipo`).
+  - Probado en un Postgres local: validaciones, onboarding repetido, invitado que entra solo,
+    asesor que intenta cambiar la configuración.
+- Backend: `POST /api/onboarding`, `PUT /api/config`, `GET /api/config/equipo`,
+  `POST /api/config/invitaciones` y `DELETE /api/config/invitaciones/:id`. `GET /api/me` acepta la
+  invitación pendiente antes de responder. La validación compartida está en
+  `backend/src/lib/configEquipo.js`.
+- Frontend:
+  - El login tiene "Crear cuenta" (RF01).
+  - `pages/Onboarding.jsx`: los 5 pasos del prototipo. Se muestra a quien inicia sesión sin equipo.
+  - `pages/Configuracion.jsx`: lo mismo editable, más los miembros y las invitaciones. En el menú
+    aparece solo para el líder.
+  - `lib/configEquipo.js` comparte la configuración en toda la app (`useConfigEquipo`,
+    `useTerminos`). La terminología se aplica en el menú, Mis leads, el alta, Archivo y los
+    cierres. Las categorías de origen aparecen como lista en el alta.
+  - Recorrido probado en el navegador con el backend simulado.
+
+## Anterior: vencido → archivo, reclamo y reactivación
 
 - `database/7_archivo_y_reclamo.sql` (corre después del 5 y el 6):
   - Columnas nuevas: `tenant_config.dias_archivo`, `leads.vencido_at` y `leads.archivado_at`.
@@ -69,10 +97,8 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 
 - `PATCH /api/leads/:id` todavía deja cambiar `estado` directo, porque está en `CAMPOS_EDITABLES`.
   Con eso se pueden saltear `reclamar_lead` y `reactivar_lead`.
-- Del MVP según la documentación (`docs/documentacion.pdf`): inicio con Google (RF01), invitar
-  miembros (RF02), onboarding de 5 pasos y terminología configurable (RF05, RF06), campos de cierre
-  configurables por el líder (RF06; hoy son fijos) y una pantalla para editar la configuración del
-  equipo, incluido `dias_archivo` (RF07).
+- Del MVP según la documentación (`docs/documentacion.pdf`): inicio con Google (RF01), campos de
+  cierre configurables por el líder (RF06; hoy son fijos) y mandar el email de invitación (RF02).
 - Etapa 2: destacados, charlas, email diario, estadísticas, panel del líder (reasignar, sin
   asignar, resumen por asesor), contadores en el menú y app mobile.
 
