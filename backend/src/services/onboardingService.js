@@ -2,10 +2,16 @@
 const { ErrorHttp } = require('../lib/errores');
 
 async function completar(supabase, user, body) {
-  const { equipoNombre, rubro, vencimientoHabilitado, diasVencimiento, diasAlertaPrevia } = body ?? {};
+  const { equipoNombre, rubro, vencimientoHabilitado, diasVencimiento, diasAlertaPrevia, diasArchivo } =
+    body ?? {};
 
   if (!equipoNombre) {
     throw new ErrorHttp(400, 'El nombre del equipo es obligatorio');
+  }
+
+  // RF07: con el vencimiento prendido hay que decir cuántos días queda vencido antes de archivarse
+  if (vencimientoHabilitado && !(Number.isInteger(diasArchivo) && diasArchivo > 0)) {
+    throw new ErrorHttp(400, 'Indicá cuántos días queda vencido un lead antes de pasar a Archivo');
   }
 
   // chequeamos que este usuario no tenga ya un perfil (no se puede onboardear dos veces)
@@ -53,7 +59,8 @@ async function completar(supabase, user, body) {
       rubro: rubro || null,
       vencimiento_habilitado: vencimientoHabilitado || false,
       dias_vencimiento_lead: vencimientoHabilitado ? diasVencimiento : null,
-      dias_alerta_previa: vencimientoHabilitado ? diasAlertaPrevia : null
+      dias_alerta_previa: vencimientoHabilitado ? diasAlertaPrevia : null,
+      dias_archivo: vencimientoHabilitado ? diasArchivo : null
     });
 
   if (errorConfig) {

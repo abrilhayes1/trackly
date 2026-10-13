@@ -28,8 +28,12 @@ async function agregarHistorial(req, res) {
   );
 }
 
+async function reclamar(req, res) {
+  res.json(await leadsService.reclamar(req.supabase, req.params.id));
+}
+
 async function reactivar(req, res) {
   res.json(await leadsService.reactivar(req.supabase, req.params.id));
 }
 
-module.exports = { listar, buscar, crear, actualizar, listarHistorial, agregarHistorial, reactivar };
+module.exports = { listar, buscar, crear, actualizar, listarHistorial, agregarHistorial, reclamar, reactivar };
