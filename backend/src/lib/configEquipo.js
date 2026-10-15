@@ -37,6 +37,11 @@ function armarConfig(body) {
   if (!config.termino_contacto || !config.termino_contacto_plural) {
     throw new ErrorHttp(400, 'Indicá cómo se llaman tus contactos');
   }
+  // campos del cierre ganado (RF06): solo se mandan si vinieron; los valida la base
+  if (b.camposCierre !== undefined) {
+    if (!Array.isArray(b.camposCierre)) throw new ErrorHttp(400, 'Los campos de cierre tienen que venir en una lista');
+    config.campos_cierre = b.camposCierre;
+  }
   if (config.categorias_origen.length > 30) {
     throw new ErrorHttp(400, 'Podés tener hasta 30 categorías de origen');
   }

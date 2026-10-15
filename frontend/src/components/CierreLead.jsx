@@ -1,12 +1,7 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../lib/api'
-import {
-  MODALIDADES,
-  DESCUENTOS,
-  etiquetaDescuento,
-  etiquetaModalidad,
-  formatearImporte,
-} from '../lib/cierre'
+import { detalleCierre } from '../lib/cierre'
+import { useConfigEquipo } from '../lib/configEquipo'
 
 const campo =
   'w-full text-xs px-2.5 py-1.5 rounded-md border border-border-secondary bg-bg-secondary text-text-primary focus:outline-none focus:border-accent focus:bg-bg-primary'
@@ -20,11 +15,10 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
   const [cargando, setCargando] = useState(true)
   const [formAbierto, setFormAbierto] = useState(false)
   const [tipo, setTipo] = useState('ganado')
-  const [producto, setProducto] = useState('')
-  const [modalidad, setModalidad] = useState('presencial')
-  const [descuento, setDescuento] = useState('0')
-  const [importe, setImporte] = useState('')
+  const [datos, setDatos] = useState({})
   const [motivo, setMotivo] = useState('')
+  // campos del cierre ganado que definió el líder del equipo (RF06)
+  const campos = useConfigEquipo().config?.campos_cierre || []
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState(null)
 
@@ -38,10 +32,13 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
   function abrirFormulario(tipoInicial) {
     setError(null)
     setTipo(tipoInicial)
-    setProducto(cierre?.producto || lead.origen || '')
-    setModalidad(cierre?.modalidad || 'presencial')
-    setDescuento(String(cierre?.descuento ?? 0))
-    setImporte(cierre?.importe != null ? String(cierre.importe) : '')
+    // los valores guardados se pasan a texto para los inputs
+    const iniciales = {}
+    campos.forEach((c) => {
+      const valor = cierre?.datos?.[c.id]
+      iniciales[c.id] = valor === undefined || valor === null ? '' : String(valor)
+    })
+    setDatos(iniciales)
     setMotivo(cierre?.motivo || '')
     setFormAbierto(true)
   }
@@ -50,16 +47,15 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
     setError(null)
 
     if (tipo === 'ganado') {
-      if (!producto.trim()) return setError('Indicá la carrera o el producto vendido')
-      if (importe.trim() === '' || Number.isNaN(Number(importe)) || Number(importe) < 0) {
-        return setError('Ingresá un importe válido')
-      }
+      const falta = campos.find((c) => c.obligatorio && !(datos[c.id] || '').trim())
+      if (falta) return setError(`Completá "${falta.nombre}"`)
+      const malNumero = campos.find(
+        (c) => c.tipo === 'numero' && (datos[c.id] || '').trim() && Number.isNaN(Number(datos[c.id].replace(',', '.')))
+      )
+      if (malNumero) return setError(`"${malNumero.nombre}" tiene que ser un número`)
     }
 
-    const cuerpo =
-      tipo === 'ganado'
-        ? { tipo, producto, modalidad, descuento: Number(descuento), importe }
-        : { tipo, motivo }
+    const cuerpo = tipo === 'ganado' ? { tipo, datos } : { tipo, motivo }
 
     setGuardando(true)
     try {
@@ -107,59 +103,43 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
         </div>
 
         {tipo === 'ganado' ? (
-          <>
-            <div className="mb-2.5">
-              <Etiqueta>Carrera</Etiqueta>
-              <input
-                className={campo}
-                value={producto}
-                onChange={(e) => setProducto(e.target.value)}
-                placeholder="Ej: Diseño gráfico"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-2 mb-2.5">
-              <div>
-                <Etiqueta>Modalidad</Etiqueta>
-                <select
-                  className={campo}
-                  value={modalidad}
-                  onChange={(e) => setModalidad(e.target.value)}
-                >
-                  {MODALIDADES.map((m) => (
-                    <option key={m.valor} value={m.valor}>
-                      {m.etiqueta}
-                    </option>
-                  ))}
-                </select>
+          <div className="mb-1">
+            {campos.length === 0 && (
+              <p className="text-[11px] text-text-tertiary mb-3">
+                Tu equipo no tiene campos de cierre definidos: se registra solo como ganado.
+              </p>
+            )}
+            {campos.map((c) => (
+              <div key={c.id} className="mb-2.5">
+                <Etiqueta>
+                  {c.nombre}
+                  {c.obligatorio ? ' *' : ' (opcional)'}
+                </Etiqueta>
+                {c.tipo === 'lista' ? (
+                  <select
+                    className={campo}
+                    value={datos[c.id] || ''}
+                    onChange={(e) => setDatos({ ...datos, [c.id]: e.target.value })}
+                  >
+                    <option value="">Elegí una opción</option>
+                    {(c.opciones || []).map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    className={campo}
+                    type={c.tipo === 'numero' ? 'number' : 'text'}
+                    step={c.tipo === 'numero' ? '0.01' : undefined}
+                    value={datos[c.id] || ''}
+                    onChange={(e) => setDatos({ ...datos, [c.id]: e.target.value })}
+                  />
+                )}
               </div>
-              <div>
-                <Etiqueta>Descuento</Etiqueta>
-                <select
-                  className={campo}
-                  value={descuento}
-                  onChange={(e) => setDescuento(e.target.value)}
-                >
-                  {DESCUENTOS.map((d) => (
-                    <option key={d} value={d}>
-                      {etiquetaDescuento(d)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="mb-3">
-              <Etiqueta>Importe de matrícula ($)</Etiqueta>
-              <input
-                className={campo}
-                type="number"
-                min="0"
-                step="0.01"
-                value={importe}
-                onChange={(e) => setImporte(e.target.value)}
-                placeholder="Ej: 15000"
-              />
-            </div>
-          </>
+            ))}
+          </div>
         ) : (
           <div className="mb-3">
             <Etiqueta>Motivo (opcional)</Etiqueta>
@@ -220,8 +200,9 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
           </div>
           {ganado ? (
             <div>
-              {cierre.producto} · {etiquetaModalidad(cierre.modalidad)} ·{' '}
-              {etiquetaDescuento(cierre.descuento)} · ${formatearImporte(cierre.importe)}
+              {detalleCierre(campos, cierre.datos)
+                .map((d) => (d.nombre ? `${d.nombre}: ${d.texto}` : d.texto))
+                .join(' · ') || 'Sin datos del cierre'}
             </div>
           ) : (
             <div>{cierre.motivo || 'Sin motivo registrado'}</div>
@@ -255,7 +236,7 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
     <div>
       {(lead.estado === 'ganado' || lead.estado === 'perdido') && (
         <p className="text-[11px] text-text-tertiary mb-2">
-          Este lead figura como {lead.estado}, pero no tiene los datos del cierre cargados.
+          Figura como {lead.estado}, pero no tiene los datos del cierre cargados.
         </p>
       )}
       <div className="grid grid-cols-2 gap-1.5">
