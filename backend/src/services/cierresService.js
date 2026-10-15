@@ -1,6 +1,5 @@
 // Lógica de los cierres de leads (ganado / perdido).
 const { ErrorHttp, lanzarSiError } = require('../lib/errores');
-const { validarCierre, textoHistorial } = require('../lib/cierres');
 
 // listado de cierres (para "Casos exitosos" y "Cerrados perdidos")
 // la RLS hace que el asesor vea solo los suyos y el líder todos los del equipo
@@ -31,38 +30,33 @@ async function obtener(supabase, leadId) {
   return data;
 }
 
-// cierra un lead, o modifica su cierre. La función cerrar_lead de la base guarda
-// el cierre, cambia el estado y escribe el historial como una sola operación.
+// cierra un lead, o modifica su cierre (CU07). La función registrar_cierre de la base valida los
+// datos contra los campos de cierre del equipo (RF06), guarda el cierre, cambia el estado y
+// escribe el historial como una sola operación.
 async function cerrar(supabase, leadId, body) {
-  const { error: errorValidacion, valores } = validarCierre(body ?? {});
-  if (errorValidacion) {
-    throw new ErrorHttp(400, errorValidacion);
+  const { tipo, datos, motivo } = body ?? {};
+
+  if (tipo !== 'ganado' && tipo !== 'perdido') {
+    throw new ErrorHttp(400, 'El tipo de cierre tiene que ser "ganado" o "perdido"');
+  }
+  if (datos !== undefined && (datos === null || typeof datos !== 'object' || Array.isArray(datos))) {
+    throw new ErrorHttp(400, 'Los datos del cierre no tienen el formato correcto');
+  }
+  if (motivo !== undefined && motivo !== null && typeof motivo !== 'string') {
+    throw new ErrorHttp(400, 'El motivo tiene que ser un texto');
   }
 
-  // para saber si es un cierre nuevo, una modificación o un cambio de ganado a perdido
-  const { data: anterior, error: errorAnterior } = await supabase
-    .from('cierres')
-    .select('tipo')
-    .eq('lead_id', leadId)
-    .maybeSingle();
-
-  lanzarSiError(errorAnterior);
-
-  const { data, error } = await supabase.rpc('cerrar_lead', {
+  const { data, error } = await supabase.rpc('registrar_cierre', {
     p_lead_id: leadId,
-    p_tipo: valores.tipo,
-    p_producto: valores.producto,
-    p_modalidad: valores.modalidad,
-    p_descuento: valores.descuento,
-    p_importe: valores.importe,
-    p_motivo: valores.motivo,
-    p_historial: textoHistorial(anterior?.tipo ?? null, valores),
+    p_tipo: tipo,
+    p_datos: tipo === 'ganado' ? datos ?? {} : {},
+    p_motivo: tipo === 'perdido' ? motivo ?? null : null,
   });
 
   if (error) {
     if (error.code === '42501') throw new ErrorHttp(403, 'No tenés permiso para cerrar este lead');
     if (error.code === 'P0002') throw new ErrorHttp(404, 'Lead no encontrado');
-    if (error.code === '23514') throw new ErrorHttp(400, 'Los datos del cierre no son válidos');
+    if (error.code === '22023') throw new ErrorHttp(400, error.message);
     throw new ErrorHttp(400, error.message);
   }
 

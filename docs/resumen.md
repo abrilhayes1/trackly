@@ -45,7 +45,27 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: onboarding, configuración del equipo e invitaciones
+## Último trabajo: campos de cierre configurables (RF06)
+
+- `database/9_campos_cierre.sql` (va después del 8):
+  - `tenant_config.campos_cierre`: lista de campos del cierre ganado, con `id`, `nombre`, `tipo`
+    (texto, numero o lista), `obligatorio` y `opciones` (solo en las listas). Los equipos que ya
+    existían quedan con los 4 campos de antes (carrera, modalidad, descuento e importe). Los nuevos
+    arrancan con "Producto o servicio" e "Importe".
+  - `cierres.datos` guarda los valores (`{"importe": 15000, ...}`). Los cierres viejos se pasaron a
+    este formato. Las columnas producto, modalidad, descuento e importe quedan en la tabla pero ya
+    no se usan.
+  - `registrar_cierre(lead, tipo, datos, motivo)` reemplaza a `cerrar_lead`: valida los datos contra
+    los campos del equipo (`limpiar_datos_cierre`), guarda, cambia el estado y escribe el historial
+    en una sola operación. `guardar_config_equipo` ahora también guarda `campos_cierre`.
+  - Probado en un Postgres local: migración de un cierre viejo, validaciones, ganado → perdido →
+    ganado, asesor con lead ajeno y la configuración de los campos.
+- Backend: `PUT /api/cierres/:leadId` recibe `{ tipo, datos, motivo }`. Se borró `lib/cierres.js`.
+- Frontend: en la tarjeta del lead, el formulario de cierre se arma con los campos del equipo.
+  Casos exitosos muestra esos valores. En Configuración hay una tarjeta "Cierre ganado" para
+  agregar, ordenar y quitar campos. Recorrido probado en el navegador con el backend simulado.
+
+## Anterior: onboarding, configuración del equipo e invitaciones
 
 - `database/8_configuracion_equipo.sql` (va después del 7):
   - Columnas nuevas en `tenant_config`: `termino_contacto` y `termino_contacto_plural` (por
@@ -97,8 +117,8 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 
 - `PATCH /api/leads/:id` todavía deja cambiar `estado` directo, porque está en `CAMPOS_EDITABLES`.
   Con eso se pueden saltear `reclamar_lead` y `reactivar_lead`.
-- Del MVP según la documentación (`docs/documentacion.pdf`): inicio con Google (RF01), campos de
-  cierre configurables por el líder (RF06; hoy son fijos) y mandar el email de invitación (RF02).
+- Del MVP según la documentación (`docs/documentacion.pdf`): inicio con Google (RF01) y mandar el
+  email de invitación (RF02).
 - Etapa 2: destacados, charlas, email diario, estadísticas, panel del líder (reasignar, sin
   asignar, resumen por asesor), contadores en el menú y app mobile.
 

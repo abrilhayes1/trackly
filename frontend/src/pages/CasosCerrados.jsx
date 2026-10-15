@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../lib/api'
 import { iniciales, fechaHoraCorta } from '../lib/formato'
-import { etiquetaModalidad, formatearImporte } from '../lib/cierre'
-import { useTerminos } from '../lib/configEquipo'
+import { detalleCierre } from '../lib/cierre'
+import { useTerminos, useConfigEquipo } from '../lib/configEquipo'
 
 // textos de cada vista, con el nombre que el equipo usa para sus contactos
 function textosDe({ Varios }) {
@@ -53,6 +53,7 @@ export default function CasosCerrados({ tipo, rol, onAbrirLead, cambios }) {
   const [filtro, setFiltro] = useState('')
 
   const t = textosDe(useTerminos())[tipo]
+  const camposCierre = useConfigEquipo().config?.campos_cierre || []
   const esLider = rol === 'lider'
 
   // se carga al abrir la pantalla y cada vez que se modifica un lead desde la tarjeta
@@ -167,16 +168,12 @@ export default function CasosCerrados({ tipo, rol, onAbrirLead, cambios }) {
               </div>
               <div className="flex flex-wrap gap-[5px]">
                 {ganado ? (
-                  <>
-                    <Chip clases="bg-green-bg text-green-text border-green-border">{c.producto}</Chip>
-                    <Chip>{etiquetaModalidad(c.modalidad)}</Chip>
-                    {c.descuento > 0 && (
-                      <Chip clases="bg-lime-bg text-lime-text border-lime-border">
-                        {c.descuento}% dto
-                      </Chip>
-                    )}
-                    <Chip>${formatearImporte(c.importe)}</Chip>
-                  </>
+                  // el primer dato va resaltado; los números llevan su nombre para entenderse
+                  detalleCierre(camposCierre, c.datos).map((d, i) => (
+                    <Chip key={d.id} clases={i === 0 ? 'bg-green-bg text-green-text border-green-border' : undefined}>
+                      {d.tipo === 'numero' && d.nombre ? `${d.nombre}: ${d.texto}` : d.texto}
+                    </Chip>
+                  ))
                 ) : c.motivo ? (
                   <Chip clases="bg-red-bg text-red-text border-red-border">{c.motivo}</Chip>
                 ) : (

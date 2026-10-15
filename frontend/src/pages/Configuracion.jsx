@@ -12,7 +12,9 @@ import {
   Etiquetas,
   CamposVencimiento,
   ListaEmails,
+  EditorCamposCierre,
 } from '../components/CamposEquipo'
+import { TIPOS_CAMPO, nuevoIdCampo } from '../lib/cierre'
 import { iniciales } from '../lib/formato'
 
 const etiquetaRol = { lider: 'Líder', asesor: 'Asesor' }
@@ -50,6 +52,7 @@ function desdeConfig(config, nombreEquipo) {
     eventosHabilitado: !!config.eventos_habilitado,
     terminoEvento: config.termino_evento || 'Charla informativa',
     emailDiario: config.email_diario !== false,
+    camposCierre: config.campos_cierre || [],
   }
 }
 
@@ -60,6 +63,11 @@ function errorFormulario(f) {
     return 'Indicá cómo se llaman tus contactos, en singular y en plural.'
   }
   if (f.eventosHabilitado && !f.terminoEvento.trim()) return 'Indicá cómo se llaman tus eventos.'
+  const nombres = f.camposCierre.map((c) => c.nombre.trim().toLowerCase())
+  if (nombres.some((n) => !n)) return 'Cada campo del cierre necesita un nombre.'
+  if (new Set(nombres).size !== nombres.length) return 'Hay dos campos del cierre con el mismo nombre.'
+  const listaVacia = f.camposCierre.find((c) => c.tipo === 'lista' && !(c.opciones || []).length)
+  if (listaVacia) return `El campo "${listaVacia.nombre}" es una lista: cargale al menos una opción.`
   return errorVencimiento(f)
 }
 
@@ -116,7 +124,14 @@ export default function Configuracion({ rol, nombreEquipo, onGuardado }) {
     setGuardando(true)
     setAviso(null)
     try {
-      await apiFetch('/api/config', { method: 'PUT', body: JSON.stringify(form) })
+      const camposCierre = form.camposCierre.map((c) => ({
+        id: c.id,
+        nombre: c.nombre.trim(),
+        tipo: c.tipo,
+        obligatorio: !!c.obligatorio,
+        ...(c.tipo === 'lista' ? { opciones: c.opciones } : {}),
+      }))
+      await apiFetch('/api/config', { method: 'PUT', body: JSON.stringify({ ...form, camposCierre }) })
       setAviso({ tipo: 'ok', texto: 'Configuración guardada.' })
       recargar()
       onGuardado()
@@ -234,6 +249,18 @@ export default function Configuracion({ rol, nombreEquipo, onGuardado }) {
           sub="Avisa antes del plazo, vence al cumplirse y archiva si nadie lo reclama"
         />
         {form.vencimientoHabilitado && <CamposVencimiento valores={form} onCambiar={cambiar} />}
+      </Tarjeta>
+
+      <Tarjeta
+        titulo="Cierre ganado"
+        descripcion="Los datos que se piden al cerrar un contacto como ganado. Si cambiás un campo, los cierres que ya están guardados no se modifican."
+      >
+        <EditorCamposCierre
+          campos={form.camposCierre}
+          onCambiar={(v) => cambiar({ camposCierre: v })}
+          tipos={TIPOS_CAMPO}
+          nuevoId={nuevoIdCampo}
+        />
       </Tarjeta>
 
       <Tarjeta titulo="Eventos y avisos">

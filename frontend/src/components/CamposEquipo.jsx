@@ -203,3 +203,104 @@ export function ListaEmails({ emails, onCambiar, textoAgregar = '+ Agregar otro 
     </div>
   )
 }
+
+// Campos del cierre ganado (RF06): el líder define nombre, tipo y si es obligatorio
+export function EditorCamposCierre({ campos, onCambiar, tipos, nuevoId }) {
+  const cambiar = (i, cambios) => onCambiar(campos.map((c, j) => (j === i ? { ...c, ...cambios } : c)))
+  const mover = (i, delta) => {
+    const lista = [...campos]
+    const [campo] = lista.splice(i, 1)
+    lista.splice(i + delta, 0, campo)
+    onCambiar(lista)
+  }
+
+  return (
+    <div>
+      {campos.length === 0 && (
+        <p className="text-[11px] text-text-tertiary mb-3">
+          Sin campos: los cierres ganados se registran sin datos extra.
+        </p>
+      )}
+      {campos.map((c, i) => (
+        <div key={c.id} className="rounded-[7px] border border-border-tertiary bg-bg-secondary px-3 py-2.5 mb-2">
+          <div className="flex items-center gap-2">
+            <input
+              value={c.nombre}
+              onChange={(e) => cambiar(i, { nombre: e.target.value })}
+              placeholder="Nombre del campo (ej: Plan contratado)"
+              className="flex-1 min-w-0 text-xs px-2.5 py-1.5 rounded-md border border-border-secondary bg-bg-primary text-text-primary focus:outline-none focus:border-accent"
+            />
+            <select
+              value={c.tipo}
+              onChange={(e) =>
+                cambiar(i, { tipo: e.target.value, opciones: e.target.value === 'lista' ? c.opciones || [] : undefined })
+              }
+              className="text-xs px-2 py-1.5 rounded-md border border-border-secondary bg-bg-primary text-text-primary focus:outline-none focus:border-accent"
+            >
+              {tipos.map((t) => (
+                <option key={t.valor} value={t.valor}>
+                  {t.etiqueta}
+                </option>
+              ))}
+            </select>
+            <label className="flex items-center gap-1 text-[11px] text-text-secondary whitespace-nowrap">
+              <input
+                type="checkbox"
+                checked={!!c.obligatorio}
+                onChange={(e) => cambiar(i, { obligatorio: e.target.checked })}
+                className="accent-accent"
+              />
+              Obligatorio
+            </label>
+            <span className="flex items-center gap-0.5 text-text-tertiary">
+              <button
+                type="button"
+                disabled={i === 0}
+                onClick={() => mover(i, -1)}
+                className="w-6 h-6 rounded hover:bg-bg-primary disabled:opacity-30"
+                title="Subir"
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                disabled={i === campos.length - 1}
+                onClick={() => mover(i, 1)}
+                className="w-6 h-6 rounded hover:bg-bg-primary disabled:opacity-30"
+                title="Bajar"
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                onClick={() => onCambiar(campos.filter((_, j) => j !== i))}
+                className="w-6 h-6 rounded hover:bg-bg-primary hover:text-red-text"
+                title="Quitar campo"
+              >
+                ×
+              </button>
+            </span>
+          </div>
+          {c.tipo === 'lista' && (
+            <div className="mt-2">
+              <Etiquetas
+                valores={c.opciones || []}
+                onCambiar={(v) => cambiar(i, { opciones: v })}
+                placeholder="Escribí cada opción y presioná Enter"
+              />
+            </div>
+          )}
+        </div>
+      ))}
+      {campos.length < 15 && (
+        <button
+          type="button"
+          onClick={() => onCambiar([...campos, { id: nuevoId(), nombre: '', tipo: 'texto', obligatorio: false }])}
+          className="w-full text-xs py-2 rounded-[7px] border border-dashed border-border-secondary bg-bg-primary text-text-secondary hover:bg-bg-secondary"
+        >
+          + Agregar campo
+        </button>
+      )}
+    </div>
+  )
+}

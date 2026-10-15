@@ -1,22 +1,39 @@
-export const MODALIDADES = [
-  { valor: 'presencial', etiqueta: 'Presencial' },
-  { valor: 'virtual', etiqueta: 'Virtual' },
-  { valor: 'hibrida', etiqueta: 'Híbrida' },
+// Campos de cierre ganado configurables por el equipo (RF06).
+// Cada campo: { id, nombre, tipo: 'texto' | 'numero' | 'lista', obligatorio, opciones? }
+
+export const TIPOS_CAMPO = [
+  { valor: 'texto', etiqueta: 'Texto' },
+  { valor: 'numero', etiqueta: 'Número' },
+  { valor: 'lista', etiqueta: 'Lista de opciones' },
 ]
 
-export const DESCUENTOS = [0, 20, 30, 50, 70]
-
-export function etiquetaDescuento(descuento) {
-  return descuento === 0 ? 'Sin descuento' : `${descuento}%`
+// 15000 -> "15.000" ; 15000.5 -> "15.000,5"
+export function formatearNumero(numero) {
+  return Number(numero).toLocaleString('es-AR', { maximumFractionDigits: 2 })
 }
 
-export function etiquetaModalidad(valor) {
-  return MODALIDADES.find((m) => m.valor === valor)?.etiqueta ?? valor
+function texto(campo, valor) {
+  return campo?.tipo === 'numero' ? formatearNumero(valor) : String(valor)
 }
 
-// 15000 -> "15.000" ; 15000.5 -> "15.000,50"
-export function formatearImporte(numero) {
-  const [entera, decimales] = Number(numero).toFixed(2).split('.')
-  const conPuntos = entera.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  return decimales === '00' ? conPuntos : `${conPuntos},${decimales}`
+// Los valores de un cierre, en el orden de los campos del equipo: [{ id, nombre, tipo, texto }].
+// Si después el líder borró un campo, su valor se sigue mostrando (sin nombre).
+export function detalleCierre(campos, datos) {
+  const lista = []
+  const usados = new Set()
+  ;(campos || []).forEach((c) => {
+    usados.add(c.id)
+    const valor = datos?.[c.id]
+    if (valor === undefined || valor === null || valor === '') return
+    lista.push({ id: c.id, nombre: c.nombre, tipo: c.tipo, texto: texto(c, valor) })
+  })
+  Object.entries(datos || {}).forEach(([id, valor]) => {
+    if (!usados.has(id) && valor !== null && valor !== '') lista.push({ id, nombre: null, tipo: null, texto: String(valor) })
+  })
+  return lista
+}
+
+// identificador para un campo nuevo (lo que se guarda en cada cierre)
+export function nuevoIdCampo() {
+  return 'c' + Math.random().toString(36).slice(2, 8)
 }
