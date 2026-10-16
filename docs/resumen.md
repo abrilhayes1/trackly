@@ -18,6 +18,21 @@ producto o curso). Cada equipo es un *tenant*, con un rol `lider` y asesores. To
   Los scripts SQL están en `database/` y se corren a mano en el SQL Editor, en el orden de
   `database/LEEME.txt`.
 
+## Publicación
+
+- **Frontend:** Vercel, en https://trackly-six-delta.vercel.app, con Root Directory = `frontend`.
+  Variables (tipo Config): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` y `VITE_API_URL`.
+  Vite mete las variables al construir, así que si se cambia alguna hay que hacer Redeploy. Si
+  falta alguna, la app muestra cuál en vez de quedar en blanco (`src/main.jsx`).
+- **Backend:** Railway, en https://trackly-production-6424.up.railway.app, con Root Directory =
+  `backend` y `npm start`. Variables: `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `FRONTEND_URL` (CORS: solo
+  acepta pedidos desde esa dirección).
+- **Supabase:** en Authentication > URL Configuration, el Site URL y los Redirect URLs apuntan a
+  la dirección de Vercel.
+- Cada push a `main` publica solo en Vercel y en Railway.
+- **App mobile (pendiente):** React Native + Expo en una carpeta `mobile/` del mismo repo. Usa el
+  mismo backend de Railway. Se distribuye como APK con EAS Build (Google Play es opcional).
+
 ## Escritorio, no celular
 
 La web está pensada para la compu, como Salesforce o HubSpot. Tiene un ancho mínimo de 1024 px: en
