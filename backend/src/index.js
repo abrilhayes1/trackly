@@ -6,7 +6,13 @@ const { manejarErrores } = require('./middleware/errores');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// en producción solo se aceptan pedidos desde el frontend publicado (FRONTEND_URL, separadas por coma
+// si hay más de una); sin esa variable, como en desarrollo, se acepta cualquier origen
+const origenes = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((o) => o.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+app.use(cors(origenes.length ? { origin: origenes } : undefined));
 app.use(express.json());
 
 app.get('/api/health', (req, res) => {
@@ -24,5 +30,5 @@ app.use('/api/recordatorios', require('./routes/recordatorios'));
 app.use(manejarErrores);
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });

@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient'
 
-const API_URL = 'http://localhost:3000'
+// dirección del backend: en Vercel se define VITE_API_URL; en la compu se usa el backend local
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/$/, '')
 
 export async function apiFetch(path, options = {}) {
   const { data } = await supabase.auth.getSession()
