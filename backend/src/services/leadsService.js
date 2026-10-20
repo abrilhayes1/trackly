@@ -4,7 +4,8 @@ const { ErrorHttp, lanzarSiError } = require('../lib/errores');
 const { ETIQUETA_INTERES, construirEntradasHistorial } = require('../lib/historial');
 
 const INTERES_VALIDOS = Object.keys(ETIQUETA_INTERES);
-const CAMPOS_EDITABLES = ['interes', 'estado', 'ultimo_contacto', 'recordatorio', 'telefono', 'email', 'consulta'];
+// el estado no se edita directo: cambia solo al cerrar, reclamar o reactivar (cada uno con su historial)
+const CAMPOS_EDITABLES = ['interes', 'destacado', 'ultimo_contacto', 'recordatorio', 'telefono', 'email', 'consulta'];
 
 function fechaValida(valor) {
   return typeof valor === 'string' && !Number.isNaN(new Date(valor).getTime());
@@ -121,6 +122,10 @@ async function actualizar(supabase, user, id, body) {
 
   if (cambios.interes !== undefined && cambios.interes !== null && !INTERES_VALIDOS.includes(cambios.interes)) {
     throw new ErrorHttp(400, 'Nivel de interés inválido');
+  }
+
+  if (cambios.destacado !== undefined && typeof cambios.destacado !== 'boolean') {
+    throw new ErrorHttp(400, 'El campo destacado tiene que ser true o false');
   }
 
   for (const campo of ['ultimo_contacto', 'recordatorio']) {

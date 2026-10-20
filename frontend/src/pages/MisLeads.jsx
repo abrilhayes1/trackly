@@ -57,6 +57,16 @@ export default function MisLeads({ onAbrirLead, cambios }) {
 
   const totalVisibles = Object.values(grupos).reduce((acc, g) => acc + g.length, 0)
 
+  // RF10: los destacados van arriba de todo, con el color de su grupo de urgencia.
+  // Los contadores de arriba los siguen contando en su grupo.
+  const destacados = useMemo(
+    () =>
+      secciones.flatMap(({ clave }) =>
+        grupos[clave].filter((l) => l.destacado).map((lead) => ({ lead, grupo: clave }))
+      ),
+    [grupos]
+  )
+
   // leads que vencen hoy o mañana: les falta 1 día o menos para el plazo
   const vencenPronto = useMemo(() => {
     if (!config?.vencimiento_habilitado) return 0
@@ -123,18 +133,34 @@ export default function MisLeads({ onAbrirLead, cambios }) {
             <p className="text-sm text-text-secondary">Todavía no tenés {varios} cargados.</p>
           )}
 
+          {destacados.length > 0 && (
+            <div id="seccion-destacados" className="mb-4">
+              <div className="flex items-center gap-1.5 mb-1.5 mt-[1.1rem]">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary">
+                  ★ Destacados
+                </span>
+                <span className="text-[10px] font-medium px-[7px] py-0.5 rounded-full bg-purple-bg text-purple-text">
+                  {destacados.length}
+                </span>
+              </div>
+              {destacados.map(({ lead, grupo }) => (
+                <LeadCard key={lead.id} lead={lead} grupo={grupo} onAbrir={onAbrirLead} />
+              ))}
+            </div>
+          )}
+
           {secciones.map(({ clave, titulo, badge }) =>
-            grupos[clave].length > 0 ? (
+            grupos[clave].some((l) => !l.destacado) ? (
               <div key={clave} id={`seccion-${clave}`} className="mb-4">
                 <div className="flex items-center gap-1.5 mb-1.5 mt-[1.1rem]">
                   <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary">
                     {titulo}
                   </span>
                   <span className={`text-[10px] font-medium px-[7px] py-0.5 rounded-full ${badge}`}>
-                    {grupos[clave].length}
+                    {grupos[clave].filter((l) => !l.destacado).length}
                   </span>
                 </div>
-                {grupos[clave].map((lead) => (
+                {grupos[clave].filter((l) => !l.destacado).map((lead) => (
                   <LeadCard key={lead.id} lead={lead} grupo={clave} onAbrir={onAbrirLead} />
                 ))}
               </div>

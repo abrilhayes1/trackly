@@ -13,6 +13,8 @@ import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
 import DetalleLead from './components/DetalleLead'
 import { ConfigEquipoContext } from './lib/configEquipo'
+import { calcularContadores } from './lib/contadores'
+import { fechaLocal } from './lib/agenda'
 
 function App() {
   const [email, setEmail] = useState('')
@@ -24,6 +26,7 @@ function App() {
   const [recargasPerfil, setRecargasPerfil] = useState(0)
   const [configEquipo, setConfigEquipo] = useState(null)
   const [recargasConfig, setRecargasConfig] = useState(0)
+  const [contadores, setContadores] = useState(null)
   const [modoLogin, setModoLogin] = useState('ingresar') // 'ingresar' | 'crear'
   const [mensajeLogin, setMensajeLogin] = useState(null)
   const [vista, setVista] = useState('leads')
@@ -69,6 +72,14 @@ function App() {
       .then(setConfigEquipo)
       .catch(() => setConfigEquipo(null))
   }, [tieneEquipo, recargasConfig])
+
+  // contadores del menú: se recalculan al cambiar de pantalla y cada vez que se modifica un lead
+  useEffect(() => {
+    if (!tieneEquipo) return
+    Promise.all([apiFetch('/api/leads'), apiFetch(`/api/recordatorios?fecha=${fechaLocal()}`)])
+      .then(([leads, recordatorios]) => setContadores({ leads, recordatorios }))
+      .catch(() => setContadores(null))
+  }, [tieneEquipo, vista, cambios])
 
   async function iniciarSesion(e) {
     e.preventDefault()
@@ -201,6 +212,11 @@ function App() {
           vista={vista}
           onNavegar={navegar}
           onCerrarSesion={cerrarSesion}
+          contadores={
+            contadores && configEquipo
+              ? calcularContadores({ ...contadores, config: configEquipo, userId, rol: perfil?.rol })
+              : null
+          }
         />
         <main className="flex-1 min-w-0 bg-bg-primary">
           <Topbar busqueda={busqueda} onBuscar={setBusqueda} />

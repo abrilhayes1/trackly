@@ -64,7 +64,18 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: campos de cierre configurables (RF06)
+## Último trabajo: contadores del menú y leads destacados (RF10)
+
+- Contadores en el menú lateral (`lib/contadores.js`): Mis leads (por vencer), Alertas de hoy,
+  Agenda (recordatorios pendientes), Archivo (vencidos para reclamar), Casos exitosos y Cerrados
+  perdidos. Usan las mismas reglas que cada pantalla. Se recalculan al navegar y al modificar un
+  lead.
+- Destacados: `database/10_destacados.sql` agrega `leads.destacado`. Se marca con la estrella de la
+  tarjeta del lead y queda en el historial. En Mis leads aparecen arriba de todo, en "★ Destacados".
+- `PATCH /api/leads/:id` ya no deja cambiar `estado` directo: solo cambia al cerrar, reclamar o
+  reactivar.
+
+## Anterior: campos de cierre configurables (RF06)
 
 - `database/9_campos_cierre.sql` (va después del 8):
   - `tenant_config.campos_cierre`: lista de campos del cierre ganado, con `id`, `nombre`, `tipo`
@@ -134,13 +145,11 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 
 ## Pendientes
 
-- `PATCH /api/leads/:id` todavía deja cambiar `estado` directo, porque está en `CAMPOS_EDITABLES`.
-  Con eso se pueden saltear `reclamar_lead` y `reactivar_lead`.
 - Del MVP según la documentación (`docs/documentacion.pdf`): solo falta mandar el email de invitación
   (RF02). Necesita configurar un servicio de email (SMTP) en Supabase. Mientras tanto, la invitación
   funciona igual si la persona se registra con ese email.
-- Etapa 2: destacados, charlas, email diario, estadísticas, panel del líder (reasignar, sin
-  asignar, resumen por asesor), contadores en el menú y app mobile.
+- Etapa 2: charlas, email diario, estadísticas, panel del líder (reasignar, sin
+  asignar, resumen por asesor) y app mobile.
 
 ## Estilos (Tailwind 4, `frontend/src/index.css`)
 

@@ -20,7 +20,14 @@ export default function LeadCard({ lead, grupo, onAbrir }) {
       <span className={`w-2 h-2 rounded-full shrink-0 ${estilo.dot}`} />
 
       <div className="flex-1 min-w-0">
-        <div className="text-[13px] font-medium text-text-primary">{lead.nombre}</div>
+        <div className="text-[13px] font-medium text-text-primary">
+          {lead.destacado && (
+            <span className="text-amber-border mr-1" title="Destacado">
+              ★
+            </span>
+          )}
+          {lead.nombre}
+        </div>
         <div className="text-[11px] text-text-secondary truncate mt-px">
           {lead.consulta || lead.origen || 'Sin consulta registrada'}
         </div>

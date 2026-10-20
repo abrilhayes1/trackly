@@ -156,12 +156,25 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
               {lead.origen ? ` · ${lead.origen}` : ''}
             </div>
           </div>
-          <button
-            onClick={onCerrar}
-            className="ml-auto text-lg leading-none text-text-tertiary hover:text-text-primary"
-          >
-            ✕
-          </button>
+          <div className="ml-auto flex items-center gap-2 shrink-0">
+            {/* RF10: destacar el lead para verlo arriba de todo en Mis leads */}
+            <button
+              onClick={() => guardarCambios({ destacado: !lead.destacado })}
+              disabled={!puedeEditar || guardando}
+              title={lead.destacado ? 'Quitar de destacados' : 'Marcar como destacado'}
+              className={`text-lg leading-none disabled:opacity-40 disabled:cursor-not-allowed ${
+                lead.destacado ? 'text-amber-border' : 'text-text-tertiary hover:text-amber-border'
+              }`}
+            >
+              {lead.destacado ? '★' : '☆'}
+            </button>
+            <button
+              onClick={onCerrar}
+              className="text-lg leading-none text-text-tertiary hover:text-text-primary"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {!esMio && (

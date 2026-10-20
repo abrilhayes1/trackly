@@ -74,7 +74,14 @@ const iconos = {
 const etiquetaRol = { lider: 'Líder de equipo', asesor: 'Asesor comercial' }
 
 // habilitado = la pantalla existe y se puede abrir; activo = es la que se está viendo
-function Item({ icono, label, habilitado = false, activo = false, onClick }) {
+// colores de los contadores, como en el prototipo
+const estiloBadge = {
+  rojo: 'bg-red-bg text-urgent-red',
+  gris: 'bg-bg-secondary text-text-secondary border border-border-tertiary',
+  verde: 'bg-green-bg text-green-text',
+}
+
+function Item({ icono, label, habilitado = false, activo = false, onClick, contador, color = 'rojo' }) {
   const base = 'flex items-center gap-[9px] w-full text-left px-4 py-[7px] text-[13px]'
   const estilo = activo
     ? 'bg-bg-primary text-text-primary font-medium shadow-[inset_-2px_0_0_var(--color-accent)]'
@@ -91,6 +98,11 @@ function Item({ icono, label, habilitado = false, activo = false, onClick }) {
     >
       <span className="w-4 h-4 flex items-center justify-center shrink-0">{icono}</span>
       {label}
+      {contador > 0 && (
+        <span className={`ml-auto text-[10px] font-medium px-1.5 py-px rounded-full ${estiloBadge[color]}`}>
+          {contador}
+        </span>
+      )}
     </button>
   )
 }
@@ -103,7 +115,8 @@ function Seccion({ children }) {
   )
 }
 
-export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesion }) {
+export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesion, contadores }) {
+  const c = contadores || {}
   const nombre = perfil?.nombre || email
   const { varios } = useTerminos()
   const iniciales =
@@ -128,6 +141,7 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
         habilitado
         activo={vista === 'leads'}
         onClick={() => onNavegar('leads')}
+        contador={c.leads}
       />
       <Item
         icono={iconos.alertas}
@@ -135,6 +149,7 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
         habilitado
         activo={vista === 'alertas'}
         onClick={() => onNavegar('alertas')}
+        contador={c.alertas}
       />
       <Item
         icono={iconos.agenda}
@@ -142,6 +157,7 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
         habilitado
         activo={vista === 'agenda'}
         onClick={() => onNavegar('agenda')}
+        contador={c.agenda}
       />
 
       <Seccion>Vistas</Seccion>
@@ -152,6 +168,8 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
         habilitado
         activo={vista === 'archivo'}
         onClick={() => onNavegar('archivo')}
+        contador={c.archivo}
+        color="gris"
       />
       <Item
         icono={iconos.exitosos}
@@ -159,6 +177,8 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
         habilitado
         activo={vista === 'exitosos'}
         onClick={() => onNavegar('exitosos')}
+        contador={c.exitosos}
+        color="verde"
       />
       <Item
         icono={iconos.perdidos}
@@ -166,6 +186,7 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
         habilitado
         activo={vista === 'perdidos'}
         onClick={() => onNavegar('perdidos')}
+        contador={c.perdidos}
       />
       <Item icono={iconos.stats} label="Estadísticas" />
 

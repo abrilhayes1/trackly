@@ -52,6 +52,10 @@ function mismoInstante(a, b) {
 function construirEntradasHistorial(antes, cambios) {
   const entradas = [];
 
+  if ('destacado' in cambios && cambios.destacado !== !!antes.destacado) {
+    entradas.push(cambios.destacado ? 'Marcado como destacado.' : 'Se quitó de destacados.');
+  }
+
   if ('interes' in cambios && cambios.interes !== antes.interes) {
     entradas.push(
       cambios.interes
