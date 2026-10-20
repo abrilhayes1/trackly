@@ -64,7 +64,19 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: Estadísticas (RF37 · CU11)
+## Último trabajo: Reportes personalizados (RF45, nuevo)
+
+- `database/13_reportes.sql`: tabla `reportes` (nombre, `definicion` jsonb, creado_por, compartido)
+  con RLS. Cada uno ve los suyos más los compartidos. Solo el líder comparte y edita los
+  compartidos.
+- Backend `/api/reportes` (listar, crear, editar, borrar). `lib/reportes.js` valida la definición.
+- Frontend: Estadísticas tiene las pestañas Resumen y Reportes. `pages/Reportes.jsx` tiene el
+  constructor con vista previa en vivo. `lib/reportes.js` calcula cada reporte con `/api/leads` y
+  `/api/cierres`. Los gráficos se comparten en `components/Graficos.jsx` (las columnas se miden
+  con el ancho real de la tarjeta).
+- Los cambios a pasar a la documentación están en `docs/cambios-documentacion.md`.
+
+## Anterior: Estadísticas (RF37 · CU11)
 
 - `pages/Estadisticas.jsx` y `lib/estadisticas.js`, en el menú "Estadísticas". No necesita cambios en
   la base: se calcula con `/api/leads`.

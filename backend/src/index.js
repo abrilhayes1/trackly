@@ -26,6 +26,7 @@ app.use('/api/me', require('./routes/me'));
 app.use('/api/cierres', require('./routes/cierres'));
 app.use('/api/recordatorios', require('./routes/recordatorios'));
 app.use('/api/charlas', require('./routes/charlas'));
+app.use('/api/reportes', require('./routes/reportes'));
 
 // siempre al final: convierte cualquier error en una respuesta JSON
 app.use(manejarErrores);
