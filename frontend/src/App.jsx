@@ -8,6 +8,7 @@ import Agenda from './pages/Agenda'
 import Archivo from './pages/Archivo'
 import Onboarding from './pages/Onboarding'
 import Configuracion from './pages/Configuracion'
+import PanelLider from './pages/PanelLider'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
@@ -235,6 +236,15 @@ function App() {
           )}
 
           {!buscando && vista === 'agenda' && <Agenda />}
+
+          {!buscando && vista === 'panel' && (
+            <PanelLider
+              rol={perfil?.rol}
+              onAbrirLead={setLeadAbierto}
+              cambios={cambios}
+              onCambio={() => setCambios((n) => n + 1)}
+            />
+          )}
 
           {!buscando && vista === 'config' && (
             <Configuracion

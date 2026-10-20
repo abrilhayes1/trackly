@@ -16,5 +16,7 @@ export function calcularContadores({ leads, recordatorios, config, userId, rol }
     archivo: leads.filter((l) => l.estado === 'vencido').length,
     exitosos: leads.filter((l) => l.estado === 'ganado' && propios(l)).length,
     perdidos: leads.filter((l) => l.estado === 'perdido' && propios(l)).length,
+    // panel del líder: leads activos que todavía no tienen asesor
+    sinAsignar: esLider ? leads.filter((l) => l.estado === 'activo' && !l.asesor_id).length : 0,
   }
 }

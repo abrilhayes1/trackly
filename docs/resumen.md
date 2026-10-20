@@ -64,7 +64,21 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: contadores del menú y leads destacados (RF10)
+## Último trabajo: Panel del líder (RF38, RF39, RF40 · CU14, CU15)
+
+- `database/11_reasignacion.sql`: `reasignar_lead(lead, asesor)` es solo para el líder y solo para
+  leads activos del equipo. Bloquea la fila y deja en el historial "Asignado a…" o "Reasignado de… a…".
+- Backend: `POST /api/leads/:id/reasignar` con `{ asesorId }`.
+- Frontend `pages/PanelLider.jsx`, en el menú "Panel del equipo" (solo para el líder, con el
+  contador de sin asignar):
+  - Indicadores: miembros, activos, sin asignar y vencidos sin gestión.
+  - Pestaña Asesores: el resumen de cada uno (asignados, contactados, por vencer y vencidos). Al
+    tocarlo se ve su detalle con sus leads.
+  - Pestaña Leads del equipo: tabla con asesor, estado de urgencia, interés y "Reasignar...".
+  - Pestaña Sin asignar: "Asignar a...".
+  - La urgencia se calcula con la misma regla que Mis leads. Recorrido probado en el navegador.
+
+## Anterior: contadores del menú y leads destacados (RF10)
 
 - Contadores en el menú lateral (`lib/contadores.js`): Mis leads (por vencer), Alertas de hoy,
   Agenda (recordatorios pendientes), Archivo (vencidos para reclamar), Casos exitosos y Cerrados
@@ -148,8 +162,7 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 - Del MVP según la documentación (`docs/documentacion.pdf`): solo falta mandar el email de invitación
   (RF02). Necesita configurar un servicio de email (SMTP) en Supabase. Mientras tanto, la invitación
   funciona igual si la persona se registra con ese email.
-- Etapa 2: charlas, email diario, estadísticas, panel del líder (reasignar, sin
-  asignar, resumen por asesor) y app mobile.
+- Etapa 2: charlas, email diario, estadísticas y app mobile.
 
 ## Estilos (Tailwind 4, `frontend/src/index.css`)
 

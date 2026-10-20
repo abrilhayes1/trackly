@@ -237,6 +237,23 @@ async function tomarLead(supabase, funcion, leadId) {
 }
 
 const reclamar = (supabase, leadId) => tomarLead(supabase, 'reclamar_lead', leadId);
+
+// CU14 / RF39: el líder asigna un lead sin asesor o lo pasa a otro miembro del equipo
+async function reasignar(supabase, leadId, body) {
+  const asesorId = body?.asesorId;
+  if (typeof asesorId !== 'string' || !asesorId) {
+    throw new ErrorHttp(400, 'Indicá a qué persona del equipo se asigna el lead');
+  }
+
+  const { data, error } = await supabase.rpc('reasignar_lead', { p_lead_id: leadId, p_asesor_id: asesorId });
+  if (error) {
+    if (error.code === '42501') throw new ErrorHttp(403, error.message);
+    if (error.code === 'P0002') throw new ErrorHttp(404, 'Lead no encontrado');
+    if (error.code === '23514') throw new ErrorHttp(409, error.message);
+    throw new ErrorHttp(400, error.message);
+  }
+  return data;
+}
 const reactivar = (supabase, leadId) => tomarLead(supabase, 'reactivar_lead', leadId);
 
-module.exports = { listar, buscar, crear, actualizar, listarHistorial, agregarHistorial, reclamar, reactivar };
+module.exports = { listar, buscar, crear, actualizar, listarHistorial, agregarHistorial, reclamar, reactivar, reasignar };

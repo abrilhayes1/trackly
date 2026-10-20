@@ -11,5 +11,6 @@ router.get('/:id/historial', requireAuth, leads.listarHistorial);
 router.post('/:id/historial', requireAuth, leads.agregarHistorial);
 router.post('/:id/reclamar', requireAuth, leads.reclamar);
 router.post('/:id/reactivar', requireAuth, leads.reactivar);
+router.post('/:id/reasignar', requireAuth, leads.reasignar);
 
 module.exports = router;

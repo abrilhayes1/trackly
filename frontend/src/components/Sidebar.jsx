@@ -59,6 +59,13 @@ const iconos = {
       <polyline points="1,11 4,7 7,9 10,4 13,6" strokeLinejoin="round" strokeLinecap="round" {...trazo} />
     </Svg>
   ),
+  equipo: (
+    <Svg>
+      <circle cx="5" cy="4.5" r="2" {...trazo} />
+      <circle cx="10" cy="5.5" r="1.6" {...trazo} />
+      <path d="M1.5 12c0-2 1.6-3.5 3.5-3.5S8.5 10 8.5 12M8.8 9c.4-.3.8-.4 1.2-.4 1.5 0 2.5 1.2 2.5 2.9" strokeLinecap="round" {...trazo} />
+    </Svg>
+  ),
   config: (
     <Svg>
       <circle cx="7" cy="7" r="2" {...trazo} />
@@ -79,6 +86,7 @@ const estiloBadge = {
   rojo: 'bg-red-bg text-urgent-red',
   gris: 'bg-bg-secondary text-text-secondary border border-border-tertiary',
   verde: 'bg-green-bg text-green-text',
+  azul: 'bg-avatar-bg text-urgent-blue',
 }
 
 function Item({ icono, label, habilitado = false, activo = false, onClick, contador, color = 'rojo' }) {
@@ -193,6 +201,15 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
       {perfil?.rol === 'lider' && (
         <>
           <Seccion>Equipo</Seccion>
+          <Item
+            icono={iconos.equipo}
+            label="Panel del equipo"
+            habilitado
+            activo={vista === 'panel'}
+            onClick={() => onNavegar('panel')}
+            contador={c.sinAsignar}
+            color="azul"
+          />
           <Item
             icono={iconos.config}
             label="Configuración"

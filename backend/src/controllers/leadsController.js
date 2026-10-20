@@ -32,8 +32,12 @@ async function reclamar(req, res) {
   res.json(await leadsService.reclamar(req.supabase, req.params.id));
 }
 
+async function reasignar(req, res) {
+  res.json(await leadsService.reasignar(req.supabase, req.params.id, req.body));
+}
+
 async function reactivar(req, res) {
   res.json(await leadsService.reactivar(req.supabase, req.params.id));
 }
 
-module.exports = { listar, buscar, crear, actualizar, listarHistorial, agregarHistorial, reclamar, reactivar };
+module.exports = { listar, buscar, crear, actualizar, listarHistorial, agregarHistorial, reclamar, reactivar, reasignar };
