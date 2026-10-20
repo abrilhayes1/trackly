@@ -102,9 +102,10 @@ function FilaResumen({ icono, label, valor }) {
   )
 }
 
-export default function Onboarding({ email, onListo, onCerrarSesion }) {
+export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSesion }) {
   const [paso, setPaso] = useState(1)
-  const [d, setD] = useState(INICIAL)
+  // si entró con Google, el nombre ya viene de su cuenta (lo puede cambiar)
+  const [d, setD] = useState(() => ({ ...INICIAL, nombreUsuario: nombreSugerido || '' }))
   const [intento, setIntento] = useState(false) // se tocó "Siguiente" con datos incompletos
   const [guardando, setGuardando] = useState(false)
   const [errorGuardar, setErrorGuardar] = useState(null)
