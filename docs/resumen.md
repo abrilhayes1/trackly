@@ -30,6 +30,10 @@ producto o curso). Cada equipo es un *tenant*, con un rol `lider` y asesores. To
 - **Supabase:** en Authentication > URL Configuration, el Site URL y los Redirect URLs apuntan a
   la dirección de Vercel.
 - Cada push a `main` publica solo en Vercel y en Railway.
+- **Login con Google (RF01):** cliente OAuth "Web application" en Google Cloud (proyecto Trackly),
+  cargado en Supabase > Authentication > Sign In / Providers > Google. Orígenes autorizados: la
+  dirección de Vercel y `http://localhost:5173`. Mientras la app de Google esté en modo prueba,
+  solo entran los emails cargados como Test users.
 - **App mobile (pendiente):** React Native + Expo en una carpeta `mobile/` del mismo repo. Usa el
   mismo backend de Railway. Se distribuye como APK con EAS Build (Google Play es opcional).
 
@@ -132,8 +136,9 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 
 - `PATCH /api/leads/:id` todavía deja cambiar `estado` directo, porque está en `CAMPOS_EDITABLES`.
   Con eso se pueden saltear `reclamar_lead` y `reactivar_lead`.
-- Del MVP según la documentación (`docs/documentacion.pdf`): inicio con Google (RF01) y mandar el
-  email de invitación (RF02).
+- Del MVP según la documentación (`docs/documentacion.pdf`): solo falta mandar el email de invitación
+  (RF02). Necesita configurar un servicio de email (SMTP) en Supabase. Mientras tanto, la invitación
+  funciona igual si la persona se registra con ese email.
 - Etapa 2: destacados, charlas, email diario, estadísticas, panel del líder (reasignar, sin
   asignar, resumen por asesor), contadores en el menú y app mobile.
 
