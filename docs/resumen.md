@@ -64,7 +64,29 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: Panel del líder (RF38, RF39, RF40 · CU14, CU15)
+## Último trabajo: Charlas / eventos (RF29 a RF34 · CU08, CU13)
+
+- Tablas que ya existían: `charlas` (nombre, `carrera` = categoría, fecha, `meet_link`, created_by)
+  y `charla_notificados` (charla_id, lead_id, asistio, notificado_at).
+- `database/12_charlas.sql`:
+  - Agrega `charla_notificados.notificado_por` (quién invitó, RF32) y que un lead esté una sola
+    vez por charla.
+  - Funciones `guardar_charla`, `eliminar_charla`, `invitar_a_charla` y `marcar_asistencia`. Crear,
+    editar y eliminar es solo para el líder, con un mensaje claro si se repite el nombre el mismo
+    día (RF30). El asesor invita y marca la asistencia solo de sus leads; el líder, de cualquiera.
+    Las invitaciones y la asistencia quedan en el historial del lead.
+- Backend: `/api/charlas` (listar, crear, editar, eliminar, detalle, invitar), `PATCH
+  /api/charlas/invitados/:id` (asistencia) y `GET /api/charlas/lead/:leadId`.
+- Frontend:
+  - `pages/Charlas.jsx`: próximas y pasadas, formulario, detalle con el enlace, los números, el
+    filtro por quién invitó (RF34, solo el líder) y "Invitar".
+  - `components/CharlasLead.jsx`: la sección de charlas en la tarjeta del lead, con un buscador por
+    nombre o categoría (RF33).
+  - El menú muestra "Charlas" (o el nombre que eligió el equipo) solo si el equipo usa eventos
+    (Configuración > Eventos), con un contador de próximas.
+  - Recorrido probado en el navegador con el backend simulado.
+
+## Anterior: Panel del líder (RF38, RF39, RF40 · CU14, CU15)
 
 - `database/11_reasignacion.sql`: `reasignar_lead(lead, asesor)` es solo para el líder y solo para
   leads activos del equipo. Bloquea la fila y deja en el historial "Asignado a…" o "Reasignado de… a…".
@@ -162,7 +184,7 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 - Del MVP según la documentación (`docs/documentacion.pdf`): solo falta mandar el email de invitación
   (RF02). Necesita configurar un servicio de email (SMTP) en Supabase. Mientras tanto, la invitación
   funciona igual si la persona se registra con ese email.
-- Etapa 2: charlas, email diario, estadísticas y app mobile.
+- Etapa 2: email diario, estadísticas y app mobile.
 
 ## Estilos (Tailwind 4, `frontend/src/index.css`)
 

@@ -10,6 +10,9 @@ import {
   numeroWhatsApp,
 } from '../lib/formato'
 import CierreLead from './CierreLead'
+import CharlasLead from './CharlasLead'
+import { useConfigEquipo } from '../lib/configEquipo'
+import { nombreEventos } from '../lib/charlas'
 
 const niveles = Object.keys(etiquetaInteres)
 
@@ -42,6 +45,8 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
   const [recordatorio, setRecordatorio] = useState(aInputDateTime(lead.recordatorio))
 
   const esLider = rol === 'lider'
+  const { config } = useConfigEquipo()
+  const eventos = !!config?.eventos_habilitado
   const esMio = lead.asesor_id === userId
   const puedeEditar = esLider || esMio
   const nombreAsesor = lead.asesor?.nombre || 'otro asesor'
@@ -317,6 +322,12 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
             )}
           </div>
         </Seccion>
+
+        {eventos && (
+          <Seccion titulo={nombreEventos(config?.termino_evento)}>
+            <CharlasLead lead={lead} puedeEditar={puedeEditar} onCambio={() => cargarHistorial()} />
+          </Seccion>
+        )}
 
         <Seccion titulo="Cierre">
           <CierreLead lead={lead} puedeEditar={puedeEditar} onGuardado={alGuardarCierre} />

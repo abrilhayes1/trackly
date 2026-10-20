@@ -1,4 +1,5 @@
-import { useTerminos } from '../lib/configEquipo'
+import { useTerminos, useConfigEquipo } from '../lib/configEquipo'
+import { nombreEventos } from '../lib/charlas'
 import { iniciales as inicialesDe } from '../lib/formato'
 
 const Svg = ({ children }) => (
@@ -87,6 +88,7 @@ const estiloBadge = {
   gris: 'bg-bg-secondary text-text-secondary border border-border-tertiary',
   verde: 'bg-green-bg text-green-text',
   azul: 'bg-avatar-bg text-urgent-blue',
+  violeta: 'bg-purple-bg text-purple-text',
 }
 
 function Item({ icono, label, habilitado = false, activo = false, onClick, contador, color = 'rojo' }) {
@@ -127,6 +129,7 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
   const c = contadores || {}
   const nombre = perfil?.nombre || email
   const { varios } = useTerminos()
+  const { config } = useConfigEquipo()
   const iniciales =
     perfil?.avatar_iniciales ||
     (perfil?.nombre ? inicialesDe(perfil.nombre) : (email || '??').split('@')[0].slice(0, 2).toUpperCase())
@@ -169,7 +172,18 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
       />
 
       <Seccion>Vistas</Seccion>
-      <Item icono={iconos.charlas} label="Charlas" />
+      {/* el equipo elige en el onboarding o en Configuración si usa eventos */}
+      {config?.eventos_habilitado && (
+        <Item
+          icono={iconos.charlas}
+          label={nombreEventos(config.termino_evento)}
+          habilitado
+          activo={vista === 'charlas'}
+          onClick={() => onNavegar('charlas')}
+          contador={c.charlas}
+          color="violeta"
+        />
+      )}
       <Item
         icono={iconos.archivo}
         label="Archivo"

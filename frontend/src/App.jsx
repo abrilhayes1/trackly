@@ -9,6 +9,7 @@ import Archivo from './pages/Archivo'
 import Onboarding from './pages/Onboarding'
 import Configuracion from './pages/Configuracion'
 import PanelLider from './pages/PanelLider'
+import Charlas from './pages/Charlas'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
@@ -77,8 +78,12 @@ function App() {
   // contadores del menú: se recalculan al cambiar de pantalla y cada vez que se modifica un lead
   useEffect(() => {
     if (!tieneEquipo) return
-    Promise.all([apiFetch('/api/leads'), apiFetch(`/api/recordatorios?fecha=${fechaLocal()}`)])
-      .then(([leads, recordatorios]) => setContadores({ leads, recordatorios }))
+    Promise.all([
+      apiFetch('/api/leads'),
+      apiFetch(`/api/recordatorios?fecha=${fechaLocal()}`),
+      apiFetch('/api/charlas').catch(() => []),
+    ])
+      .then(([leads, recordatorios, charlas]) => setContadores({ leads, recordatorios, charlas, ahora: Date.now() }))
       .catch(() => setContadores(null))
   }, [tieneEquipo, vista, cambios])
 
@@ -236,6 +241,16 @@ function App() {
           )}
 
           {!buscando && vista === 'agenda' && <Agenda />}
+
+          {!buscando && vista === 'charlas' && (
+            <Charlas
+              userId={userId}
+              rol={perfil?.rol}
+              onAbrirLead={setLeadAbierto}
+              cambios={cambios}
+              onCambio={() => setCambios((n) => n + 1)}
+            />
+          )}
 
           {!buscando && vista === 'panel' && (
             <PanelLider

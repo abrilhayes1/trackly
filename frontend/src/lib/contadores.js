@@ -3,7 +3,7 @@
 import { agruparLeads } from './urgencia'
 import { calcularAlertas } from './alertas'
 
-export function calcularContadores({ leads, recordatorios, config, userId, rol }) {
+export function calcularContadores({ leads, recordatorios, charlas = [], ahora = 0, config, userId, rol }) {
   const esLider = rol === 'lider'
   const alertas = calcularAlertas(leads, config, userId)
   // los cierres: el asesor cuenta los suyos; el líder, los de todo el equipo (como en sus pantallas)
@@ -16,6 +16,8 @@ export function calcularContadores({ leads, recordatorios, config, userId, rol }
     archivo: leads.filter((l) => l.estado === 'vencido').length,
     exitosos: leads.filter((l) => l.estado === 'ganado' && propios(l)).length,
     perdidos: leads.filter((l) => l.estado === 'perdido' && propios(l)).length,
+    // eventos que todavía no pasaron (con 3 horas de margen, como en la pantalla)
+    charlas: charlas.filter((c) => new Date(c.fecha).getTime() >= ahora - 3 * 3600e3).length,
     // panel del líder: leads activos que todavía no tienen asesor
     sinAsignar: esLider ? leads.filter((l) => l.estado === 'activo' && !l.asesor_id).length : 0,
   }
