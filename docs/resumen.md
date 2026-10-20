@@ -64,7 +64,20 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: Charlas / eventos (RF29 a RF34 · CU08, CU13)
+## Último trabajo: Estadísticas (RF37 · CU11)
+
+- `pages/Estadisticas.jsx` y `lib/estadisticas.js`, en el menú "Estadísticas". No necesita cambios en
+  la base: se calcula con `/api/leads`.
+- Filtros en una fila arriba: período (30 días, 90 días o todo) y, para el líder, asesor. El asesor
+  ve solo lo suyo.
+- Indicadores: ingresados, tasa de contacto (contactado = tiene contacto registrado o ya se cerró),
+  ganados y tasa de conversión (ganados sobre cerrados). Todo sobre los leads ingresados en el
+  período.
+- Gráficos de una serie en el color de acento (`#534AB7`, validado con las pautas de dataviz):
+  barras por origen (las 6 principales y "Otros") y por nivel de interés, y columnas por semana.
+  Tienen tooltip al pasar el mouse y "Ver tabla".
+
+## Anterior: Charlas / eventos (RF29 a RF34 · CU08, CU13)
 
 - Tablas que ya existían: `charlas` (nombre, `carrera` = categoría, fecha, `meet_link`, created_by)
   y `charla_notificados` (charla_id, lead_id, asistio, notificado_at).
@@ -184,7 +197,7 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 - Del MVP según la documentación (`docs/documentacion.pdf`): solo falta mandar el email de invitación
   (RF02). Necesita configurar un servicio de email (SMTP) en Supabase. Mientras tanto, la invitación
   funciona igual si la persona se registra con ese email.
-- Etapa 2: email diario, estadísticas y app mobile.
+- Etapa 2: email diario y app mobile.
 
 ## Estilos (Tailwind 4, `frontend/src/index.css`)
 

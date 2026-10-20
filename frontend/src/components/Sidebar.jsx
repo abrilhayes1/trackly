@@ -210,7 +210,13 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
         onClick={() => onNavegar('perdidos')}
         contador={c.perdidos}
       />
-      <Item icono={iconos.stats} label="Estadísticas" />
+      <Item
+        icono={iconos.stats}
+        label="Estadísticas"
+        habilitado
+        activo={vista === 'stats'}
+        onClick={() => onNavegar('stats')}
+      />
 
       {perfil?.rol === 'lider' && (
         <>

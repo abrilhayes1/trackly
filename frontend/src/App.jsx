@@ -10,6 +10,7 @@ import Onboarding from './pages/Onboarding'
 import Configuracion from './pages/Configuracion'
 import PanelLider from './pages/PanelLider'
 import Charlas from './pages/Charlas'
+import Estadisticas from './pages/Estadisticas'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
@@ -251,6 +252,8 @@ function App() {
               onCambio={() => setCambios((n) => n + 1)}
             />
           )}
+
+          {!buscando && vista === 'stats' && <Estadisticas userId={userId} rol={perfil?.rol} cambios={cambios} />}
 
           {!buscando && vista === 'panel' && (
             <PanelLider
