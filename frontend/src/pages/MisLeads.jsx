@@ -98,7 +98,7 @@ export default function MisLeads({ onAbrirLead, onCambio }) {
               </span>
               <button
                 onClick={irAPorVencer}
-                className="text-xs font-medium text-[#0F6E56] whitespace-nowrap"
+                className="text-xs font-medium text-green-text whitespace-nowrap"
               >
                 Ver urgentes →
               </button>

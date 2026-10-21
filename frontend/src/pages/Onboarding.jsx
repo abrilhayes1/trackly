@@ -192,7 +192,7 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
 
   return (
     <div className="min-h-screen bg-bg-secondary flex flex-col items-center px-4 pt-8 pb-12">
-      <div className="text-[22px] font-bold text-accent-dark tracking-tight mb-10">
+      <div className="text-[22px] font-bold text-accent-text tracking-tight mb-10">
         Trackly<span className="text-green-border">.</span>
       </div>
 
@@ -237,7 +237,7 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
           <div className="px-7 py-10 text-center">
             <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-green-bg flex items-center justify-center">
               <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                <path d="M5 14l6 6L23 7" stroke="#1D9E75" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M5 14l6 6L23 7" stroke="var(--color-green-border)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
             <h2 className="text-xl font-bold text-text-primary mb-2">

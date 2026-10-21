@@ -64,7 +64,14 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: menos descargas de datos (RNF04)
+## Último trabajo: modo oscuro
+
+- Botón sol / luna en la barra superior; se recuerda en el navegador y, si nunca se eligió, sigue al
+  sistema. Detalle en **Estilos**.
+- Se reemplazaron los colores fijos que quedaban (aviso de lead ajeno en la tarjeta, resaltado del
+  buscador, íconos del menú, fondo del login, fondo de las ventanas) por tokens.
+
+## Anterior: menos descargas de datos (RNF04)
 
 Antes cada pantalla pedía `GET /api/leads` completo (todos los estados y columnas) y App lo volvía a
 pedir en cada cambio de vista para los contadores. Ahora:
@@ -259,7 +266,9 @@ pedir en cada cambio de vista para los contadores. Ahora:
   - fondos `bg-primary` #FFFFFF, `bg-secondary` #F7F6F2 y `bg-tertiary` #F1EFE8; body #E8E6DF.
   - texto `text-primary` #2C2C2A, `text-secondary` #6B6A65 y `text-tertiary` #9B9A94.
   - bordes `border-tertiary` #E5E3DC, `border-secondary` #CFCDC4 y `border-primary` #B0AEA4.
-  - acento `accent` #534AB7 y `accent-dark` #3C3489.
+  - acento `accent` #534AB7 y `accent-dark` #3C3489 (fondo al pasar el mouse); `accent-text` #3C3489
+    para texto en color de acento (pestañas activas).
+  - `bg-app` (fondo del body) y `overlay` (fondo oscuro detrás de una ventana).
   - radios `--radius-md` 8px y `--radius-lg` 12px.
 - Hay pares de color `*-bg / *-text / *-border` para green, lime, amber, red y purple. También hay
   puntos de urgencia (`dot-red`, `dot-amber`, `dot-blue`) y avatar (`avatar-bg`, `avatar-text`).
@@ -268,6 +277,11 @@ pedir en cada cambio de vista para los contadores. Ahora:
 - El estilo de las pantallas es compacto: textos de 11 a 13px, títulos `text-base font-semibold`,
   tarjetas `border border-border-tertiary rounded-(--radius-lg)` y chips redondeados
   (`rounded-full`) con el activo en `bg-accent text-white`.
+- **Modo oscuro:** `:root[data-tema="oscuro"]` en `index.css` redefine los mismos tokens, así
+  que los componentes no cambian. El botón sol / luna de la barra superior (`Topbar.jsx`,
+  `lib/tema.js`) lo alterna y lo guarda en el navegador (`trackly-tema`). Si nunca se eligió, sigue
+  al sistema. Un script en `index.html` lo aplica antes de pintar para que no haya destello. Regla:
+  **no usar colores fijos** (#hex, `rgba`) en los componentes, siempre tokens o `var(--color-…)`.
 
 ## Prototipo
 

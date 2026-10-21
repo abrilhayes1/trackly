@@ -40,6 +40,9 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 - **Vistas del líder (2.1 / RF38):** hay una pantalla propia, **Panel del equipo**, con pestañas
   Asesores (resumen por asesor, RF40), Leads del equipo (reasignar, RF39) y Sin asignar.
 - **Login (RF01):** además de email y Google, hay "Crear cuenta" desde la misma pantalla.
+- **Modo oscuro (nuevo):** la web tiene modo claro y oscuro, con un botón en la barra superior. Si
+  la persona no eligió, usa el del sistema operativo. Se puede mencionar en usabilidad (RNF07) o
+  como mejora de interfaz; si se agrega como requerimiento, sería un RF nuevo de prioridad baja.
 - **Destacados (RF10):** se marcan con una estrella en la tarjeta y aparecen arriba de todo en
   Mis leads.
 

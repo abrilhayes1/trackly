@@ -28,7 +28,7 @@ export function Opcion({ sel, onClick, icono, label, sub, centrada = false }) {
       }`}
     >
       {icono && <div className="text-xl mb-1">{icono}</div>}
-      <div className={`text-xs font-semibold ${sel ? 'text-accent-dark' : 'text-text-primary'}`}>{label}</div>
+      <div className={`text-xs font-semibold ${sel ? 'text-accent-text' : 'text-text-primary'}`}>{label}</div>
       {sub && <div className="text-[10px] text-text-secondary mt-0.5">{sub}</div>}
     </button>
   )
@@ -78,7 +78,7 @@ export function Etiquetas({ valores, onCambiar, placeholder }) {
       {valores.map((v) => (
         <span
           key={v}
-          className="flex items-center gap-1 rounded-full bg-purple-bg text-accent-dark px-2.5 py-[3px] text-xs font-medium"
+          className="flex items-center gap-1 rounded-full bg-purple-bg text-accent-text px-2.5 py-[3px] text-xs font-medium"
         >
           {v}
           <button

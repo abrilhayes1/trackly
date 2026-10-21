@@ -17,6 +17,13 @@
 
   --color-accent: #534AB7;
   --color-accent-dark: #3C3489;
+  /* texto en color de acento sobre fondo de la app (pestañas activas, enlaces fuertes) */
+  --color-accent-text: #3C3489;
+
+  /* fondo detrás de la app */
+  --color-bg-app: #E8E6DF;
+  /* fondo que oscurece la pantalla detrás de una ventana */
+  --color-overlay: rgba(44, 44, 42, 0.35);
 
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -56,5 +63,60 @@
 }
 
 body {
-  background: #E8E6DF;
+  background: var(--color-bg-app);
+}
+
+/* Modo oscuro: los mismos nombres de color con otros valores. Lo activa el botón de la barra
+   superior (data-tema="oscuro" en <html>); si nunca se eligió, sigue al sistema (ver index.html). */
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
+
+  --color-bg-app: #121211;
+  --color-overlay: rgba(0, 0, 0, 0.62);
+  --color-bg-primary: #1C1C1A;
+  --color-bg-secondary: #242422;
+  --color-bg-tertiary: #2E2D2A;
+
+  --color-text-primary: #ECEAE3;
+  --color-text-secondary: #A9A79F;
+  --color-text-tertiary: #7A7871;
+
+  --color-border-tertiary: #33322E;
+  --color-border-secondary: #46443F;
+  --color-border-primary: #5E5C55;
+
+  --color-accent: #7369DD;
+  --color-accent-dark: #5F55CC;
+  --color-accent-text: #B7B1F5;
+
+  --color-green-bg: #12302A;
+  --color-green-text: #84D9BB;
+  --color-green-border: #1D9E75;
+
+  --color-lime-bg: #222E19;
+  --color-lime-text: #AED384;
+  --color-lime-border: #639922;
+
+  --color-amber-bg: #372912;
+  --color-amber-text: #F0C67F;
+  --color-amber-border: #BA7517;
+
+  --color-red-bg: #3A1D1D;
+  --color-red-text: #F3A7A7;
+  --color-red-border: #E24B4A;
+
+  --color-purple-bg: #29264D;
+  --color-purple-text: #C5C0F8;
+  --color-purple-border: #8C85E6;
+
+  --color-dot-red: #EC5E5D;
+  --color-dot-amber: #F2A93A;
+  --color-dot-blue: #4C9BEA;
+
+  --color-urgent-red: #F08A8A;
+  --color-urgent-amber: #EAB55A;
+  --color-urgent-blue: #82B8F0;
+
+  --color-avatar-bg: #1E3248;
+  --color-avatar-text: #A8CDF3;
 }

@@ -343,14 +343,14 @@ function App() {
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4"
-      style={{ background: 'linear-gradient(135deg, #EEEDFE 0%, #F7F6F2 60%)' }}
+      style={{ background: 'linear-gradient(135deg, var(--color-purple-bg) 0%, var(--color-bg-secondary) 60%)' }}
     >
       <form
         onSubmit={iniciarSesion}
         className="bg-bg-primary border border-border-tertiary rounded-2xl w-full max-w-sm px-8 py-10"
         style={{ boxShadow: '0 12px 40px rgba(60, 52, 137, 0.08)' }}
       >
-        <h1 className="text-center text-2xl font-semibold tracking-tight text-accent-dark mb-1">
+        <h1 className="text-center text-2xl font-semibold tracking-tight text-accent-text mb-1">
           Trackly<span className="text-green-border">.</span>
         </h1>
         <p className="text-center text-xs text-text-secondary mb-7">

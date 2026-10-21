@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { temaActual, aplicarTema } from '../lib/tema'
+
 export default function Topbar({ busqueda, onBuscar }) {
   const hoy = new Date()
     .toLocaleDateString('es-AR', {
@@ -8,6 +11,14 @@ export default function Topbar({ busqueda, onBuscar }) {
     })
     .replace(',', '')
   const fecha = hoy.charAt(0).toUpperCase() + hoy.slice(1)
+  const [tema, setTema] = useState(temaActual)
+  const oscuro = tema === 'oscuro'
+
+  function alternarTema() {
+    const nuevo = oscuro ? 'claro' : 'oscuro'
+    aplicarTema(nuevo)
+    setTema(nuevo)
+  }
 
   return (
     <div className="sticky top-0 z-20 flex items-center gap-3 px-5 py-[11px] bg-bg-primary border-b border-border-tertiary">
@@ -44,6 +55,28 @@ export default function Topbar({ busqueda, onBuscar }) {
       <span className="ml-auto text-[11px] text-text-secondary whitespace-nowrap">
         {fecha}
       </span>
+      <button
+        onClick={alternarTema}
+        title={oscuro ? 'Pasar a modo claro' : 'Pasar a modo oscuro'}
+        aria-label={oscuro ? 'Pasar a modo claro' : 'Pasar a modo oscuro'}
+        className="w-7 h-7 rounded-md border border-border-secondary bg-bg-secondary text-text-secondary hover:text-text-primary flex items-center justify-center"
+      >
+        {oscuro ? (
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="2.8" stroke="currentColor" strokeWidth="1.2" />
+            <path
+              d="M7 1v1.4M7 11.6V13M1 7h1.4M11.6 7H13M2.8 2.8l1 1M10.2 10.2l1 1M2.8 11.2l1-1M10.2 3.8l1-1"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+            />
+          </svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M11.5 8.6A5 5 0 0 1 5.4 2.5a5 5 0 1 0 6.1 6.1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+          </svg>
+        )}
+      </button>
     </div>
   )
 }

@@ -47,12 +47,12 @@ const iconos = {
   ),
   exitosos: (
     <Svg>
-      <path d="M2 7l3.5 3.5L12 3.5" stroke="#0F6E56" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2 7l3.5 3.5L12 3.5" stroke="var(--color-green-text)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </Svg>
   ),
   perdidos: (
     <Svg>
-      <path d="M3 3l8 8M11 3l-8 8" stroke="#A32D2D" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M3 3l8 8M11 3l-8 8" stroke="var(--color-urgent-red)" strokeWidth="1.4" strokeLinecap="round" />
     </Svg>
   ),
   stats: (
@@ -137,7 +137,7 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
   return (
     <aside className="w-[210px] shrink-0 bg-bg-secondary border-r border-border-tertiary flex flex-col sticky top-0 h-screen py-[17px]">
       <div className="px-4 pb-3.5 mb-1.5 border-b border-border-tertiary">
-        <span className="text-[17px] font-semibold text-accent-dark tracking-tight">
+        <span className="text-[17px] font-semibold text-accent-text tracking-tight">
           Trackly<span className="text-green-border">.</span>
         </span>
         <span className="block text-[10px] text-text-secondary mt-0.5">

@@ -137,7 +137,7 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(44, 44, 42, 0.35)' }}
+      style={{ background: 'var(--color-overlay)' }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onCerrar()
       }}
@@ -184,8 +184,7 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
 
         {!esMio && (
           <div
-            className="px-5 py-2.5 border-b text-[11px]"
-            style={{ background: '#FFF7E6', borderColor: '#E5C97A', color: '#7A5B12' }}
+            className="px-5 py-2.5 border-b text-[11px] bg-amber-bg border-amber-border text-amber-text"
           >
             Este contacto está asignado a <strong>{nombreAsesor}</strong>.{' '}
             {esLider

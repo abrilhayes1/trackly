@@ -69,7 +69,7 @@ function Pestana({ activa, onClick, children, cantidad }) {
     <button
       onClick={onClick}
       className={`flex items-center gap-1.5 text-xs px-3.5 py-2 -mb-px border-b-2 ${
-        activa ? 'text-accent-dark font-semibold border-accent' : 'text-text-secondary border-transparent hover:text-text-primary'
+        activa ? 'text-accent-text font-semibold border-accent' : 'text-text-secondary border-transparent hover:text-text-primary'
       }`}
     >
       {children}

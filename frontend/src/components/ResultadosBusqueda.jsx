@@ -18,7 +18,7 @@ function Resaltado({ texto, q }) {
   const partes = texto.split(new RegExp(`(${escapado})`, 'gi'))
   return partes.map((parte, i) =>
     parte.toLowerCase() === q.toLowerCase() ? (
-      <mark key={i} className="bg-[#dbeafe] text-[#1e40af] rounded-sm px-0.5">
+      <mark key={i} className="bg-avatar-bg text-avatar-text rounded-sm px-0.5">
         {parte}
       </mark>
     ) : (

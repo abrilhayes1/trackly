@@ -79,7 +79,7 @@ export default function Estadisticas({ userId, rol, cambios }) {
             key={v}
             onClick={() => setPestana(v)}
             className={`text-xs px-3.5 py-2 -mb-px border-b-2 ${
-              pestana === v ? 'text-accent-dark font-semibold border-accent' : 'text-text-secondary border-transparent hover:text-text-primary'
+              pestana === v ? 'text-accent-text font-semibold border-accent' : 'text-text-secondary border-transparent hover:text-text-primary'
             }`}
           >
             {t}

@@ -1,10 +1,20 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <title>Trackly</title>
+    <script>
+      // modo claro / oscuro antes de pintar (la misma clave que usa src/lib/tema.js)
+      try {
+        var tema = localStorage.getItem('trackly-tema')
+        if (tema !== 'oscuro' && tema !== 'claro') {
+          tema = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro'
+        }
+        document.documentElement.dataset.tema = tema
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

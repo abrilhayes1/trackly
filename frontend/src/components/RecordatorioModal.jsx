@@ -109,7 +109,7 @@ export default function RecordatorioModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(44, 44, 42, 0.35)' }}
+      style={{ background: 'var(--color-overlay)' }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onCerrar()
       }}
