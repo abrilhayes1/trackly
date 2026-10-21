@@ -67,7 +67,12 @@ function FormCharla({ inicial, categorias, onGuardado, onCancelar }) {
       <div className="text-[13px] font-semibold text-text-primary mb-3">{inicial ? 'Editar' : 'Nueva'}</div>
       <div className="mb-2.5">
         <Etiqueta>Nombre</Etiqueta>
-        <input className={campo} value={f.nombre} onChange={(e) => cambiar({ nombre: e.target.value })} placeholder="Ej: Charla informativa Diseño gráfico" />
+        <input
+          className={campo}
+          value={f.nombre}
+          onChange={(e) => cambiar({ nombre: e.target.value })}
+          placeholder="Ej: Charla informativa Diseño gráfico"
+        />
       </div>
       <div className="grid grid-cols-2 gap-2 mb-2.5">
         <div>
@@ -82,7 +87,13 @@ function FormCharla({ inicial, categorias, onGuardado, onCancelar }) {
       <div className="grid grid-cols-2 gap-2 mb-3">
         <div>
           <Etiqueta>Categoría (opcional)</Etiqueta>
-          <input className={campo} list="categorias-charla" value={f.categoria} onChange={(e) => cambiar({ categoria: e.target.value })} placeholder="Ej: Diseño gráfico" />
+          <input
+            className={campo}
+            list="categorias-charla"
+            value={f.categoria}
+            onChange={(e) => cambiar({ categoria: e.target.value })}
+            placeholder="Ej: Diseño gráfico"
+          />
           <datalist id="categorias-charla">
             {categorias.map((c) => (
               <option key={c} value={c} />
@@ -91,15 +102,27 @@ function FormCharla({ inicial, categorias, onGuardado, onCancelar }) {
         </div>
         <div>
           <Etiqueta>Enlace de la reunión (opcional)</Etiqueta>
-          <input className={campo} value={f.link} onChange={(e) => cambiar({ link: e.target.value })} placeholder="https://meet.google.com/..." />
+          <input
+            className={campo}
+            value={f.link}
+            onChange={(e) => cambiar({ link: e.target.value })}
+            placeholder="https://meet.google.com/..."
+          />
         </div>
       </div>
       {error && <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-3">{error}</p>}
       <div className="flex gap-1.5 justify-end">
-        <button onClick={onCancelar} className="text-xs px-3 py-2 rounded-md border border-border-secondary text-text-secondary hover:bg-bg-secondary">
+        <button
+          onClick={onCancelar}
+          className="text-xs px-3 py-2 rounded-md border border-border-secondary text-text-secondary hover:bg-bg-secondary"
+        >
           Cancelar
         </button>
-        <button onClick={guardar} disabled={guardando} className="text-xs font-medium px-4 py-2 rounded-md bg-accent text-white hover:bg-accent-dark disabled:opacity-60">
+        <button
+          onClick={guardar}
+          disabled={guardando}
+          className="text-xs font-medium px-4 py-2 rounded-md bg-accent text-white hover:bg-accent-dark disabled:opacity-60"
+        >
           {guardando ? 'Guardando...' : 'Guardar'}
         </button>
       </div>
@@ -133,7 +156,9 @@ function Detalle({ charlaId, userId, esLider, categorias, onVolver, onAbrirLead,
   if (!charla) return <div className="p-5 text-sm text-text-secondary">Cargando...</div>
 
   // RF34: el líder filtra los invitados por quién los invitó, y los números siguen al filtro
-  const invitadores = [...new Map(charla.invitados.filter((i) => i.notificado_por).map((i) => [i.notificado_por, i.invitador?.nombre || 'Sin nombre']))]
+  const invitadores = [
+    ...new Map(charla.invitados.filter((i) => i.notificado_por).map((i) => [i.notificado_por, i.invitador?.nombre || 'Sin nombre'])),
+  ]
   const visibles = charla.invitados.filter((i) => !filtro || i.notificado_por === filtro)
   const asistieron = visibles.filter((i) => i.asistio === true).length
   const pendientes = visibles.filter((i) => i.asistio === null).length
@@ -167,7 +192,10 @@ function Detalle({ charlaId, userId, esLider, categorias, onVolver, onAbrirLead,
 
   const asistencia = (inv, valor) =>
     accion(() =>
-      apiFetch(`/api/charlas/invitados/${inv.id}`, { method: 'PATCH', body: JSON.stringify({ asistio: inv.asistio === valor ? null : valor }) })
+      apiFetch(`/api/charlas/invitados/${inv.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ asistio: inv.asistio === valor ? null : valor }),
+      }),
     )
 
   async function eliminar() {
@@ -179,7 +207,10 @@ function Detalle({ charlaId, userId, esLider, categorias, onVolver, onAbrirLead,
   return (
     <div className="p-5">
       <div className="flex items-start gap-3 mb-4">
-        <button onClick={onVolver} className="text-xs px-3 py-1.5 rounded-md border border-border-secondary text-text-secondary hover:bg-bg-secondary">
+        <button
+          onClick={onVolver}
+          className="text-xs px-3 py-1.5 rounded-md border border-border-secondary text-text-secondary hover:bg-bg-secondary"
+        >
           ← Volver
         </button>
         <div className="flex-1 min-w-0">
@@ -191,10 +222,17 @@ function Detalle({ charlaId, userId, esLider, categorias, onVolver, onAbrirLead,
         </div>
         {esLider && !editando && (
           <div className="flex gap-1.5 shrink-0">
-            <button onClick={() => setEditando(true)} className="text-[11px] px-2.5 py-1.5 rounded-md border border-border-secondary text-text-secondary hover:bg-bg-secondary">
+            <button
+              onClick={() => setEditando(true)}
+              className="text-[11px] px-2.5 py-1.5 rounded-md border border-border-secondary text-text-secondary hover:bg-bg-secondary"
+            >
               Editar
             </button>
-            <button onClick={eliminar} disabled={ocupado} className="text-[11px] px-2.5 py-1.5 rounded-md border border-red-border text-red-text hover:bg-red-bg">
+            <button
+              onClick={eliminar}
+              disabled={ocupado}
+              className="text-[11px] px-2.5 py-1.5 rounded-md border border-red-border text-red-text hover:bg-red-bg"
+            >
               Eliminar
             </button>
           </div>
@@ -247,21 +285,29 @@ function Detalle({ charlaId, userId, esLider, categorias, onVolver, onAbrirLead,
       )}
 
       {aviso && (
-        <p className={`text-xs border rounded-md px-3 py-2 mb-3 ${aviso.tipo === 'ok' ? 'text-green-text bg-green-bg border-green-border' : 'text-red-text bg-red-bg border-red-border'}`}>
+        <p
+          className={`text-xs border rounded-md px-3 py-2 mb-3 ${aviso.tipo === 'ok' ? 'text-green-text bg-green-bg border-green-border' : 'text-red-text bg-red-bg border-red-border'}`}
+        >
           {aviso.texto}
         </p>
       )}
 
       <div className="flex gap-1.5 mb-4">
         <select value={nuevo} onChange={(e) => setNuevo(e.target.value)} className={`${campo} flex-1`}>
-          <option value="">{invitables.length ? `Invitar a uno de ${esLider ? 'los' : 'tus'} ${varios}...` : `No quedan ${varios} para invitar`}</option>
+          <option value="">
+            {invitables.length ? `Invitar a uno de ${esLider ? 'los' : 'tus'} ${varios}...` : `No quedan ${varios} para invitar`}
+          </option>
           {invitables.map((l) => (
             <option key={l.id} value={l.id}>
               {l.nombre}
             </option>
           ))}
         </select>
-        <button onClick={invitar} disabled={!nuevo || ocupado} className="text-xs font-medium px-4 rounded-md bg-accent text-white hover:bg-accent-dark disabled:opacity-50">
+        <button
+          onClick={invitar}
+          disabled={!nuevo || ocupado}
+          className="text-xs font-medium px-4 rounded-md bg-accent text-white hover:bg-accent-dark disabled:opacity-50"
+        >
           Invitar
         </button>
       </div>
@@ -273,7 +319,10 @@ function Detalle({ charlaId, userId, esLider, categorias, onVolver, onAbrirLead,
         const c = l?.interes ? colorPorInteres[l.interes] : sinCategoria
         const puede = esLider || l?.asesor_id === userId
         return (
-          <div key={inv.id} className="flex items-center gap-2.5 px-3.5 py-2.5 mb-1.5 rounded-md border border-border-tertiary bg-bg-primary">
+          <div
+            key={inv.id}
+            className="flex items-center gap-2.5 px-3.5 py-2.5 mb-1.5 rounded-md border border-border-tertiary bg-bg-primary"
+          >
             <div className="flex-1 min-w-0 cursor-pointer" onClick={() => l && onAbrirLead(l)}>
               <div className="text-xs font-medium text-text-primary">{l?.nombre || 'Contacto no disponible'}</div>
               <div className="text-[10px] text-text-secondary mt-px">Invitado por {inv.invitador?.nombre || 'alguien del equipo'}</div>
@@ -291,7 +340,9 @@ function Detalle({ charlaId, userId, esLider, categorias, onVolver, onAbrirLead,
                 onClick={() => asistencia(inv, valor)}
                 title={puede ? undefined : 'Solo el asesor del contacto o el líder'}
                 className={`text-[11px] px-2.5 py-1 rounded-full border disabled:cursor-not-allowed ${
-                  inv.asistio === valor ? activo : 'bg-bg-primary text-text-secondary border-border-secondary hover:bg-bg-secondary disabled:opacity-50'
+                  inv.asistio === valor
+                    ? activo
+                    : 'bg-bg-primary text-text-secondary border-border-secondary hover:bg-bg-secondary disabled:opacity-50'
                 }`}
               >
                 {texto}
@@ -316,7 +367,9 @@ function Tarjeta({ c, pasada, onAbrir }) {
           <div className="text-[11px] text-text-secondary mt-0.5">{fechaCharla(c.fecha)}</div>
         </div>
         {c.carrera && (
-          <span className="text-[10px] px-2 py-0.5 rounded-full border bg-purple-bg text-purple-text border-purple-border shrink-0">{c.carrera}</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full border bg-purple-bg text-purple-text border-purple-border shrink-0">
+            {c.carrera}
+          </span>
         )}
       </div>
       <div className="flex gap-3.5 mt-2 pt-2 border-t border-border-tertiary text-[11px] text-text-secondary">

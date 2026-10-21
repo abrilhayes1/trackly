@@ -47,7 +47,8 @@ export function TarjetaGrafico({ titulo, sub, datos, children, columna = 'Cantid
 // barras horizontales: crecen desde la izquierda, extremo redondeado de 4px, valor en la punta
 export function Barras({ datos, tooltip, formato = String }) {
   const max = Math.max(1e-9, ...datos.map((d) => d.valor))
-  if (datos.length === 0 || datos.every((d) => !d.valor)) return <p className="text-xs text-text-tertiary py-6 text-center">Sin datos en este período.</p>
+  if (datos.length === 0 || datos.every((d) => !d.valor))
+    return <p className="text-xs text-text-tertiary py-6 text-center">Sin datos en este período.</p>
   return (
     <div className="flex flex-col gap-2">
       {datos.map((d) => (
@@ -106,57 +107,57 @@ export function Columnas({ datos, tooltip, formato = String, prefijoTooltip = 'S
   return (
     // el contenedor se dibuja siempre, así se mide el ancho aunque al principio no haya datos
     <div ref={ref} className="w-full">
-    {vacio ? (
-      <p className="text-xs text-text-tertiary py-6 text-center">Sin datos en este período.</p>
-    ) : (
-    <svg width={ancho} height={alto} viewBox={`0 0 ${ancho} ${alto}`} className="block" role="img" aria-label="Gráfico de columnas">
-      {ticks.map((t) => (
-        <g key={t}>
-          <line x1={margen.izq} x2={ancho - margen.der} y1={y(t)} y2={y(t)} stroke="var(--color-border-tertiary)" strokeWidth="1" />
-          <text x={margen.izq - 6} y={y(t) + 3} textAnchor="end" fontSize="10" fill="var(--color-text-tertiary)">
-            {formato(t)}
-          </text>
-        </g>
-      ))}
-      {datos.map((d, i) => {
-        const cx = margen.izq + banda * i + banda / 2
-        const x = cx - barra / 2
-        const yTop = y(d.valor || 0)
-        const base = y(0)
-        const h = base - yTop
-        const r = Math.min(4, h)
-        const etiquetar = d.valor > 0 && (i === indiceMax || i === datos.length - 1)
-        return (
-          <g
-            key={i}
-            onPointerMove={(e) => tooltip.mostrar(e, formato(d.valor), `${prefijoTooltip}${d.etiqueta}`)}
-            onPointerLeave={tooltip.ocultar}
-            className="group"
-          >
-            {/* el área de hover es toda la banda, no solo la columna */}
-            <rect x={margen.izq + banda * i} y={margen.arriba} width={banda} height={base - margen.arriba} fill="transparent" />
-            {h > 0 && (
-              <path
-                d={`M${x},${base} V${yTop + r} Q${x},${yTop} ${x + r},${yTop} H${x + barra - r} Q${x + barra},${yTop} ${x + barra},${yTop + r} V${base} Z`}
-                fill="var(--color-accent)"
-                className="group-hover:opacity-80"
-              />
-            )}
-            {etiquetar && (
-              <text x={cx} y={yTop - 4} textAnchor="middle" fontSize="10" fill="var(--color-text-primary)">
-                {formato(d.valor)}
+      {vacio ? (
+        <p className="text-xs text-text-tertiary py-6 text-center">Sin datos en este período.</p>
+      ) : (
+        <svg width={ancho} height={alto} viewBox={`0 0 ${ancho} ${alto}`} className="block" role="img" aria-label="Gráfico de columnas">
+          {ticks.map((t) => (
+            <g key={t}>
+              <line x1={margen.izq} x2={ancho - margen.der} y1={y(t)} y2={y(t)} stroke="var(--color-border-tertiary)" strokeWidth="1" />
+              <text x={margen.izq - 6} y={y(t) + 3} textAnchor="end" fontSize="10" fill="var(--color-text-tertiary)">
+                {formato(t)}
               </text>
-            )}
-            {i % cadaCuanto === 0 && (
-              <text x={cx} y={alto - 6} textAnchor="middle" fontSize="10" fill="var(--color-text-tertiary)">
-                {d.etiqueta}
-              </text>
-            )}
-          </g>
-        )
-      })}
-    </svg>
-    )}
+            </g>
+          ))}
+          {datos.map((d, i) => {
+            const cx = margen.izq + banda * i + banda / 2
+            const x = cx - barra / 2
+            const yTop = y(d.valor || 0)
+            const base = y(0)
+            const h = base - yTop
+            const r = Math.min(4, h)
+            const etiquetar = d.valor > 0 && (i === indiceMax || i === datos.length - 1)
+            return (
+              <g
+                key={i}
+                onPointerMove={(e) => tooltip.mostrar(e, formato(d.valor), `${prefijoTooltip}${d.etiqueta}`)}
+                onPointerLeave={tooltip.ocultar}
+                className="group"
+              >
+                {/* el área de hover es toda la banda, no solo la columna */}
+                <rect x={margen.izq + banda * i} y={margen.arriba} width={banda} height={base - margen.arriba} fill="transparent" />
+                {h > 0 && (
+                  <path
+                    d={`M${x},${base} V${yTop + r} Q${x},${yTop} ${x + r},${yTop} H${x + barra - r} Q${x + barra},${yTop} ${x + barra},${yTop + r} V${base} Z`}
+                    fill="var(--color-accent)"
+                    className="group-hover:opacity-80"
+                  />
+                )}
+                {etiquetar && (
+                  <text x={cx} y={yTop - 4} textAnchor="middle" fontSize="10" fill="var(--color-text-primary)">
+                    {formato(d.valor)}
+                  </text>
+                )}
+                {i % cadaCuanto === 0 && (
+                  <text x={cx} y={alto - 6} textAnchor="middle" fontSize="10" fill="var(--color-text-tertiary)">
+                    {d.etiqueta}
+                  </text>
+                )}
+              </g>
+            )
+          })}
+        </svg>
+      )}
     </div>
   )
 }

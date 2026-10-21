@@ -110,20 +110,14 @@ function Item({ icono, label, habilitado = false, activo = false, onClick, conta
       <span className="w-4 h-4 flex items-center justify-center shrink-0">{icono}</span>
       {label}
       {contador > 0 && (
-        <span className={`ml-auto text-[10px] font-medium px-1.5 py-px rounded-full ${estiloBadge[color]}`}>
-          {contador}
-        </span>
+        <span className={`ml-auto text-[10px] font-medium px-1.5 py-px rounded-full ${estiloBadge[color]}`}>{contador}</span>
       )}
     </button>
   )
 }
 
 function Seccion({ children }) {
-  return (
-    <div className="text-[10px] uppercase tracking-[0.06em] text-text-tertiary px-4 pt-3.5 pb-1">
-      {children}
-    </div>
-  )
+  return <div className="text-[10px] uppercase tracking-[0.06em] text-text-tertiary px-4 pt-3.5 pb-1">{children}</div>
 }
 
 export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesion, contadores }) {
@@ -132,8 +126,7 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
   const { varios } = useTerminos()
   const { config } = useConfigEquipo()
   const iniciales =
-    perfil?.avatar_iniciales ||
-    (perfil?.nombre ? inicialesDe(perfil.nombre) : (email || '??').split('@')[0].slice(0, 2).toUpperCase())
+    perfil?.avatar_iniciales || (perfil?.nombre ? inicialesDe(perfil.nombre) : (email || '??').split('@')[0].slice(0, 2).toUpperCase())
 
   return (
     <aside className="w-[210px] shrink-0 bg-bg-secondary border-r border-border-tertiary flex flex-col sticky top-0 h-screen py-[17px]">
@@ -141,9 +134,7 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
         <span className="text-[17px] font-semibold text-accent-text tracking-tight">
           Trackly<span className="text-green-border">.</span>
         </span>
-        <span className="block text-[10px] text-text-secondary mt-0.5">
-          {perfil?.tenants?.nombre || 'Tu equipo'}
-        </span>
+        <span className="block text-[10px] text-text-secondary mt-0.5">{perfil?.tenants?.nombre || 'Tu equipo'}</span>
       </div>
 
       <Seccion>Principal</Seccion>
@@ -211,13 +202,7 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
         onClick={() => onNavegar('perdidos')}
         contador={c.perdidos}
       />
-      <Item
-        icono={iconos.stats}
-        label="Estadísticas"
-        habilitado
-        activo={vista === 'stats'}
-        onClick={() => onNavegar('stats')}
-      />
+      <Item icono={iconos.stats} label="Estadísticas" habilitado activo={vista === 'stats'} onClick={() => onNavegar('stats')} />
 
       {perfil?.rol === 'lider' && (
         <>
@@ -231,13 +216,7 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
             contador={c.sinAsignar}
             color="azul"
           />
-          <Item
-            icono={iconos.config}
-            label="Configuración"
-            habilitado
-            activo={vista === 'config'}
-            onClick={() => onNavegar('config')}
-          />
+          <Item icono={iconos.config} label="Configuración" habilitado activo={vista === 'config'} onClick={() => onNavegar('config')} />
         </>
       )}
 
@@ -258,15 +237,10 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
           )}
           <div className="min-w-0">
             <div className="text-xs font-medium text-text-primary truncate">{nombre}</div>
-            <div className="text-[10px] text-text-secondary">
-              {etiquetaRol[perfil?.rol] || ''}
-            </div>
+            <div className="text-[10px] text-text-secondary">{etiquetaRol[perfil?.rol] || ''}</div>
           </div>
         </button>
-        <button
-          onClick={onCerrarSesion}
-          className="text-[10px] text-text-tertiary hover:text-red-text mt-1.5"
-        >
+        <button onClick={onCerrarSesion} className="text-[10px] text-text-tertiary hover:text-red-text mt-1.5">
           Cerrar sesión
         </button>
       </div>

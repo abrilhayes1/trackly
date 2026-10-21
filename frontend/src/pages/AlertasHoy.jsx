@@ -58,9 +58,7 @@ function AlertaCard({ lead, seccion, ahora, onAbrir }) {
 
       <div className="flex flex-col items-end gap-[3px] shrink-0">
         <span className={`text-[11px] font-medium ${etiqueta.color}`}>{etiqueta.texto}</span>
-        <span
-          className={`text-[10px] px-1.5 py-px rounded-full border ${colores.bg} ${colores.text} ${colores.border}`}
-        >
+        <span className={`text-[10px] px-1.5 py-px rounded-full border ${colores.bg} ${colores.text} ${colores.border}`}>
           {lead.interes ? etiquetaInteres[lead.interes] : 'Sin categoría'}
         </span>
       </div>
@@ -74,33 +72,26 @@ export default function AlertasHoy({ userId, onAbrirLead }) {
   const { config } = useConfigEquipo()
   const cargando = !listo
 
-  const ahora = useMemo(() => new Date(), [leads, config])
-  const alertas = useMemo(
-    () => calcularAlertas(leads, config, userId, ahora),
-    [leads, config, userId, ahora]
-  )
+  // la hora de referencia se toma cada vez que cambian los datos
+  const { alertas, ahora } = useMemo(() => {
+    const ahora = new Date()
+    return { ahora, alertas: calcularAlertas(leads, config, userId, ahora) }
+  }, [leads, config, userId])
 
   const total = secciones.reduce((acc, s) => acc + alertas[s.clave].length, 0)
 
   return (
     <div className="p-5">
-      <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">
-        Alertas de hoy
-      </h1>
+      <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">Alertas de hoy</h1>
       <p className="text-xs text-text-secondary mb-5">Lo que necesitás atender hoy</p>
 
       {cargando && <p className="text-sm text-text-secondary">Cargando...</p>}
 
-      {error && (
-        <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2">{error}</p>}
 
       {!cargando && !error && total === 0 && (
         <p className="text-sm text-text-secondary">
-          No tenés nada urgente para hoy. Los leads por vencer y los recordatorios del día van a
-          aparecer acá.
+          No tenés nada urgente para hoy. Los leads por vencer y los recordatorios del día van a aparecer acá.
         </p>
       )}
 
@@ -110,26 +101,16 @@ export default function AlertasHoy({ userId, onAbrirLead }) {
           alertas[seccion.clave].length > 0 ? (
             <div key={seccion.clave} className="mb-4">
               <div className="flex items-center gap-1.5 mb-1.5 mt-[1.1rem]">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary">
-                  {seccion.titulo}
-                </span>
-                <span
-                  className={`text-[10px] font-medium px-[7px] py-0.5 rounded-full ${seccion.badge}`}
-                >
+                <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary">{seccion.titulo}</span>
+                <span className={`text-[10px] font-medium px-[7px] py-0.5 rounded-full ${seccion.badge}`}>
                   {alertas[seccion.clave].length}
                 </span>
               </div>
               {alertas[seccion.clave].map((lead) => (
-                <AlertaCard
-                  key={lead.id}
-                  lead={lead}
-                  seccion={seccion}
-                  ahora={ahora}
-                  onAbrir={onAbrirLead}
-                />
+                <AlertaCard key={lead.id} lead={lead} seccion={seccion} ahora={ahora} onAbrir={onAbrirLead} />
               ))}
             </div>
-          ) : null
+          ) : null,
         )}
     </div>
   )

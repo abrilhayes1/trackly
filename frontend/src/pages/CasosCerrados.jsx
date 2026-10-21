@@ -20,23 +20,18 @@ function textosDe({ Varios }) {
       tituloLider: 'Cerrados perdidos del equipo',
       sub: `${Varios} que no convirtieron`,
       subLider: `${Varios} que no convirtieron en el equipo`,
-      vacio: (filtrado) =>
-        `Aún no hay cierres perdidos${filtrado ? ' para este asesor' : ''} registrados.`,
+      vacio: (filtrado) => `Aún no hay cierres perdidos${filtrado ? ' para este asesor' : ''} registrados.`,
     },
   }
 }
 
 function Chip({ children, clases = 'bg-bg-secondary text-text-secondary border-border-tertiary' }) {
-  return (
-    <span className={`text-[10px] px-2 py-0.5 rounded-full border ${clases}`}>{children}</span>
-  )
+  return <span className={`text-[10px] px-2 py-0.5 rounded-full border ${clases}`}>{children}</span>
 }
 
 function Avatar({ nombre, tamano }) {
   return (
-    <span
-      className={`${tamano} rounded-full bg-avatar-bg text-avatar-text inline-flex items-center justify-center font-semibold shrink-0`}
-    >
+    <span className={`${tamano} rounded-full bg-avatar-bg text-avatar-text inline-flex items-center justify-center font-semibold shrink-0`}>
       {iniciales(nombre)}
     </span>
   )
@@ -106,27 +101,19 @@ export default function CasosCerrados({ tipo, rol, onAbrirLead, cambios }) {
 
   return (
     <div className="p-5">
-      <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">
-        {esLider ? t.tituloLider : t.titulo}
-      </h1>
+      <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">{esLider ? t.tituloLider : t.titulo}</h1>
       <p className="text-xs text-text-secondary mb-5">{esLider ? t.subLider : t.sub}</p>
 
       {cargando && <p className="text-sm text-text-secondary">Cargando...</p>}
 
-      {error && (
-        <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2">{error}</p>}
 
       {!cargando && !error && mostrarFiltro && (
         <div className="flex flex-wrap items-center gap-[5px] mb-[1.1rem]">
           <button
             onClick={() => setFiltro('')}
             className={`text-[11px] px-3 py-1 rounded-full border ${
-              filtroActivo === ''
-                ? 'bg-accent text-white border-accent'
-                : 'bg-bg-primary text-text-secondary border-border-secondary'
+              filtroActivo === '' ? 'bg-accent text-white border-accent' : 'bg-bg-primary text-text-secondary border-border-secondary'
             }`}
           >
             Todos
@@ -136,9 +123,7 @@ export default function CasosCerrados({ tipo, rol, onAbrirLead, cambios }) {
               key={a.id}
               onClick={() => setFiltro(a.id)}
               className={`flex items-center gap-1.5 text-[11px] pl-[5px] pr-2.5 py-1 rounded-full border ${
-                filtroActivo === a.id
-                  ? 'bg-accent text-white border-accent'
-                  : 'bg-bg-primary text-text-secondary border-border-secondary'
+                filtroActivo === a.id ? 'bg-accent text-white border-accent' : 'bg-bg-primary text-text-secondary border-border-secondary'
               }`}
             >
               <Avatar nombre={a.nombre} tamano="w-5 h-5 text-[8px]" />
@@ -162,27 +147,19 @@ export default function CasosCerrados({ tipo, rol, onAbrirLead, cambios }) {
               onClick={() => c.lead && onAbrirLead(c.lead)}
               className={`bg-bg-primary border border-border-tertiary border-l-[3px] ${
                 ganado ? 'border-l-green-border' : 'border-l-red-border'
-              } rounded-(--radius-lg) px-4 py-3 mb-1.5 ${
-                c.lead ? 'cursor-pointer hover:bg-bg-secondary' : ''
-              }`}
+              } rounded-(--radius-lg) px-4 py-3 mb-1.5 ${c.lead ? 'cursor-pointer hover:bg-bg-secondary' : ''}`}
             >
               <div className="flex items-center gap-2 mb-[3px]">
                 <Avatar nombre={c.lead?.nombre} tamano="w-7 h-7 text-[10px]" />
-                <div className="text-[13px] font-medium text-text-primary">
-                  {c.lead?.nombre || 'Contacto no disponible'}
-                </div>
+                <div className="text-[13px] font-medium text-text-primary">{c.lead?.nombre || 'Contacto no disponible'}</div>
                 {esLider && c.lead?.asesor?.nombre && (
                   <span className="ml-auto inline-flex items-center gap-1.5">
                     <Avatar nombre={c.lead.asesor.nombre} tamano="w-[22px] h-[22px] text-[8px]" />
-                    <span className="text-xs text-text-secondary">
-                      {primerNombre(c.lead.asesor.nombre)}
-                    </span>
+                    <span className="text-xs text-text-secondary">{primerNombre(c.lead.asesor.nombre)}</span>
                   </span>
                 )}
               </div>
-              <div className="text-[11px] text-text-secondary mb-1.5">
-                {fechaHoraCorta(c.updated_at)}
-              </div>
+              <div className="text-[11px] text-text-secondary mb-1.5">{fechaHoraCorta(c.updated_at)}</div>
               <div className="flex flex-wrap gap-[5px]">
                 {ganado ? (
                   // el primer dato va resaltado; los números llevan su nombre para entenderse

@@ -80,7 +80,9 @@ export default function Estadisticas({ userId, rol, cambios }) {
             key={v}
             onClick={() => setPestana(v)}
             className={`text-xs px-3.5 py-2 -mb-px border-b-2 ${
-              pestana === v ? 'text-accent-text font-semibold border-accent' : 'text-text-secondary border-transparent hover:text-text-primary'
+              pestana === v
+                ? 'text-accent-text font-semibold border-accent'
+                : 'text-text-secondary border-transparent hover:text-text-primary'
             }`}
           >
             {t}
@@ -91,73 +93,77 @@ export default function Estadisticas({ userId, rol, cambios }) {
       {pestana === 'reportes' && <Reportes userId={userId} rol={rol} cambios={cambios} />}
 
       {pestana === 'resumen' && (
-      <>
-      {/* filtros: una sola fila arriba, valen para todo lo de abajo */}
-      <div className="flex flex-wrap items-center gap-[5px] mb-5">
-        {PERIODOS.map((p) => (
-          <Chip key={p.valor} activo={dias === p.valor} onClick={() => setDias(p.valor)}>
-            {p.etiqueta}
-          </Chip>
-        ))}
-        {esLider && miembros.length > 1 && (
-          <>
-            <span className="w-px h-5 bg-border-tertiary mx-1.5" />
-            <Chip activo={asesor === ''} onClick={() => setAsesor('')}>
-              Todo el equipo
-            </Chip>
-            {miembros.map((m) => (
-              <Chip key={m.id} conAvatar activo={asesor === m.id} onClick={() => setAsesor(m.id)}>
-                <Avatar nombre={m.nombre} foto={m.avatar_url} tamano="w-5 h-5 text-[8px]" />
-                {m.nombre.split(' ')[0]}
+        <>
+          {/* filtros: una sola fila arriba, valen para todo lo de abajo */}
+          <div className="flex flex-wrap items-center gap-[5px] mb-5">
+            {PERIODOS.map((p) => (
+              <Chip key={p.valor} activo={dias === p.valor} onClick={() => setDias(p.valor)}>
+                {p.etiqueta}
               </Chip>
             ))}
-          </>
-        )}
-      </div>
-
-      {cargando && <p className="text-sm text-text-secondary">Cargando...</p>}
-      {error && <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2">{error}</p>}
-
-      {!cargando && !error && (
-        <>
-          <div className="grid grid-cols-4 gap-2 mb-4">
-            <Indicador label={`${Varios} ingresados`} valor={e.ingresados} detalle={periodo} />
-            <Indicador label="Tasa de contacto" valor={porcentaje(e.tasaContacto)} detalle={`${e.contactados} de ${e.ingresados} contactados`} />
-            <Indicador label="Ganados" valor={e.ganados} detalle={`${e.perdidos} perdidos`} />
-            <Indicador
-              label="Tasa de conversión"
-              valor={porcentaje(e.tasaConversion)}
-              detalle={e.ganados + e.perdidos ? 'ganados sobre cerrados' : 'todavía sin cierres'}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <Tarjeta titulo={`${Varios} por origen`} sub={`De dónde vinieron los ${varios} ingresados`} datos={e.porOrigen}>
-              <Barras datos={e.porOrigen} tooltip={tooltip} />
-            </Tarjeta>
-            <Tarjeta titulo="Nivel de interés" sub={`Cómo están categorizados los ${varios} ingresados`} datos={e.porInteres}>
-              <Barras datos={e.porInteres} tooltip={tooltip} />
-            </Tarjeta>
-          </div>
-
-          <Tarjeta
-            titulo="Evolución semanal"
-            sub={`${Varios} nuevos por semana`}
-            datos={e.porSemana.map((s) => ({ etiqueta: `Semana del ${s.etiqueta}`, valor: s.valor }))}
-          >
-            {e.ingresados === 0 ? (
-              <p className="text-xs text-text-tertiary py-6 text-center">Sin datos en este período.</p>
-            ) : (
-              <Columnas datos={e.porSemana} tooltip={tooltip} />
+            {esLider && miembros.length > 1 && (
+              <>
+                <span className="w-px h-5 bg-border-tertiary mx-1.5" />
+                <Chip activo={asesor === ''} onClick={() => setAsesor('')}>
+                  Todo el equipo
+                </Chip>
+                {miembros.map((m) => (
+                  <Chip key={m.id} conAvatar activo={asesor === m.id} onClick={() => setAsesor(m.id)}>
+                    <Avatar nombre={m.nombre} foto={m.avatar_url} tamano="w-5 h-5 text-[8px]" />
+                    {m.nombre.split(' ')[0]}
+                  </Chip>
+                ))}
+              </>
             )}
-          </Tarjeta>
-          <p className="text-[10px] text-text-tertiary mt-3">
-            Se cuentan los {varios} ingresados en el período. Un contacto cuenta como contactado si tiene un contacto
-            registrado o ya se cerró.
-          </p>
+          </div>
+
+          {cargando && <p className="text-sm text-text-secondary">Cargando...</p>}
+          {error && <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2">{error}</p>}
+
+          {!cargando && !error && (
+            <>
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <Indicador label={`${Varios} ingresados`} valor={e.ingresados} detalle={periodo} />
+                <Indicador
+                  label="Tasa de contacto"
+                  valor={porcentaje(e.tasaContacto)}
+                  detalle={`${e.contactados} de ${e.ingresados} contactados`}
+                />
+                <Indicador label="Ganados" valor={e.ganados} detalle={`${e.perdidos} perdidos`} />
+                <Indicador
+                  label="Tasa de conversión"
+                  valor={porcentaje(e.tasaConversion)}
+                  detalle={e.ganados + e.perdidos ? 'ganados sobre cerrados' : 'todavía sin cierres'}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <Tarjeta titulo={`${Varios} por origen`} sub={`De dónde vinieron los ${varios} ingresados`} datos={e.porOrigen}>
+                  <Barras datos={e.porOrigen} tooltip={tooltip} />
+                </Tarjeta>
+                <Tarjeta titulo="Nivel de interés" sub={`Cómo están categorizados los ${varios} ingresados`} datos={e.porInteres}>
+                  <Barras datos={e.porInteres} tooltip={tooltip} />
+                </Tarjeta>
+              </div>
+
+              <Tarjeta
+                titulo="Evolución semanal"
+                sub={`${Varios} nuevos por semana`}
+                datos={e.porSemana.map((s) => ({ etiqueta: `Semana del ${s.etiqueta}`, valor: s.valor }))}
+              >
+                {e.ingresados === 0 ? (
+                  <p className="text-xs text-text-tertiary py-6 text-center">Sin datos en este período.</p>
+                ) : (
+                  <Columnas datos={e.porSemana} tooltip={tooltip} />
+                )}
+              </Tarjeta>
+              <p className="text-[10px] text-text-tertiary mt-3">
+                Se cuentan los {varios} ingresados en el período. Un contacto cuenta como contactado si tiene un contacto registrado o ya se
+                cerró.
+              </p>
+            </>
+          )}
         </>
-      )}
-      </>
       )}
       {tooltip.nodo}
     </div>

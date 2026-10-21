@@ -34,21 +34,15 @@ export default function MisLeads({ onAbrirLead, onCambio }) {
     })
   }, [])
 
-  const grupos = useMemo(
-    () => agruparLeads(leads, config, userId),
-    [leads, config, userId]
-  )
+  const grupos = useMemo(() => agruparLeads(leads, config, userId), [leads, config, userId])
 
   const totalVisibles = Object.values(grupos).reduce((acc, g) => acc + g.length, 0)
 
   // RF10: los destacados van arriba de todo, con el color de su grupo de urgencia.
   // Los contadores de arriba los siguen contando en su grupo.
   const destacados = useMemo(
-    () =>
-      secciones.flatMap(({ clave }) =>
-        grupos[clave].filter((l) => l.destacado).map((lead) => ({ lead, grupo: clave }))
-      ),
-    [grupos]
+    () => secciones.flatMap(({ clave }) => grupos[clave].filter((l) => l.destacado).map((lead) => ({ lead, grupo: clave }))),
+    [grupos],
   )
 
   // leads que vencen hoy o mañana: les falta 1 día o menos para el plazo
@@ -65,9 +59,7 @@ export default function MisLeads({ onAbrirLead, onCambio }) {
   }
 
   function irAPorVencer() {
-    document
-      .getElementById('seccion-porVencer')
-      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    document.getElementById('seccion-porVencer')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   const subtitulo = config?.vencimiento_habilitado
@@ -76,18 +68,12 @@ export default function MisLeads({ onAbrirLead, onCambio }) {
 
   return (
     <div className="p-5">
-      <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">
-        Mis {varios}
-      </h1>
+      <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">Mis {varios}</h1>
       <p className="text-xs text-text-secondary mb-5">{subtitulo}</p>
 
       {cargando && <p className="text-sm text-text-secondary">Cargando...</p>}
 
-      {error && (
-        <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2">{error}</p>}
 
       {!cargando && !error && (
         <>
@@ -96,10 +82,7 @@ export default function MisLeads({ onAbrirLead, onCambio }) {
               <span className="text-xs text-green-text">
                 {vencenPronto} {vencenPronto === 1 ? `${uno} vence` : `${varios} vencen`} hoy o mañana
               </span>
-              <button
-                onClick={irAPorVencer}
-                className="text-xs font-medium text-green-text whitespace-nowrap"
-              >
+              <button onClick={irAPorVencer} className="text-xs font-medium text-green-text whitespace-nowrap">
                 Ver urgentes →
               </button>
             </div>
@@ -114,16 +97,12 @@ export default function MisLeads({ onAbrirLead, onCambio }) {
             ))}
           </div>
 
-          {totalVisibles === 0 && (
-            <p className="text-sm text-text-secondary">Todavía no tenés {varios} cargados.</p>
-          )}
+          {totalVisibles === 0 && <p className="text-sm text-text-secondary">Todavía no tenés {varios} cargados.</p>}
 
           {destacados.length > 0 && (
             <div id="seccion-destacados" className="mb-4">
               <div className="flex items-center gap-1.5 mb-1.5 mt-[1.1rem]">
-                <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary">
-                  ★ Destacados
-                </span>
+                <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary">★ Destacados</span>
                 <span className="text-[10px] font-medium px-[7px] py-0.5 rounded-full bg-purple-bg text-purple-text">
                   {destacados.length}
                 </span>
@@ -138,18 +117,18 @@ export default function MisLeads({ onAbrirLead, onCambio }) {
             grupos[clave].some((l) => !l.destacado) ? (
               <div key={clave} id={`seccion-${clave}`} className="mb-4">
                 <div className="flex items-center gap-1.5 mb-1.5 mt-[1.1rem]">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary">
-                    {titulo}
-                  </span>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary">{titulo}</span>
                   <span className={`text-[10px] font-medium px-[7px] py-0.5 rounded-full ${badge}`}>
                     {grupos[clave].filter((l) => !l.destacado).length}
                   </span>
                 </div>
-                {grupos[clave].filter((l) => !l.destacado).map((lead) => (
-                  <LeadCard key={lead.id} lead={lead} grupo={clave} onAbrir={onAbrirLead} />
-                ))}
+                {grupos[clave]
+                  .filter((l) => !l.destacado)
+                  .map((lead) => (
+                    <LeadCard key={lead.id} lead={lead} grupo={clave} onAbrir={onAbrirLead} />
+                  ))}
               </div>
-            ) : null
+            ) : null,
           )}
         </>
       )}
@@ -165,12 +144,7 @@ export default function MisLeads({ onAbrirLead, onCambio }) {
         </svg>
       </button>
 
-      {modalAbierto && (
-        <NuevoLeadModal
-          onCerrar={() => setModalAbierto(false)}
-          onCreado={alCrearLead}
-        />
-      )}
+      {modalAbierto && <NuevoLeadModal onCerrar={() => setModalAbierto(false)} onCreado={alCrearLead} />}
     </div>
   )
 }

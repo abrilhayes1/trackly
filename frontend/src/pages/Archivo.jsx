@@ -11,9 +11,7 @@ function primerNombre(nombre) {
 
 // como en el prototipo: el filtro de interés se marca en oscuro y el de asesor en violeta
 function Chip({ activo, onClick, children, conAvatar = false, oscuro = false }) {
-  const colorActivo = oscuro
-    ? 'bg-text-primary text-bg-primary border-text-primary'
-    : 'bg-accent text-white border-accent'
+  const colorActivo = oscuro ? 'bg-text-primary text-bg-primary border-text-primary' : 'bg-accent text-white border-accent'
   return (
     <button
       onClick={onClick}
@@ -32,15 +30,11 @@ function Pestana({ activa, onClick, children, cantidad }) {
     <button
       onClick={onClick}
       className={`flex items-center gap-1.5 text-xs px-3.5 py-2 -mb-px border-b-2 ${
-        activa
-          ? 'text-accent-text font-semibold border-accent'
-          : 'text-text-secondary border-transparent hover:text-text-primary'
+        activa ? 'text-accent-text font-semibold border-accent' : 'text-text-secondary border-transparent hover:text-text-primary'
       }`}
     >
       {children}
-      <span className="text-[10px] font-semibold px-1.5 py-px rounded-full bg-avatar-bg text-urgent-blue">
-        {cantidad}
-      </span>
+      <span className="text-[10px] font-semibold px-1.5 py-px rounded-full bg-avatar-bg text-urgent-blue">{cantidad}</span>
     </button>
   )
 }
@@ -66,6 +60,8 @@ function textosDe({ varios }) {
 export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio }) {
   const [leads, setLeads] = useState([])
   const { config } = useConfigEquipo()
+  // la hora de referencia se toma cuando llegan los datos
+  const [ahora, setAhora] = useState(null)
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [pestana, setPestana] = useState('vencido')
@@ -86,6 +82,7 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
     apiFetch('/api/leads?estado=vencido,archivo')
       .then((leadsData) => {
         setLeads(leadsData)
+        setAhora(new Date())
         setError(null)
       })
       .catch((e) => setError(e.message))
@@ -93,17 +90,13 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
   }, [cambios])
 
   const diasArchivo = config?.vencimiento_habilitado ? config.dias_archivo : null
-  const ahora = useMemo(() => new Date(), [leads, config])
 
   const cantidad = {
     vencido: leads.filter((l) => l.estado === 'vencido').length,
     archivo: leads.filter((l) => l.estado === 'archivo').length,
   }
 
-  const dePestana = useMemo(
-    () => leads.filter((l) => l.estado === pestana).sort(ordenarArchivo(pestana)),
-    [leads, pestana]
-  )
+  const dePestana = useMemo(() => leads.filter((l) => l.estado === pestana).sort(ordenarArchivo(pestana)), [leads, pestana])
 
   // niveles de interés que realmente aparecen en la pestaña, en el orden de siempre
   const niveles = useMemo(() => {
@@ -117,18 +110,14 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
     dePestana.forEach((l) => {
       if (l.asesor_id && !mapa.has(l.asesor_id)) mapa.set(l.asesor_id, l.asesor?.nombre || 'Sin nombre')
     })
-    return [...mapa]
-      .map(([id, nombre]) => ({ id, nombre }))
-      .sort((a, b) => a.nombre.localeCompare(b.nombre))
+    return [...mapa].map(([id, nombre]) => ({ id, nombre })).sort((a, b) => a.nombre.localeCompare(b.nombre))
   }, [dePestana])
 
   const interesActivo = niveles.includes(filtroInteres) ? filtroInteres : ''
   const asesorActivo = duenios.some((d) => d.id === filtroAsesor) ? filtroAsesor : ''
 
   const visibles = dePestana.filter(
-    (l) =>
-      (!interesActivo || claveInteres(l) === interesActivo) &&
-      (!asesorActivo || l.asesor_id === asesorActivo)
+    (l) => (!interesActivo || claveInteres(l) === interesActivo) && (!asesorActivo || l.asesor_id === asesorActivo),
   )
 
   function cambiarPestana(nueva) {
@@ -171,41 +160,21 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
       </p>
 
       <div className="flex gap-[5px] border-b border-border-tertiary mb-4">
-        <Pestana
-          activa={pestana === 'vencido'}
-          onClick={() => cambiarPestana('vencido')}
-          cantidad={cantidad.vencido}
-        >
+        <Pestana activa={pestana === 'vencido'} onClick={() => cambiarPestana('vencido')} cantidad={cantidad.vencido}>
           Vencidos
         </Pestana>
-        <Pestana
-          activa={pestana === 'archivo'}
-          onClick={() => cambiarPestana('archivo')}
-          cantidad={cantidad.archivo}
-        >
+        <Pestana activa={pestana === 'archivo'} onClick={() => cambiarPestana('archivo')} cantidad={cantidad.archivo}>
           Archivados
         </Pestana>
       </div>
 
       {cargando && <p className="text-sm text-text-secondary">Cargando...</p>}
 
-      {error && (
-        <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2">{error}</p>}
 
-      {mensaje && (
-        <p className="text-xs text-green-text bg-green-bg border border-green-border rounded-md px-3 py-2 mb-3">
-          {mensaje}
-        </p>
-      )}
+      {mensaje && <p className="text-xs text-green-text bg-green-bg border border-green-border rounded-md px-3 py-2 mb-3">{mensaje}</p>}
 
-      {errorAccion && (
-        <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-3">
-          {errorAccion}
-        </p>
-      )}
+      {errorAccion && <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-3">{errorAccion}</p>}
 
       {!cargando && !error && dePestana.length > 0 && (
         <>
@@ -226,12 +195,7 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
                 {esLider ? 'Todo el equipo' : 'De todos'}
               </Chip>
               {duenios.map((d) => (
-                <Chip
-                  key={d.id}
-                  conAvatar
-                  activo={asesorActivo === d.id}
-                  onClick={() => setFiltroAsesor(d.id)}
-                >
+                <Chip key={d.id} conAvatar activo={asesorActivo === d.id} onClick={() => setFiltroAsesor(d.id)}>
                   <span className="w-5 h-5 rounded-full bg-avatar-bg text-avatar-text inline-flex items-center justify-center text-[8px] font-semibold shrink-0">
                     {iniciales(d.nombre)}
                   </span>
@@ -243,9 +207,7 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
         </>
       )}
 
-      {!cargando && !error && dePestana.length === 0 && (
-        <p className="text-center py-8 text-xs text-text-tertiary">{textos.vacio}</p>
-      )}
+      {!cargando && !error && dePestana.length === 0 && <p className="text-center py-8 text-xs text-text-tertiary">{textos.vacio}</p>}
 
       {!cargando && !error && dePestana.length > 0 && visibles.length === 0 && (
         <p className="text-center py-8 text-xs text-text-tertiary">Nada para este filtro.</p>
@@ -267,9 +229,7 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
                 <div className="text-[11px] text-text-secondary truncate mt-px">
                   {textoArchivo(lead, diasArchivo, ahora)}
                   {lead.origen ? ` · ${lead.origen}` : ''}
-                  {!esLider && !esMio && lead.asesor?.nombre
-                    ? ` · de ${primerNombre(lead.asesor.nombre)}`
-                    : ''}
+                  {!esLider && !esMio && lead.asesor?.nombre ? ` · de ${primerNombre(lead.asesor.nombre)}` : ''}
                 </div>
               </div>
               {/* el líder ve de quién era cada lead con su avatar, como en el prototipo */}
@@ -278,14 +238,10 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
                   <span className="w-5 h-5 rounded-full bg-avatar-bg text-avatar-text inline-flex items-center justify-center text-[8px] font-semibold">
                     {iniciales(lead.asesor.nombre)}
                   </span>
-                  <span className="text-xs text-text-secondary">
-                    {primerNombre(lead.asesor.nombre)}
-                  </span>
+                  <span className="text-xs text-text-secondary">{primerNombre(lead.asesor.nombre)}</span>
                 </span>
               )}
-              <span
-                className={`text-[10px] px-1.5 py-px rounded-full border shrink-0 ${colores.bg} ${colores.text} ${colores.border}`}
-              >
+              <span className={`text-[10px] px-1.5 py-px rounded-full border shrink-0 ${colores.bg} ${colores.text} ${colores.border}`}>
                 {lead.interes ? etiquetaInteres[lead.interes] : 'Sin categoría'}
               </span>
 

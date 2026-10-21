@@ -53,7 +53,10 @@ export default function CharlasLead({ lead, puedeEditar, onCambio }) {
 
   const asistencia = (inv, valor) =>
     hacer(() =>
-      apiFetch(`/api/charlas/invitados/${inv.id}`, { method: 'PATCH', body: JSON.stringify({ asistio: inv.asistio === valor ? null : valor }) })
+      apiFetch(`/api/charlas/invitados/${inv.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ asistio: inv.asistio === valor ? null : valor }),
+      }),
     )
 
   return (
@@ -98,7 +101,9 @@ export default function CharlasLead({ lead, puedeEditar, onCambio }) {
           />
           {abierto && (
             <div className="absolute z-50 left-0 right-0 mt-1 max-h-40 overflow-y-auto rounded-md border border-border-secondary bg-bg-primary shadow-[0_4px_12px_rgba(0,0,0,0.08)]">
-              {opciones.length === 0 && <div className="px-2.5 py-2 text-[11px] text-text-tertiary">No hay eventos próximos para invitar.</div>}
+              {opciones.length === 0 && (
+                <div className="px-2.5 py-2 text-[11px] text-text-tertiary">No hay eventos próximos para invitar.</div>
+              )}
               {opciones.map((c) => (
                 <button
                   key={c.id}

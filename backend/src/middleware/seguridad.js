@@ -15,7 +15,11 @@ function encabezados(req, res, next) {
 
 // Límite de pedidos por dirección IP en una ventana de tiempo. Si se pasa, responde 429 y avisa en
 // cuántos segundos puede volver a intentar. Se guarda en memoria (alcanza para un solo servidor).
-function limitarPedidos({ maximo, ventanaMs = 60 * 1000, mensaje = 'Hiciste demasiados pedidos seguidos. Esperá un momento y probá de nuevo.' }) {
+function limitarPedidos({
+  maximo,
+  ventanaMs = 60 * 1000,
+  mensaje = 'Hiciste demasiados pedidos seguidos. Esperá un momento y probá de nuevo.',
+}) {
   const contadores = new Map();
 
   // cada tanto se borran las ventanas que ya terminaron, para no acumular memoria

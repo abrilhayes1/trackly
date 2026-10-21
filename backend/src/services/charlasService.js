@@ -12,10 +12,7 @@ function lanzarErrorDeBase(error) {
 
 // todas las charlas del equipo, con cuántos invitados y cuántos asistieron
 async function listar(supabase) {
-  const { data, error } = await supabase
-    .from('charlas')
-    .select('*, charla_notificados(asistio)')
-    .order('fecha', { ascending: true });
+  const { data, error } = await supabase.from('charlas').select('*, charla_notificados(asistio)').order('fecha', { ascending: true });
   lanzarSiError(error);
 
   return data.map(({ charla_notificados: invitados, ...charla }) => ({
@@ -39,7 +36,7 @@ async function obtener(supabase, id) {
   const { data, error } = await supabase
     .from('charlas')
     .select(
-      '*, invitados:charla_notificados(id, asistio, notificado_at, notificado_por, invitador:profiles(nombre), lead:leads(id, nombre, interes, estado, asesor_id, telefono, email, origen, consulta, fecha_ingreso, ultimo_contacto, asesor:profiles(nombre)))'
+      '*, invitados:charla_notificados(id, asistio, notificado_at, notificado_por, invitador:profiles(nombre), lead:leads(id, nombre, interes, estado, asesor_id, telefono, email, origen, consulta, fecha_ingreso, ultimo_contacto, asesor:profiles(nombre)))',
     )
     .eq('id', id)
     .maybeSingle();

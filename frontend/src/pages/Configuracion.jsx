@@ -30,10 +30,7 @@ function Tarjeta({ titulo, descripcion, children }) {
 }
 
 function Aviso({ tipo, children }) {
-  const estilo =
-    tipo === 'ok'
-      ? 'text-green-text bg-green-bg border-green-border'
-      : 'text-red-text bg-red-bg border-red-border'
+  const estilo = tipo === 'ok' ? 'text-green-text bg-green-bg border-green-border' : 'text-red-text bg-red-bg border-red-border'
   return <p className={`text-xs border rounded-md px-3 py-2 mb-3 ${estilo}`}>{children}</p>
 }
 
@@ -104,11 +101,7 @@ export default function Configuracion({ rol, nombreEquipo, onGuardado }) {
   }, [rol])
 
   if (rol !== 'lider') {
-    return (
-      <div className="p-5 text-sm text-text-secondary">
-        Solo el líder del equipo puede ver y cambiar la configuración.
-      </div>
-    )
+    return <div className="p-5 text-sm text-text-secondary">Solo el líder del equipo puede ver y cambiar la configuración.</div>
   }
 
   if (!form) return <div className="p-5 text-sm text-text-secondary">Cargando...</div>
@@ -185,17 +178,11 @@ export default function Configuracion({ rol, nombreEquipo, onGuardado }) {
   return (
     <div className="p-5 max-w-[720px]">
       <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">Configuración del equipo</h1>
-      <p className="text-xs text-text-secondary mb-5">
-        Lo que definas acá se refleja en toda la aplicación, para todo el equipo.
-      </p>
+      <p className="text-xs text-text-secondary mb-5">Lo que definas acá se refleja en toda la aplicación, para todo el equipo.</p>
 
       <Tarjeta titulo="Equipo">
         <Campo label="Nombre del equipo o empresa">
-          <input
-            value={form.equipoNombre}
-            onChange={(e) => cambiar({ equipoNombre: e.target.value })}
-            className={claseInput}
-          />
+          <input value={form.equipoNombre} onChange={(e) => cambiar({ equipoNombre: e.target.value })} className={claseInput} />
         </Campo>
         <Campo label="Rubro">
           <GrillaOpciones>
@@ -317,9 +304,7 @@ export default function Configuracion({ rol, nombreEquipo, onGuardado }) {
               <div key={inv.id} className="flex items-center gap-2 py-1.5 border-b border-border-tertiary last:border-0">
                 <span className="w-6 h-6 rounded-full border border-dashed border-border-secondary" />
                 <span className="text-xs text-text-secondary flex-1">{inv.email}</span>
-                <span className="text-[10px] px-1.5 py-px rounded-full bg-amber-bg text-amber-text">
-                  Invitación pendiente
-                </span>
+                <span className="text-[10px] px-1.5 py-px rounded-full bg-amber-bg text-amber-text">Invitación pendiente</span>
                 <button
                   onClick={() => cancelarInvitacion(inv.id)}
                   className="text-[11px] text-text-tertiary hover:text-red-text ml-1"

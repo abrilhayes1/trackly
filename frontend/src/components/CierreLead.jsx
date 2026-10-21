@@ -50,7 +50,7 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
       const falta = campos.find((c) => c.obligatorio && !(datos[c.id] || '').trim())
       if (falta) return setError(`Completá "${falta.nombre}"`)
       const malNumero = campos.find(
-        (c) => c.tipo === 'numero' && (datos[c.id] || '').trim() && Number.isNaN(Number(datos[c.id].replace(',', '.')))
+        (c) => c.tipo === 'numero' && (datos[c.id] || '').trim() && Number.isNaN(Number(datos[c.id].replace(',', '.'))),
       )
       if (malNumero) return setError(`"${malNumero.nombre}" tiene que ser un número`)
     }
@@ -77,8 +77,7 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
     return <p className="text-xs text-text-tertiary">Cargando...</p>
   }
 
-  const botonPrimario =
-    'text-xs font-medium text-white rounded-md px-3 py-2 disabled:opacity-60 disabled:cursor-not-allowed'
+  const botonPrimario = 'text-xs font-medium text-white rounded-md px-3 py-2 disabled:opacity-60 disabled:cursor-not-allowed'
 
   // ---------- formulario ----------
   if (formAbierto) {
@@ -116,11 +115,7 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
                   {c.obligatorio ? ' *' : ' (opcional)'}
                 </Etiqueta>
                 {c.tipo === 'lista' ? (
-                  <select
-                    className={campo}
-                    value={datos[c.id] || ''}
-                    onChange={(e) => setDatos({ ...datos, [c.id]: e.target.value })}
-                  >
+                  <select className={campo} value={datos[c.id] || ''} onChange={(e) => setDatos({ ...datos, [c.id]: e.target.value })}>
                     <option value="">Elegí una opción</option>
                     {(c.opciones || []).map((o) => (
                       <option key={o} value={o}>
@@ -153,11 +148,7 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
           </div>
         )}
 
-        {error && (
-          <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-2">
-            {error}
-          </p>
-        )}
+        {error && <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-2">{error}</p>}
 
         <div className="flex gap-1.5">
           <button
@@ -165,11 +156,7 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
             disabled={guardando}
             className={`${botonPrimario} flex-1 ${tipo === 'ganado' ? 'bg-green-border' : 'bg-urgent-red'}`}
           >
-            {guardando
-              ? 'Guardando...'
-              : cierre
-                ? `Guardar cierre ${tipo}`
-                : `Confirmar cierre ${tipo}`}
+            {guardando ? 'Guardando...' : cierre ? `Guardar cierre ${tipo}` : `Confirmar cierre ${tipo}`}
           </button>
           <button
             onClick={() => setFormAbierto(false)}
@@ -190,14 +177,10 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
       <div>
         <div
           className={`rounded-md border px-3 py-2.5 text-xs ${
-            ganado
-              ? 'bg-green-bg border-green-border text-green-text'
-              : 'bg-red-bg border-red-border text-red-text'
+            ganado ? 'bg-green-bg border-green-border text-green-text' : 'bg-red-bg border-red-border text-red-text'
           }`}
         >
-          <div className="font-semibold mb-0.5">
-            {ganado ? 'Cerrado como ganado' : 'Cerrado como perdido'}
-          </div>
+          <div className="font-semibold mb-0.5">{ganado ? 'Cerrado como ganado' : 'Cerrado como perdido'}</div>
           {ganado ? (
             <div>
               {detalleCierre(campos, cierre.datos)
@@ -225,9 +208,7 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
   if (!puedeEditar) {
     return (
       <p className="text-xs text-text-tertiary">
-        {lead.estado === 'ganado' || lead.estado === 'perdido'
-          ? `Figura como ${lead.estado}.`
-          : 'Todavía no tiene un cierre registrado.'}
+        {lead.estado === 'ganado' || lead.estado === 'perdido' ? `Figura como ${lead.estado}.` : 'Todavía no tiene un cierre registrado.'}
       </p>
     )
   }
@@ -235,9 +216,7 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
   return (
     <div>
       {(lead.estado === 'ganado' || lead.estado === 'perdido') && (
-        <p className="text-[11px] text-text-tertiary mb-2">
-          Figura como {lead.estado}, pero no tiene los datos del cierre cargados.
-        </p>
+        <p className="text-[11px] text-text-tertiary mb-2">Figura como {lead.estado}, pero no tiene los datos del cierre cargados.</p>
       )}
       <div className="grid grid-cols-2 gap-1.5">
         <button

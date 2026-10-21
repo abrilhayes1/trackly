@@ -22,9 +22,7 @@ const fueContactado = (l) => !!l.ultimo_contacto || l.estado === 'ganado' || l.e
 
 export function calcularEstadisticas(leads, { dias, asesorId, ahora }) {
   const desde = dias ? ahora - dias * MS_DIA : 0
-  const base = leads.filter(
-    (l) => (!asesorId || l.asesor_id === asesorId) && new Date(l.fecha_ingreso).getTime() >= desde
-  )
+  const base = leads.filter((l) => (!asesorId || l.asesor_id === asesorId) && new Date(l.fecha_ingreso).getTime() >= desde)
 
   const contactados = base.filter(fueContactado).length
   const ganados = base.filter((l) => l.estado === 'ganado').length

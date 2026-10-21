@@ -1,65 +1,63 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
-  --color-bg-primary: #FFFFFF;
-  --color-bg-secondary: #F7F6F2;
-  --color-bg-tertiary: #F1EFE8;
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f7f6f2;
+  --color-bg-tertiary: #f1efe8;
 
-  --color-text-primary: #2C2C2A;
-  --color-text-secondary: #6B6A65;
-  --color-text-tertiary: #9B9A94;
+  --color-text-primary: #2c2c2a;
+  --color-text-secondary: #6b6a65;
+  --color-text-tertiary: #9b9a94;
 
-  --color-border-tertiary: #E5E3DC;
-  --color-border-secondary: #CFCDC4;
-  --color-border-primary: #B0AEA4;
+  --color-border-tertiary: #e5e3dc;
+  --color-border-secondary: #cfcdc4;
+  --color-border-primary: #b0aea4;
 
-  --color-accent: #534AB7;
-  --color-accent-dark: #3C3489;
+  --color-accent: #534ab7;
+  --color-accent-dark: #3c3489;
   /* texto en color de acento sobre fondo de la app (pestañas activas, enlaces fuertes) */
-  --color-accent-text: #3C3489;
+  --color-accent-text: #3c3489;
 
   /* fondo detrás de la app */
-  --color-bg-app: #E8E6DF;
+  --color-bg-app: #e8e6df;
   /* fondo que oscurece la pantalla detrás de una ventana */
   --color-overlay: rgba(44, 44, 42, 0.35);
 
   --radius-md: 8px;
   --radius-lg: 12px;
 
-
-  --color-green-bg: #E1F5EE;
+  --color-green-bg: #e1f5ee;
   --color-green-text: #085041;
-  --color-green-border: #1D9E75;
+  --color-green-border: #1d9e75;
 
-  --color-lime-bg: #EAF3DE;
-  --color-lime-text: #27500A;
+  --color-lime-bg: #eaf3de;
+  --color-lime-text: #27500a;
   --color-lime-border: #639922;
 
-  --color-amber-bg: #FAEEDA;
+  --color-amber-bg: #faeeda;
   --color-amber-text: #633806;
-  --color-amber-border: #BA7517;
+  --color-amber-border: #ba7517;
 
-  --color-red-bg: #FCEBEB;
-  --color-red-text: #791F1F;
-  --color-red-border: #E24B4A;
+  --color-red-bg: #fcebeb;
+  --color-red-text: #791f1f;
+  --color-red-border: #e24b4a;
 
-  --color-purple-bg: #EEEDFE;
-  --color-purple-text: #3C3489;
-  --color-purple-border: #7F77DD;
+  --color-purple-bg: #eeedfe;
+  --color-purple-text: #3c3489;
+  --color-purple-border: #7f77dd;
 
+  --color-dot-red: #e24b4a;
+  --color-dot-amber: #ef9f27;
+  --color-dot-blue: #378add;
 
-  --color-dot-red: #E24B4A;
-  --color-dot-amber: #EF9F27;
-  --color-dot-blue: #378ADD;
+  --color-urgent-red: #a32d2d;
+  --color-urgent-amber: #854f0b;
+  --color-urgent-blue: #185fa5;
 
-  --color-urgent-red: #A32D2D;
-  --color-urgent-amber: #854F0B;
-  --color-urgent-blue: #185FA5;
-
-  --color-avatar-bg: #E6F1FB;
-  --color-avatar-text: #0C447C;
+  --color-avatar-bg: #e6f1fb;
+  --color-avatar-text: #0c447c;
 }
 
 body {
@@ -68,55 +66,55 @@ body {
 
 /* Modo oscuro: los mismos nombres de color con otros valores. Lo activa el botón de la barra
    superior (data-tema="oscuro" en <html>); si nunca se eligió, sigue al sistema (ver index.html). */
-:root[data-tema="oscuro"] {
+:root[data-tema='oscuro'] {
   color-scheme: dark;
 
   --color-bg-app: #121211;
   --color-overlay: rgba(0, 0, 0, 0.62);
-  --color-bg-primary: #1C1C1A;
+  --color-bg-primary: #1c1c1a;
   --color-bg-secondary: #242422;
-  --color-bg-tertiary: #2E2D2A;
+  --color-bg-tertiary: #2e2d2a;
 
-  --color-text-primary: #ECEAE3;
-  --color-text-secondary: #A9A79F;
-  --color-text-tertiary: #7A7871;
+  --color-text-primary: #eceae3;
+  --color-text-secondary: #a9a79f;
+  --color-text-tertiary: #7a7871;
 
-  --color-border-tertiary: #33322E;
-  --color-border-secondary: #46443F;
-  --color-border-primary: #5E5C55;
+  --color-border-tertiary: #33322e;
+  --color-border-secondary: #46443f;
+  --color-border-primary: #5e5c55;
 
-  --color-accent: #7369DD;
-  --color-accent-dark: #5F55CC;
-  --color-accent-text: #B7B1F5;
+  --color-accent: #7369dd;
+  --color-accent-dark: #5f55cc;
+  --color-accent-text: #b7b1f5;
 
-  --color-green-bg: #12302A;
-  --color-green-text: #84D9BB;
-  --color-green-border: #1D9E75;
+  --color-green-bg: #12302a;
+  --color-green-text: #84d9bb;
+  --color-green-border: #1d9e75;
 
-  --color-lime-bg: #222E19;
-  --color-lime-text: #AED384;
+  --color-lime-bg: #222e19;
+  --color-lime-text: #aed384;
   --color-lime-border: #639922;
 
   --color-amber-bg: #372912;
-  --color-amber-text: #F0C67F;
-  --color-amber-border: #BA7517;
+  --color-amber-text: #f0c67f;
+  --color-amber-border: #ba7517;
 
-  --color-red-bg: #3A1D1D;
-  --color-red-text: #F3A7A7;
-  --color-red-border: #E24B4A;
+  --color-red-bg: #3a1d1d;
+  --color-red-text: #f3a7a7;
+  --color-red-border: #e24b4a;
 
-  --color-purple-bg: #29264D;
-  --color-purple-text: #C5C0F8;
-  --color-purple-border: #8C85E6;
+  --color-purple-bg: #29264d;
+  --color-purple-text: #c5c0f8;
+  --color-purple-border: #8c85e6;
 
-  --color-dot-red: #EC5E5D;
-  --color-dot-amber: #F2A93A;
-  --color-dot-blue: #4C9BEA;
+  --color-dot-red: #ec5e5d;
+  --color-dot-amber: #f2a93a;
+  --color-dot-blue: #4c9bea;
 
-  --color-urgent-red: #F08A8A;
-  --color-urgent-amber: #EAB55A;
-  --color-urgent-blue: #82B8F0;
+  --color-urgent-red: #f08a8a;
+  --color-urgent-amber: #eab55a;
+  --color-urgent-blue: #82b8f0;
 
-  --color-avatar-bg: #1E3248;
-  --color-avatar-text: #A8CDF3;
+  --color-avatar-bg: #1e3248;
+  --color-avatar-text: #a8cdf3;
 }

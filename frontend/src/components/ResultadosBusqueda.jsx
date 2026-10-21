@@ -23,7 +23,7 @@ function Resaltado({ texto, q }) {
       </mark>
     ) : (
       parte
-    )
+    ),
   )
 }
 
@@ -38,12 +38,14 @@ function Dato({ label, valor }) {
 
 export default function ResultadosBusqueda({ q, userId, onAbrirLead, cambios }) {
   const [resultados, setResultados] = useState([])
-  const [cargando, setCargando] = useState(true)
+  // qué búsqueda ya respondió: mientras no sea la actual, se muestra "Buscando..."
+  const [respondida, setRespondida] = useState(null)
   const [error, setError] = useState(null)
+  const clave = `${q}|${cambios}`
+  const cargando = respondida !== clave
 
   useEffect(() => {
     let cancelado = false
-    setCargando(true)
 
     // esperamos 300 ms después de la última tecla para no pedir en cada letra
     const espera = setTimeout(() => {
@@ -57,7 +59,7 @@ export default function ResultadosBusqueda({ q, userId, onAbrirLead, cambios }) 
           if (!cancelado) setError(e.message)
         })
         .finally(() => {
-          if (!cancelado) setCargando(false)
+          if (!cancelado) setRespondida(`${q}|${cambios}`)
         })
     }, 300)
 
@@ -69,25 +71,15 @@ export default function ResultadosBusqueda({ q, userId, onAbrirLead, cambios }) 
 
   return (
     <div className="p-5">
-      <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">
-        Resultados de búsqueda
-      </h1>
+      <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">Resultados de búsqueda</h1>
       <p className="text-xs text-text-secondary mb-4">
-        {cargando
-          ? 'Buscando...'
-          : `${resultados.length} resultado${resultados.length !== 1 ? 's' : ''} para "${q}"`}
+        {cargando ? 'Buscando...' : `${resultados.length} resultado${resultados.length !== 1 ? 's' : ''} para "${q}"`}
       </p>
 
-      {error && (
-        <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-3">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-3">{error}</p>}
 
       {!cargando && !error && resultados.length === 0 && (
-        <p className="text-sm text-text-tertiary text-center py-8">
-          No se encontraron contactos.
-        </p>
+        <p className="text-sm text-text-tertiary text-center py-8">No se encontraron contactos.</p>
       )}
 
       {resultados.map((lead) => {
@@ -115,17 +107,13 @@ export default function ResultadosBusqueda({ q, userId, onAbrirLead, cambios }) 
                   <Resaltado texto={lead.email} q={q} />
                 </div>
               </div>
-              <span
-                className={`ml-auto text-[10px] font-medium px-[7px] py-0.5 rounded-full ${colorEstado[lead.estado]}`}
-              >
+              <span className={`ml-auto text-[10px] font-medium px-[7px] py-0.5 rounded-full ${colorEstado[lead.estado]}`}>
                 {lead.estado}
               </span>
             </div>
 
             <div className="flex flex-wrap gap-1.5 mb-2">
-              <span
-                className={`text-[10px] px-1.5 py-px rounded-full border ${colores.bg} ${colores.text} ${colores.border}`}
-              >
+              <span className={`text-[10px] px-1.5 py-px rounded-full border ${colores.bg} ${colores.text} ${colores.border}`}>
                 {etiqueta}
               </span>
               {lead.origen && (
@@ -153,10 +141,7 @@ export default function ResultadosBusqueda({ q, userId, onAbrirLead, cambios }) 
                   month: 'short',
                 })}
               />
-              <Dato
-                label="Asesor"
-                valor={esMio ? 'Vos' : lead.asesor?.nombre || 'Sin asignar'}
-              />
+              <Dato label="Asesor" valor={esMio ? 'Vos' : lead.asesor?.nombre || 'Sin asignar'} />
             </div>
           </div>
         )

@@ -13,11 +13,12 @@ async function listar(supabase, user, fecha, hasta) {
     throw new ErrorHttp(400, 'La fecha "hasta" no es válida');
   }
 
-  const propios = () =>
-    supabase.from('recordatorios').select('*').eq('asesor_id', user.id);
+  const propios = () => supabase.from('recordatorios').select('*').eq('asesor_id', user.id);
 
   const [delPeriodo, atrasados] = await Promise.all([
-    propios().gte('fecha', fecha).lte('fecha', hasta ?? fecha),
+    propios()
+      .gte('fecha', fecha)
+      .lte('fecha', hasta ?? fecha),
     propios().lt('fecha', fecha).eq('hecho', false),
   ]);
 
@@ -33,11 +34,7 @@ async function crear(supabase, user, body) {
   }
 
   // el equipo y el dueño salen del usuario logueado, nunca de lo que mande el navegador
-  const { data: perfil, error: errorPerfil } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .single();
+  const { data: perfil, error: errorPerfil } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single();
 
   if (errorPerfil || !perfil) {
     throw new ErrorHttp(400, 'No se encontró el perfil del usuario');

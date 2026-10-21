@@ -27,9 +27,7 @@ async function listarHistorial(req, res) {
 }
 
 async function agregarHistorial(req, res) {
-  res.status(201).json(
-    await leadsService.agregarHistorial(req.supabase, req.user, req.params.id, req.body)
-  );
+  res.status(201).json(await leadsService.agregarHistorial(req.supabase, req.user, req.params.id, req.body));
 }
 
 async function reclamar(req, res) {

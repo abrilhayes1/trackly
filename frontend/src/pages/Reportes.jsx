@@ -7,16 +7,7 @@ import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
 import { etiquetaInteres } from '../lib/interes'
 import { useTooltip } from '../lib/useTooltip'
 import { TarjetaGrafico, Barras, Columnas, NumeroGrande } from '../components/Graficos'
-import {
-  MEDIDAS,
-  AGRUPAR,
-  VISTAS,
-  PERIODOS_REPORTE,
-  ESTADOS,
-  DEFINICION_INICIAL,
-  calcularReporte,
-  describir,
-} from '../lib/reportes'
+import { MEDIDAS, AGRUPAR, VISTAS, PERIODOS_REPORTE, ESTADOS, DEFINICION_INICIAL, calcularReporte, describir } from '../lib/reportes'
 
 const control =
   'w-full text-xs px-2.5 py-1.5 rounded-md border border-border-secondary bg-bg-secondary text-text-primary focus:outline-none focus:border-accent focus:bg-bg-primary'
@@ -82,8 +73,7 @@ function Constructor({ inicial, datos, contexto, esLider, onGuardado, onCancelar
 
   // la vista previa se recalcula con cada cambio
   const valido =
-    (!['suma_campo', 'promedio_campo'].includes(def.medida) || def.campoMedida) &&
-    (def.agrupar !== 'campo_cierre' || def.campoAgrupar)
+    (!['suma_campo', 'promedio_campo'].includes(def.medida) || def.campoMedida) && (def.agrupar !== 'campo_cierre' || def.campoAgrupar)
   const vistaReal = def.agrupar === 'ninguno' ? 'numero' : def.vista === 'numero' ? 'barras' : def.vista
   const defVista = { ...def, vista: vistaReal }
   const resultado = valido ? calcularReporte(datos.leads, datos.cierres, defVista, contexto) : null
@@ -124,7 +114,11 @@ function Constructor({ inicial, datos, contexto, esLider, onGuardado, onCancelar
             ))}
           </select>
           {['suma_campo', 'promedio_campo'].includes(def.medida) && (
-            <select className={`${control} mt-1.5`} value={def.campoMedida || ''} onChange={(e) => cambiar({ campoMedida: e.target.value || null })}>
+            <select
+              className={`${control} mt-1.5`}
+              value={def.campoMedida || ''}
+              onChange={(e) => cambiar({ campoMedida: e.target.value || null })}
+            >
               <option value="">Elegí un campo numérico...</option>
               {camposNumero.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -146,7 +140,11 @@ function Constructor({ inicial, datos, contexto, esLider, onGuardado, onCancelar
           </select>
           {def.agrupar === 'campo_cierre' && (
             <>
-              <select className={`${control} mt-1.5`} value={def.campoAgrupar || ''} onChange={(e) => cambiar({ campoAgrupar: e.target.value || null })}>
+              <select
+                className={`${control} mt-1.5`}
+                value={def.campoAgrupar || ''}
+                onChange={(e) => cambiar({ campoAgrupar: e.target.value || null })}
+              >
                 <option value="">Elegí un campo del cierre...</option>
                 {camposAgrupar.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -233,7 +231,12 @@ function Constructor({ inicial, datos, contexto, esLider, onGuardado, onCancelar
         )}
 
         <label className="flex items-center gap-1.5 text-xs text-text-secondary">
-          <input type="checkbox" className="accent-accent" checked={def.filtros.destacados} onChange={(e) => filtro({ destacados: e.target.checked })} />
+          <input
+            type="checkbox"
+            className="accent-accent"
+            checked={def.filtros.destacados}
+            onChange={(e) => filtro({ destacados: e.target.checked })}
+          />
           Solo destacados
         </label>
 
@@ -259,10 +262,17 @@ function Constructor({ inicial, datos, contexto, esLider, onGuardado, onCancelar
 
         {error && <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2">{error}</p>}
         <div className="flex gap-1.5 justify-end pt-1">
-          <button onClick={onCancelar} className="text-xs px-3 py-2 rounded-md border border-border-secondary text-text-secondary hover:bg-bg-secondary">
+          <button
+            onClick={onCancelar}
+            className="text-xs px-3 py-2 rounded-md border border-border-secondary text-text-secondary hover:bg-bg-secondary"
+          >
             Cancelar
           </button>
-          <button onClick={guardar} disabled={guardando} className="text-xs font-medium px-4 py-2 rounded-md bg-accent text-white hover:bg-accent-dark disabled:opacity-60">
+          <button
+            onClick={guardar}
+            disabled={guardando}
+            className="text-xs font-medium px-4 py-2 rounded-md bg-accent text-white hover:bg-accent-dark disabled:opacity-60"
+          >
             {guardando ? 'Guardando...' : 'Guardar reporte'}
           </button>
         </div>
@@ -314,7 +324,7 @@ export default function Reportes({ userId, rol, cambios }) {
 
   const contexto = useMemo(
     () => ({ userId, esLider, miembros, campos: config?.campos_cierre || [], ahora }),
-    [userId, esLider, miembros, config, ahora]
+    [userId, esLider, miembros, config, ahora],
   )
 
   async function borrar(r) {
@@ -383,7 +393,10 @@ export default function Reportes({ userId, rol, cambios }) {
                       Editar
                     </button>
                   )}
-                  <button className={accion} onClick={() => setEditando({ ...r, id: null, nombre: `${r.nombre} (copia)`, compartido: false })}>
+                  <button
+                    className={accion}
+                    onClick={() => setEditando({ ...r, id: null, nombre: `${r.nombre} (copia)`, compartido: false })}
+                  >
                     Duplicar
                   </button>
                   {puedeEditar(r) && (

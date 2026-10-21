@@ -57,26 +57,16 @@ function construirEntradasHistorial(antes, cambios) {
   }
 
   if ('interes' in cambios && cambios.interes !== antes.interes) {
-    entradas.push(
-      cambios.interes
-        ? `Categorizado como ${ETIQUETA_INTERES[cambios.interes]}.`
-        : 'Se quitó la categoría de interés.'
-    );
+    entradas.push(cambios.interes ? `Categorizado como ${ETIQUETA_INTERES[cambios.interes]}.` : 'Se quitó la categoría de interés.');
   }
 
-  if (
-    'ultimo_contacto' in cambios &&
-    cambios.ultimo_contacto &&
-    !mismoInstante(cambios.ultimo_contacto, antes.ultimo_contacto)
-  ) {
+  if ('ultimo_contacto' in cambios && cambios.ultimo_contacto && !mismoInstante(cambios.ultimo_contacto, antes.ultimo_contacto)) {
     entradas.push(`Último contacto registrado: ${fecha(cambios.ultimo_contacto)}.`);
   }
 
   if ('recordatorio' in cambios && !mismoInstante(cambios.recordatorio, antes.recordatorio)) {
     entradas.push(
-      cambios.recordatorio
-        ? `Recordatorio programado para el ${fechaHora(cambios.recordatorio)}.`
-        : 'Se quitó el recordatorio.'
+      cambios.recordatorio ? `Recordatorio programado para el ${fechaHora(cambios.recordatorio)}.` : 'Se quitó el recordatorio.',
     );
   }
 

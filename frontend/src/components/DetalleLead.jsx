@@ -2,13 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { apiFetch } from '../lib/api'
 import { diasDesde } from '../lib/urgencia'
 import { colorPorInteres, sinCategoria, etiquetaInteres } from '../lib/interes'
-import {
-  iniciales,
-  fechaHoraCorta,
-  aInputDateTime,
-  desdeInputDateTime,
-  numeroWhatsApp,
-} from '../lib/formato'
+import { iniciales, fechaHoraCorta, aInputDateTime, desdeInputDateTime, numeroWhatsApp } from '../lib/formato'
 import CierreLead from './CierreLead'
 import CharlasLead from './CharlasLead'
 import { useConfigEquipo } from '../lib/configEquipo'
@@ -19,20 +13,14 @@ const niveles = Object.keys(etiquetaInteres)
 function Seccion({ titulo, children }) {
   return (
     <div className="px-5 py-3.5 border-b border-border-tertiary">
-      {titulo && (
-        <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary mb-2">
-          {titulo}
-        </div>
-      )}
+      {titulo && <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary mb-2">{titulo}</div>}
       {children}
     </div>
   )
 }
 
 function Pill({ children, clases = 'bg-bg-secondary text-text-secondary border-border-tertiary' }) {
-  return (
-    <span className={`text-[10px] px-2 py-0.5 rounded-full border ${clases}`}>{children}</span>
-  )
+  return <span className={`text-[10px] px-2 py-0.5 rounded-full border ${clases}`}>{children}</span>
 }
 
 export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
@@ -61,9 +49,13 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
     }
   }, [lead.id])
 
+  // historial al abrir la tarjeta (después de cada cambio se vuelve a pedir con cargarHistorial)
   useEffect(() => {
-    cargarHistorial()
-  }, [cargarHistorial])
+    apiFetch(`/api/leads/${lead.id}/historial`)
+      .then(setHistorial)
+      .catch((e) => setError(e.message))
+      .finally(() => setCargandoHistorial(false))
+  }, [lead.id])
 
   useEffect(() => {
     function alTeclear(e) {
@@ -173,23 +165,16 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
             >
               {lead.destacado ? '★' : '☆'}
             </button>
-            <button
-              onClick={onCerrar}
-              className="text-lg leading-none text-text-tertiary hover:text-text-primary"
-            >
+            <button onClick={onCerrar} className="text-lg leading-none text-text-tertiary hover:text-text-primary">
               ✕
             </button>
           </div>
         </div>
 
         {!esMio && (
-          <div
-            className="px-5 py-2.5 border-b text-[11px] bg-amber-bg border-amber-border text-amber-text"
-          >
+          <div className="px-5 py-2.5 border-b text-[11px] bg-amber-bg border-amber-border text-amber-text">
             Este contacto está asignado a <strong>{nombreAsesor}</strong>.{' '}
-            {esLider
-              ? 'Como líder del equipo podés modificarlo.'
-              : 'Podés verlo, pero no modificarlo mientras esté vigente.'}
+            {esLider ? 'Como líder del equipo podés modificarlo.' : 'Podés verlo, pero no modificarlo mientras esté vigente.'}
           </div>
         )}
 
@@ -262,9 +247,7 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
                 Enviar correo
               </a>
             ) : (
-              <span className="flex-1 text-center text-xs py-2 rounded-md border border-border-tertiary text-text-tertiary">
-                Sin email
-              </span>
+              <span className="flex-1 text-center text-xs py-2 rounded-md border border-border-tertiary text-text-tertiary">Sin email</span>
             )}
           </div>
         </Seccion>
@@ -296,12 +279,7 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
               className={`${inputClase} flex-1`}
             />
             <button
-              disabled={
-                !puedeEditar ||
-                guardando ||
-                !recordatorio ||
-                recordatorio === aInputDateTime(lead.recordatorio)
-              }
+              disabled={!puedeEditar || guardando || !recordatorio || recordatorio === aInputDateTime(lead.recordatorio)}
               onClick={() => guardarCambios({ recordatorio: desdeInputDateTime(recordatorio) })}
               className={botonSecundario}
             >
@@ -355,16 +333,8 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
             </div>
           )}
 
-          {error && (
-            <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-2">
-              {error}
-            </p>
-          )}
-          {aviso && (
-            <p className="text-xs text-amber-text bg-amber-bg border border-amber-border rounded-md px-3 py-2 mb-2">
-              {aviso}
-            </p>
-          )}
+          {error && <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-2">{error}</p>}
+          {aviso && <p className="text-xs text-amber-text bg-amber-bg border border-amber-border rounded-md px-3 py-2 mb-2">{aviso}</p>}
 
           {cargandoHistorial && <p className="text-xs text-text-tertiary">Cargando historial...</p>}
           {!cargandoHistorial && historial.length === 0 && (
@@ -372,10 +342,7 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
           )}
 
           {historial.map((item) => (
-            <div
-              key={item.id}
-              className="flex gap-[7px] py-1.5 border-b border-border-tertiary last:border-b-0"
-            >
+            <div key={item.id} className="flex gap-[7px] py-1.5 border-b border-border-tertiary last:border-b-0">
               <span className="w-1.5 h-1.5 rounded-full bg-border-secondary mt-1 shrink-0" />
               <div>
                 <div className="text-[11px] text-text-secondary leading-snug">{item.texto}</div>

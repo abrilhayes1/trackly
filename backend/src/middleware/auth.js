@@ -5,9 +5,13 @@ require('dotenv').config();
 // proyecto (se descarga una vez y queda guardada 10 minutos), así no hay que preguntarle a Supabase
 // en cada pedido. Si el proyecto usa la clave secreta vieja (HS256), getClaims le pregunta a
 // Supabase como antes, así que funciona igual en los dos casos.
-const verificador = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-  auth: { persistSession: false, autoRefreshToken: false },
-});
+let verificador = null;
+function obtenerVerificador() {
+  verificador ??= createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  return verificador;
+}
 
 async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -18,7 +22,7 @@ async function requireAuth(req, res, next) {
 
   const token = authHeader.split(' ')[1];
 
-  const { data, error } = await verificador.auth.getClaims(token);
+  const { data, error } = await obtenerVerificador().auth.getClaims(token);
   const claims = data?.claims;
 
   // tiene que ser el token de un usuario que inició sesión (no la clave pública anónima)

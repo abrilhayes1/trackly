@@ -55,9 +55,7 @@ export default function Topbar({ busqueda, onBuscar }) {
           </button>
         )}
       </div>
-      <span className="ml-auto text-[11px] text-text-secondary whitespace-nowrap">
-        {fecha}
-      </span>
+      <span className="ml-auto text-[11px] text-text-secondary whitespace-nowrap">{fecha}</span>
       <button
         onClick={alternarTema}
         title={oscuro ? 'Pasar a modo claro' : 'Pasar a modo oscuro'}

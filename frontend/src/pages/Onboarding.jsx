@@ -237,21 +237,22 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
           <div className="px-7 py-10 text-center">
             <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-green-bg flex items-center justify-center">
               <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                <path d="M5 14l6 6L23 7" stroke="var(--color-green-border)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M5 14l6 6L23 7"
+                  stroke="var(--color-green-border)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-text-primary mb-2">
-              ¡{d.equipoNombre.trim()} ya está en Trackly!
-            </h2>
+            <h2 className="text-xl font-bold text-text-primary mb-2">¡{d.equipoNombre.trim()} ya está en Trackly!</h2>
             <p className="text-[13px] text-text-secondary leading-relaxed mb-6">
               Tu configuración quedó guardada. Podés empezar a cargar {t.varios.toLowerCase()} ahora mismo.
               {listo.invitados > 0 &&
                 ` Las personas que invitaste entran solas a tu equipo cuando crean su cuenta en Trackly con ese email.`}
             </p>
-            <button
-              onClick={onListo}
-              className="px-6 py-2.5 rounded-md bg-accent text-white text-[13px] font-medium hover:bg-accent-dark"
-            >
+            <button onClick={onListo} className="px-6 py-2.5 rounded-md bg-accent text-white text-[13px] font-medium hover:bg-accent-dark">
               Ir a Trackly →
             </button>
           </div>
@@ -316,12 +317,7 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
                           sub={c.sub}
                         />
                       ))}
-                      <Opcion
-                        sel={d.contacto === 'Otro'}
-                        onClick={() => cambiar({ contacto: 'Otro' })}
-                        label="Otro"
-                        sub="Lo defino yo"
-                      />
+                      <Opcion sel={d.contacto === 'Otro'} onClick={() => cambiar({ contacto: 'Otro' })} label="Otro" sub="Lo defino yo" />
                     </GrillaOpciones>
                     {d.contacto === 'Otro' && (
                       <div className="grid grid-cols-2 gap-2 -mt-2">
@@ -351,10 +347,7 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
                     {d.vencimientoHabilitado && <CamposVencimiento valores={d} onCambiar={cambiar} />}
                   </Campo>
 
-                  <Campo
-                    label="Categorías de origen"
-                    ayuda="¿De dónde vienen tus contactos? Escribí cada categoría y presioná Enter."
-                  >
+                  <Campo label="Categorías de origen" ayuda="¿De dónde vienen tus contactos? Escribí cada categoría y presioná Enter.">
                     <Etiquetas
                       valores={d.categoriasOrigen}
                       onCambiar={(v) => cambiar({ categoriasOrigen: v })}
@@ -392,12 +385,7 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
                             sub={ev.sub}
                           />
                         ))}
-                        <Opcion
-                          sel={d.evento === 'Otro'}
-                          onClick={() => cambiar({ evento: 'Otro' })}
-                          label="Otro"
-                          sub="Lo defino yo"
-                        />
+                        <Opcion sel={d.evento === 'Otro'} onClick={() => cambiar({ evento: 'Otro' })} label="Otro" sub="Lo defino yo" />
                       </GrillaOpciones>
                       {d.evento === 'Otro' && (
                         <input
@@ -451,13 +439,9 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
                 </>
               )}
 
-              {intento && errorPaso && (
-                <p className="text-[11px] text-red-text mt-3">{errorPaso}</p>
-              )}
+              {intento && errorPaso && <p className="text-[11px] text-red-text mt-3">{errorPaso}</p>}
               {errorGuardar && (
-                <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mt-4">
-                  {errorGuardar}
-                </p>
+                <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mt-4">{errorGuardar}</p>
               )}
             </div>
 

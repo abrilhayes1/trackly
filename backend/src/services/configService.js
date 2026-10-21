@@ -3,10 +3,7 @@ const { lanzarSiError } = require('../lib/errores');
 const { armarConfig, limpiarEmails, lanzarErrorDeBase } = require('../lib/configEquipo');
 
 async function obtener(supabase) {
-  const { data, error } = await supabase
-    .from('tenant_config')
-    .select('*')
-    .maybeSingle();
+  const { data, error } = await supabase.from('tenant_config').select('*').maybeSingle();
 
   lanzarSiError(error);
   return data;
@@ -24,11 +21,7 @@ async function equipo(supabase) {
   const [miembros, invitaciones] = await Promise.all([
     // con '*' sigue andando aunque todavía no se haya corrido 14_perfil.sql (avatar_url)
     supabase.from('profiles').select('*').order('nombre'),
-    supabase
-      .from('invitaciones')
-      .select('id, email, rol, created_at')
-      .is('aceptada_at', null)
-      .order('created_at', { ascending: false }),
+    supabase.from('invitaciones').select('id, email, rol, created_at').is('aceptada_at', null).order('created_at', { ascending: false }),
   ]);
 
   lanzarSiError(miembros.error);

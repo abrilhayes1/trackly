@@ -35,7 +35,7 @@ async function listar(supabase, { tipo, campos, limite, desde, asesor } = {}) {
       .from('cierres')
       .select(`*, ${lead}, cerrador:profiles(nombre)`)
       .order('updated_at', { ascending: false })
-      .order('id', { ascending: true })
+      .order('id', { ascending: true }),
   );
   if (asesor) consulta = consulta.eq('lead.asesor_id', asesor);
   // se pide uno de más para saber si hay otra página
@@ -48,11 +48,7 @@ async function listar(supabase, { tipo, campos, limite, desde, asesor } = {}) {
 
 // el cierre de un lead (null si todavía no tiene)
 async function obtener(supabase, leadId) {
-  const { data, error } = await supabase
-    .from('cierres')
-    .select('*')
-    .eq('lead_id', leadId)
-    .maybeSingle();
+  const { data, error } = await supabase.from('cierres').select('*').eq('lead_id', leadId).maybeSingle();
 
   lanzarSiError(error);
   return data;
@@ -77,8 +73,8 @@ async function cerrar(supabase, leadId, body) {
   const { data, error } = await supabase.rpc('registrar_cierre', {
     p_lead_id: leadId,
     p_tipo: tipo,
-    p_datos: tipo === 'ganado' ? datos ?? {} : {},
-    p_motivo: tipo === 'perdido' ? motivo ?? null : null,
+    p_datos: tipo === 'ganado' ? (datos ?? {}) : {},
+    p_motivo: tipo === 'perdido' ? (motivo ?? null) : null,
   });
 
   if (error) {

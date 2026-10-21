@@ -64,23 +64,16 @@ export default function NuevoLeadModal({ onCerrar, onCreado }) {
         <div className="flex items-start gap-3 px-5 py-4 border-b border-border-tertiary">
           <div>
             <div className="text-[15px] font-semibold text-text-primary">Agregar {uno}</div>
-            <div className="text-[11px] text-text-secondary mt-px">
-              Cargá un contacto manualmente
-            </div>
+            <div className="text-[11px] text-text-secondary mt-px">Cargá un contacto manualmente</div>
           </div>
-          <button
-            onClick={onCerrar}
-            className="ml-auto text-lg leading-none text-text-tertiary hover:text-text-primary"
-          >
+          <button onClick={onCerrar} className="ml-auto text-lg leading-none text-text-tertiary hover:text-text-primary">
             ✕
           </button>
         </div>
 
         <div className="px-5 py-4">
           <div className="mb-3">
-            <label className="block text-xs text-text-secondary mb-1">
-              Nombre y apellido *
-            </label>
+            <label className="block text-xs text-text-secondary mb-1">Nombre y apellido *</label>
             <input
               className={inputClase}
               placeholder="Ej: Molina, Paula"
@@ -88,39 +81,23 @@ export default function NuevoLeadModal({ onCerrar, onCreado }) {
               onChange={(e) => setNombre(e.target.value)}
               autoFocus
             />
-            {errores.nombre && (
-              <p className="text-[11px] text-red-text mt-1">{errores.nombre}</p>
-            )}
+            {errores.nombre && <p className="text-[11px] text-red-text mt-1">{errores.nombre}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-2.5 mb-3">
             <div>
               <label className="block text-xs text-text-secondary mb-1">Teléfono *</label>
-              <input
-                className={inputClase}
-                placeholder="11 4448 7720"
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
-              />
-              {errores.telefono && (
-                <p className="text-[11px] text-red-text mt-1">{errores.telefono}</p>
-              )}
+              <input className={inputClase} placeholder="11 4448 7720" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
+              {errores.telefono && <p className="text-[11px] text-red-text mt-1">{errores.telefono}</p>}
             </div>
             <div>
               <label className="block text-xs text-text-secondary mb-1">Email</label>
-              <input
-                className={inputClase}
-                placeholder="contacto@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+              <input className={inputClase} placeholder="contacto@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
           </div>
 
           <div className="mb-3">
-            <label className="block text-xs text-text-secondary mb-1">
-              Origen
-            </label>
+            <label className="block text-xs text-text-secondary mb-1">Origen</label>
             {categorias.length > 0 && !origenOtro ? (
               <select
                 className={inputClase}
@@ -164,9 +141,7 @@ export default function NuevoLeadModal({ onCerrar, onCreado }) {
           </div>
 
           {errorServidor && (
-            <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-3">
-              {errorServidor}
-            </p>
+            <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-3">{errorServidor}</p>
           )}
 
           <button

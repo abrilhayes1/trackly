@@ -27,7 +27,9 @@ async function listar(supabase, estados, campos) {
   let consulta = supabase.from('leads').select(campos === 'analisis' ? COLUMNAS_ANALISIS : '*, asesor:profiles(nombre)');
 
   if (estados !== undefined && estados !== '') {
-    const lista = String(estados).split(',').map((e) => e.trim());
+    const lista = String(estados)
+      .split(',')
+      .map((e) => e.trim());
     if (lista.some((e) => !ESTADOS_VALIDOS.includes(e))) {
       throw new ErrorHttp(400, 'Estado inválido (usá activo, vencido, archivo, ganado o perdido)');
     }
@@ -67,11 +69,7 @@ async function buscar(supabase, consulta) {
     return [];
   }
 
-  const filtros = [
-    `nombre.ilike."%${texto}%"`,
-    `email.ilike."%${texto}%"`,
-    `telefono.ilike."%${texto}%"`,
-  ];
+  const filtros = [`nombre.ilike."%${texto}%"`, `email.ilike."%${texto}%"`, `telefono.ilike."%${texto}%"`];
 
   // si escribió un teléfono con espacios o guiones, probamos también solo con los números
   const digitos = texto.replace(/\D/g, '');
@@ -98,11 +96,7 @@ async function crear(supabase, user, body) {
   }
 
   // buscamos el tenant_id real desde profiles, no confiamos en lo que mande el cliente
-  const { data: perfil, error: errorPerfil } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .single();
+  const { data: perfil, error: errorPerfil } = await supabase.from('profiles').select('tenant_id').eq('id', user.id).single();
 
   if (errorPerfil || !perfil) {
     throw new ErrorHttp(400, 'No se encontró el perfil del usuario');
@@ -118,7 +112,7 @@ async function crear(supabase, user, body) {
       email,
       origen,
       consulta,
-      estado: 'activo'
+      estado: 'activo',
     })
     .select()
     .single();
@@ -156,11 +150,7 @@ async function actualizar(supabase, user, id, body) {
   }
 
   // leemos cómo estaba el lead para poder registrar qué cambió
-  const { data: antes, error: errorAntes } = await supabase
-    .from('leads')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle();
+  const { data: antes, error: errorAntes } = await supabase.from('leads').select('*').eq('id', id).maybeSingle();
 
   lanzarSiError(errorAntes);
 
@@ -170,12 +160,7 @@ async function actualizar(supabase, user, id, body) {
 
   cambios.updated_at = new Date().toISOString();
 
-  const { data, error } = await supabase
-    .from('leads')
-    .update(cambios)
-    .eq('id', id)
-    .select()
-    .maybeSingle();
+  const { data, error } = await supabase.from('leads').update(cambios).eq('id', id).select().maybeSingle();
 
   lanzarSiError(error);
 

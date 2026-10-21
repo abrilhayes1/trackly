@@ -235,15 +235,30 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
           </div>
 
           <div className="flex gap-[5px] border-b border-border-tertiary mb-4">
-            <Pestana activa={pestana === 'asesores'} onClick={() => { setAviso(null); setPestana('asesores') }}>
+            <Pestana
+              activa={pestana === 'asesores'}
+              onClick={() => {
+                setAviso(null)
+                setPestana('asesores')
+              }}
+            >
               Asesores
             </Pestana>
-            <Pestana activa={pestana === 'leads'} onClick={() => { setAviso(null); setPestana('leads') }}>
+            <Pestana
+              activa={pestana === 'leads'}
+              onClick={() => {
+                setAviso(null)
+                setPestana('leads')
+              }}
+            >
               {Varios} del equipo
             </Pestana>
             <Pestana
               activa={pestana === 'sinAsignar'}
-              onClick={() => { setAviso(null); setPestana('sinAsignar') }}
+              onClick={() => {
+                setAviso(null)
+                setPestana('sinAsignar')
+              }}
               cantidad={sinAsignar.length}
             >
               Sin asignar
@@ -363,9 +378,7 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
 
           {pestana === 'sinAsignar' && (
             <>
-              <p className="text-xs text-text-secondary mb-3">
-                {Varios} que llegaron y todavía no tienen asesor. Asignalos al equipo.
-              </p>
+              <p className="text-xs text-text-secondary mb-3">{Varios} que llegaron y todavía no tienen asesor. Asignalos al equipo.</p>
               {sinAsignar.length === 0 && (
                 <p className="text-center py-8 text-xs text-text-tertiary">
                   No hay {varios} sin asignar. Todo el equipo tiene sus contactos repartidos.
@@ -384,7 +397,13 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
                     </div>
                   </div>
                   <PillInteres interes={l.interes} />
-                  <SelectorAsesor lead={l} miembros={miembros} onElegir={reasignar} texto="Asignar a..." deshabilitado={reasignando === l.id} />
+                  <SelectorAsesor
+                    lead={l}
+                    miembros={miembros}
+                    onElegir={reasignar}
+                    texto="Asignar a..."
+                    deshabilitado={reasignando === l.id}
+                  />
                 </div>
               ))}
             </>

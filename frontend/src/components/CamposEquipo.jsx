@@ -22,9 +22,7 @@ export function Opcion({ sel, onClick, icono, label, sub, centrada = false }) {
       type="button"
       onClick={onClick}
       className={`text-left rounded-[7px] border px-4 py-3 transition-colors ${centrada ? 'text-center' : ''} ${
-        sel
-          ? 'border-accent bg-purple-bg'
-          : 'border-border-secondary bg-bg-secondary hover:border-accent hover:bg-purple-bg'
+        sel ? 'border-accent bg-purple-bg' : 'border-border-secondary bg-bg-secondary hover:border-accent hover:bg-purple-bg'
       }`}
     >
       {icono && <div className="text-xl mb-1">{icono}</div>}
@@ -35,9 +33,7 @@ export function Opcion({ sel, onClick, icono, label, sub, centrada = false }) {
 }
 
 export function GrillaOpciones({ columnas = 2, children }) {
-  return (
-    <div className={`grid gap-2 mb-[1.1rem] ${columnas === 4 ? 'grid-cols-4' : 'grid-cols-2'}`}>{children}</div>
-  )
+  return <div className={`grid gap-2 mb-[1.1rem] ${columnas === 4 ? 'grid-cols-4' : 'grid-cols-2'}`}>{children}</div>
 }
 
 // fila con interruptor (vencimiento, eventos, resumen diario)
@@ -52,12 +48,8 @@ export function Interruptor({ prendido, onCambiar, label, sub }) {
         <span className="block text-[13px] font-medium text-text-primary">{label}</span>
         {sub && <span className="block text-[11px] text-text-secondary mt-0.5">{sub}</span>}
       </span>
-      <span
-        className={`relative w-9 h-5 rounded-full shrink-0 transition-colors ${prendido ? 'bg-accent' : 'bg-border-secondary'}`}
-      >
-        <span
-          className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${prendido ? 'left-[18px]' : 'left-0.5'}`}
-        />
+      <span className={`relative w-9 h-5 rounded-full shrink-0 transition-colors ${prendido ? 'bg-accent' : 'bg-border-secondary'}`}>
+        <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${prendido ? 'left-[18px]' : 'left-0.5'}`} />
       </span>
     </button>
   )
@@ -76,10 +68,7 @@ export function Etiquetas({ valores, onCambiar, placeholder }) {
   return (
     <div className="flex flex-wrap gap-1.5 px-2.5 py-2 min-h-11 rounded-[7px] border border-border-secondary bg-bg-secondary focus-within:border-accent focus-within:bg-bg-primary">
       {valores.map((v) => (
-        <span
-          key={v}
-          className="flex items-center gap-1 rounded-full bg-purple-bg text-accent-text px-2.5 py-[3px] text-xs font-medium"
-        >
+        <span key={v} className="flex items-center gap-1 rounded-full bg-purple-bg text-accent-text px-2.5 py-[3px] text-xs font-medium">
           {v}
           <button
             type="button"
@@ -134,9 +123,7 @@ export function CamposVencimiento({ valores, onCambiar }) {
   const { diasVencimiento, diasAlertaPrevia, diasArchivo } = valores
   return (
     <div className="pl-1 mb-2">
-      <span className="block text-[11px] text-text-tertiary mb-1.5">
-        ¿Cada cuántos días sin contacto vence?
-      </span>
+      <span className="block text-[11px] text-text-tertiary mb-1.5">¿Cada cuántos días sin contacto vence?</span>
       <GrillaOpciones columnas={4}>
         {PLAZOS.map((d) => (
           <Opcion
@@ -217,9 +204,7 @@ export function EditorCamposCierre({ campos, onCambiar, tipos, nuevoId }) {
   return (
     <div>
       {campos.length === 0 && (
-        <p className="text-[11px] text-text-tertiary mb-3">
-          Sin campos: los cierres ganados se registran sin datos extra.
-        </p>
+        <p className="text-[11px] text-text-tertiary mb-3">Sin campos: los cierres ganados se registran sin datos extra.</p>
       )}
       {campos.map((c, i) => (
         <div key={c.id} className="rounded-[7px] border border-border-tertiary bg-bg-secondary px-3 py-2.5 mb-2">
@@ -232,9 +217,7 @@ export function EditorCamposCierre({ campos, onCambiar, tipos, nuevoId }) {
             />
             <select
               value={c.tipo}
-              onChange={(e) =>
-                cambiar(i, { tipo: e.target.value, opciones: e.target.value === 'lista' ? c.opciones || [] : undefined })
-              }
+              onChange={(e) => cambiar(i, { tipo: e.target.value, opciones: e.target.value === 'lista' ? c.opciones || [] : undefined })}
               className="text-xs px-2 py-1.5 rounded-md border border-border-secondary bg-bg-primary text-text-primary focus:outline-none focus:border-accent"
             >
               {tipos.map((t) => (

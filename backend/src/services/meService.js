@@ -7,11 +7,7 @@ const BUCKET = 'avatares';
 const MAX_FOTO = 1024 * 1024;
 
 async function buscarPerfil(supabase, user) {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*, tenants(nombre)')
-    .eq('id', user.id)
-    .maybeSingle();
+  const { data, error } = await supabase.from('profiles').select('*, tenants(nombre)').eq('id', user.id).maybeSingle();
 
   lanzarSiError(error);
   return data;

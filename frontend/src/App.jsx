@@ -87,7 +87,10 @@ function App() {
       if (session && sesionVencida()) return
       // ingreso nuevo: arranca a contar desde ahora; al salir se borra la marca
       if (evento === 'SIGNED_IN') marcarActividad()
-      if (evento === 'SIGNED_OUT') olvidarActividad()
+      if (evento === 'SIGNED_OUT') {
+        olvidarActividad()
+        setPerfil(undefined)
+      }
       setSesion(session)
       if (evento === 'PASSWORD_RECOVERY') setRecuperando(true)
     })
@@ -98,10 +101,8 @@ function App() {
   const userId = sesion?.user.id
 
   useEffect(() => {
-    if (!userId) {
-      setPerfil(undefined)
-      return
-    }
+    // sin sesión no hay perfil (lo limpian cerrarSesion y el evento SIGNED_OUT)
+    if (!userId) return
     apiFetch('/api/me')
       .then((data) => {
         setPerfil(data)
@@ -209,9 +210,7 @@ function App() {
     })
     if (error) {
       setError(
-        /provider is not enabled/i.test(error.message)
-          ? 'El ingreso con Google todavía no está activado en Supabase.'
-          : error.message
+        /provider is not enabled/i.test(error.message) ? 'El ingreso con Google todavía no está activado en Supabase.' : error.message,
       )
     }
   }
@@ -238,11 +237,7 @@ function App() {
   }
 
   if (cargando) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-text-secondary text-sm">
-        Cargando...
-      </div>
-    )
+    return <div className="min-h-screen flex items-center justify-center text-text-secondary text-sm">Cargando...</div>
   }
 
   if (sesion && perfil === undefined) {
@@ -303,116 +298,103 @@ function App() {
 
     return (
       <ConfigEquipoContext.Provider value={contextoConfig}>
-      <LeadsEquipoContext.Provider value={{ ...lista, listo: lista.listo && configLista }}>
-      <div className="flex min-h-screen min-w-[1024px]">
-        <Sidebar
-          email={sesion.user.email}
-          perfil={perfil}
-          vista={vista}
-          onNavegar={navegar}
-          onCerrarSesion={cerrarSesion}
-          contadores={
-            contadores && configEquipo && lista.listo
-              ? calcularContadores({ ...contadores, leads: lista.leads, config: configEquipo, userId, rol: perfil?.rol })
-              : null
-          }
-        />
-        <main className="flex-1 min-w-0 bg-bg-primary">
-          <Topbar busqueda={busqueda} onBuscar={setBusqueda} />
-
-          {/* mientras se descarga una pantalla que todavía no se abrió */}
-          <Suspense fallback={<p className="p-5 text-sm text-text-secondary">Cargando...</p>}>
-
-          {buscando && (
-            <ResultadosBusqueda
-              q={textoBusqueda}
-              userId={userId}
-              onAbrirLead={setLeadAbierto}
-              cambios={cambios}
+        <LeadsEquipoContext.Provider value={{ ...lista, listo: lista.listo && configLista }}>
+          <div className="flex min-h-screen min-w-[1024px]">
+            <Sidebar
+              email={sesion.user.email}
+              perfil={perfil}
+              vista={vista}
+              onNavegar={navegar}
+              onCerrarSesion={cerrarSesion}
+              contadores={
+                contadores && configEquipo && lista.listo
+                  ? calcularContadores({ ...contadores, leads: lista.leads, config: configEquipo, userId, rol: perfil?.rol })
+                  : null
+              }
             />
-          )}
+            <main className="flex-1 min-w-0 bg-bg-primary">
+              <Topbar busqueda={busqueda} onBuscar={setBusqueda} />
 
-          {!buscando && vista === 'alertas' && (
-            <AlertasHoy userId={userId} onAbrirLead={setLeadAbierto} />
-          )}
+              {/* mientras se descarga una pantalla que todavía no se abrió */}
+              <Suspense fallback={<p className="p-5 text-sm text-text-secondary">Cargando...</p>}>
+                {buscando && <ResultadosBusqueda q={textoBusqueda} userId={userId} onAbrirLead={setLeadAbierto} cambios={cambios} />}
 
-          {!buscando && vista === 'agenda' && <Agenda userId={userId} onAbrirLead={setLeadAbierto} onCambioLead={alCambiarLead} cambios={cambios} />}
+                {!buscando && vista === 'alertas' && <AlertasHoy userId={userId} onAbrirLead={setLeadAbierto} />}
 
-          {!buscando && vista === 'charlas' && (
-            <Charlas
-              userId={userId}
-              rol={perfil?.rol}
-              onAbrirLead={setLeadAbierto}
-              cambios={cambios}
-              onCambio={() => setCambios((n) => n + 1)}
-            />
-          )}
+                {!buscando && vista === 'agenda' && (
+                  <Agenda userId={userId} onAbrirLead={setLeadAbierto} onCambioLead={alCambiarLead} cambios={cambios} />
+                )}
 
-          {!buscando && vista === 'perfil' && perfil && (
-            <Perfil perfil={perfil} usuario={sesion.user} cambios={cambios} onPerfilCambiado={setPerfil} />
-          )}
+                {!buscando && vista === 'charlas' && (
+                  <Charlas
+                    userId={userId}
+                    rol={perfil?.rol}
+                    onAbrirLead={setLeadAbierto}
+                    cambios={cambios}
+                    onCambio={() => setCambios((n) => n + 1)}
+                  />
+                )}
 
-          {!buscando && vista === 'stats' && <Estadisticas userId={userId} rol={perfil?.rol} cambios={cambios} />}
+                {!buscando && vista === 'perfil' && perfil && (
+                  <Perfil perfil={perfil} usuario={sesion.user} cambios={cambios} onPerfilCambiado={setPerfil} />
+                )}
 
-          {!buscando && vista === 'panel' && (
-            <PanelLider
-              rol={perfil?.rol}
-              onAbrirLead={setLeadAbierto}
-              onCambio={() => setCambios((n) => n + 1)}
-            />
-          )}
+                {!buscando && vista === 'stats' && <Estadisticas userId={userId} rol={perfil?.rol} cambios={cambios} />}
 
-          {!buscando && vista === 'config' && (
-            <Configuracion
-              rol={perfil?.rol}
-              nombreEquipo={perfil?.tenants?.nombre}
-              onGuardado={() => {
-                setRecargasPerfil((n) => n + 1)
-                setCambios((n) => n + 1)
-              }}
-            />
-          )}
+                {!buscando && vista === 'panel' && (
+                  <PanelLider rol={perfil?.rol} onAbrirLead={setLeadAbierto} onCambio={() => setCambios((n) => n + 1)} />
+                )}
 
-          {!buscando && vista === 'archivo' && (
-            <Archivo
-              userId={userId}
-              rol={perfil?.rol}
-              onAbrirLead={setLeadAbierto}
-              cambios={cambios}
-              onCambio={() => setCambios((n) => n + 1)}
-            />
-          )}
+                {!buscando && vista === 'config' && (
+                  <Configuracion
+                    rol={perfil?.rol}
+                    nombreEquipo={perfil?.tenants?.nombre}
+                    onGuardado={() => {
+                      setRecargasPerfil((n) => n + 1)
+                      setCambios((n) => n + 1)
+                    }}
+                  />
+                )}
 
-          {!buscando && (vista === 'exitosos' || vista === 'perdidos') && (
-            <CasosCerrados
-              key={vista}
-              tipo={vista === 'exitosos' ? 'ganado' : 'perdido'}
-              rol={perfil?.rol}
-              onAbrirLead={setLeadAbierto}
-              cambios={cambios}
-            />
-          )}
+                {!buscando && vista === 'archivo' && (
+                  <Archivo
+                    userId={userId}
+                    rol={perfil?.rol}
+                    onAbrirLead={setLeadAbierto}
+                    cambios={cambios}
+                    onCambio={() => setCambios((n) => n + 1)}
+                  />
+                )}
 
-          </Suspense>
+                {!buscando && (vista === 'exitosos' || vista === 'perdidos') && (
+                  <CasosCerrados
+                    key={vista}
+                    tipo={vista === 'exitosos' ? 'ganado' : 'perdido'}
+                    rol={perfil?.rol}
+                    onAbrirLead={setLeadAbierto}
+                    cambios={cambios}
+                  />
+                )}
+              </Suspense>
 
-          {/* Mis leads queda montada pero oculta cuando se busca o se ve otra pantalla, así no se vuelve a cargar */}
-          <div className={buscando || vista !== 'leads' ? 'hidden' : ''}>
-            <MisLeads onAbrirLead={setLeadAbierto} onCambio={() => setCambios((n) => n + 1)} />
+              {/* Mis leads queda montada pero oculta cuando se busca o se ve otra pantalla, así no se vuelve a cargar */}
+              <div className={buscando || vista !== 'leads' ? 'hidden' : ''}>
+                <MisLeads onAbrirLead={setLeadAbierto} onCambio={() => setCambios((n) => n + 1)} />
+              </div>
+            </main>
+
+            {leadAbierto && (
+              <DetalleLead
+                key={leadAbierto.id}
+                lead={leadAbierto}
+                userId={userId}
+                rol={perfil?.rol}
+                onCerrar={() => setLeadAbierto(null)}
+                onCambio={alCambiarLead}
+              />
+            )}
           </div>
-        </main>
-
-        {leadAbierto && (
-          <DetalleLead
-            key={leadAbierto.id}
-            lead={leadAbierto}
-            userId={userId}
-            rol={perfil?.rol}
-            onCerrar={() => setLeadAbierto(null)}
-            onCambio={alCambiarLead}
-          />
-        )}
-      </div>
-      </LeadsEquipoContext.Provider>
+        </LeadsEquipoContext.Provider>
       </ConfigEquipoContext.Provider>
     )
   }
@@ -431,7 +413,11 @@ function App() {
           Trackly<span className="text-green-border">.</span>
         </h1>
         <p className="text-center text-xs text-text-secondary mb-7">
-          {modoLogin === 'crear' ? 'Creá tu cuenta' : modoLogin === 'recuperar' ? 'Te mandamos un enlace para elegir una contraseña nueva' : 'Ingresá a tu cuenta'}
+          {modoLogin === 'crear'
+            ? 'Creá tu cuenta'
+            : modoLogin === 'recuperar'
+              ? 'Te mandamos un enlace para elegir una contraseña nueva'
+              : 'Ingresá a tu cuenta'}
         </p>
 
         <div className="mb-3">
@@ -445,67 +431,66 @@ function App() {
         </div>
 
         {modoLogin !== 'recuperar' && (
-        <div className="mb-3">
-          <div className="flex items-baseline justify-between mb-1">
-            <label className="block text-xs text-text-secondary">Contraseña</label>
-            {modoLogin === 'ingresar' && (
-              <button
-                type="button"
-                onClick={() => {
-                  setModoLogin('recuperar')
-                  setError(null)
-                  setMensajeLogin(null)
-                }}
-                className="text-[11px] text-accent hover:underline"
-              >
-                ¿Olvidaste tu contraseña?
-              </button>
-            )}
+          <div className="mb-3">
+            <div className="flex items-baseline justify-between mb-1">
+              <label className="block text-xs text-text-secondary">Contraseña</label>
+              {modoLogin === 'ingresar' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setModoLogin('recuperar')
+                    setError(null)
+                    setMensajeLogin(null)
+                  }}
+                  className="text-[11px] text-accent hover:underline"
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
+              )}
+            </div>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full text-sm px-3 py-2 rounded-md border border-border-secondary bg-bg-secondary text-text-primary focus:outline-none focus:border-accent focus:bg-bg-primary"
+            />
           </div>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full text-sm px-3 py-2 rounded-md border border-border-secondary bg-bg-secondary text-text-primary focus:outline-none focus:border-accent focus:bg-bg-primary"
-          />
-        </div>
         )}
 
-        <button
-          type="submit"
-          className="w-full text-sm font-medium text-white bg-accent hover:bg-accent-dark rounded-md py-2.5 mt-1"
-        >
+        <button type="submit" className="w-full text-sm font-medium text-white bg-accent hover:bg-accent-dark rounded-md py-2.5 mt-1">
           {modoLogin === 'crear' ? 'Crear cuenta' : modoLogin === 'recuperar' ? 'Mandarme el enlace' : 'Ingresar'}
         </button>
 
         {modoLogin !== 'recuperar' && (
-        <>
-        <div className="flex items-center gap-2.5 my-4 text-[11px] text-text-tertiary">
-          <span className="flex-1 h-px bg-border-tertiary" />o<span className="flex-1 h-px bg-border-tertiary" />
-        </div>
+          <>
+            <div className="flex items-center gap-2.5 my-4 text-[11px] text-text-tertiary">
+              <span className="flex-1 h-px bg-border-tertiary" />o<span className="flex-1 h-px bg-border-tertiary" />
+            </div>
 
-        <button
-          type="button"
-          onClick={entrarConGoogle}
-          className="w-full flex items-center justify-center gap-2 text-sm font-medium text-text-primary bg-bg-primary border border-border-secondary hover:bg-bg-secondary rounded-md py-2.5"
-        >
-          <svg width="15" height="15" viewBox="0 0 18 18" aria-hidden="true">
-            <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 01-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z" />
-            <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.02-3.7H.96v2.34A9 9 0 009 18z" />
-            <path fill="#FBBC05" d="M3.98 10.72a5.4 5.4 0 010-3.44V4.94H.96a9 9 0 000 8.12l3.02-2.34z" />
-            <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 00.96 4.94l3.02 2.34C4.68 5.16 6.66 3.58 9 3.58z" />
-          </svg>
-          Continuar con Google
-        </button>
-        </>
+            <button
+              type="button"
+              onClick={entrarConGoogle}
+              className="w-full flex items-center justify-center gap-2 text-sm font-medium text-text-primary bg-bg-primary border border-border-secondary hover:bg-bg-secondary rounded-md py-2.5"
+            >
+              <svg width="15" height="15" viewBox="0 0 18 18" aria-hidden="true">
+                <path
+                  fill="#4285F4"
+                  d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 01-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.02-3.7H.96v2.34A9 9 0 009 18z"
+                />
+                <path fill="#FBBC05" d="M3.98 10.72a5.4 5.4 0 010-3.44V4.94H.96a9 9 0 000 8.12l3.02-2.34z" />
+                <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 00.96 4.94l3.02 2.34C4.68 5.16 6.66 3.58 9 3.58z" />
+              </svg>
+              Continuar con Google
+            </button>
+          </>
         )}
 
-        {error && (
-          <p className="text-red-border text-xs mt-3 text-center">{error}</p>
-        )}
-        {mensajeLogin && (
-          <p className="text-green-text text-xs mt-3 text-center">{mensajeLogin}</p>
-        )}
+        {error && <p className="text-red-border text-xs mt-3 text-center">{error}</p>}
+        {mensajeLogin && <p className="text-green-text text-xs mt-3 text-center">{mensajeLogin}</p>}
 
         <p className="text-center text-[11px] text-text-tertiary mt-6">
           {modoLogin === 'ingresar' ? '¿Todavía no tenés cuenta? ' : modoLogin === 'crear' ? '¿Ya tenés cuenta? ' : ''}

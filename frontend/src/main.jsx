@@ -22,8 +22,8 @@ if (faltan.length > 0) {
           ))}
         </ul>
         <p className="text-xs text-text-secondary">
-          En la compu van en <code>frontend/.env</code>. En Vercel van en Settings → Environment Variables, y
-          después hay que hacer Redeploy para que se apliquen.
+          En la compu van en <code>frontend/.env</code>. En Vercel van en Settings → Environment Variables, y después hay que hacer Redeploy
+          para que se apliquen.
         </p>
       </div>
     </div>,
