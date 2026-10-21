@@ -64,7 +64,26 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: cierre de sesión por inactividad (RNF01)
+## Último trabajo: rendimiento, puntos 1 a 4 de la revisión
+
+- **`database/15_rendimiento.sql`**:
+  - Recorre `pg_policies` (esquema public, también las reglas creadas a mano al principio) y
+    envuelve `current_tenant_id()`, `current_user_rol()` y `auth.uid()` en `(select …)`, así se
+    calculan una vez por consulta.
+  - Crea índices: leads (tenant_id, estado) y (asesor_id, estado), lead_historial (lead_id,
+    created_at), recordatorios (asesor_id, fecha), charlas (tenant_id, fecha),
+    charla_notificados (lead_id) y profiles (tenant_id).
+  - Al final cuenta las reglas sin envolver (tiene que dar 0). Se puede correr más de una vez.
+  - Probado en Postgres local con 10.000 leads: 20,8 ms → 1,1 ms, mismo resultado.
+- **Sesión** (`middleware/auth.js`): `getClaims` con un cliente compartido valida la firma del token
+  con el JWKS del proyecto (cache global de 10 min), sin pedir `getUser` a Supabase en cada pedido.
+  Si el proyecto firma con HS256 (clave vieja), `getClaims` cae en `getUser` como antes. Exige
+  `sub` y `role = authenticated`. `req.user` = { id, email, user_metadata, app_metadata } desde el
+  token. Contra: un cierre de sesión en otro lado se nota recién cuando vence el token (máx. 1 h).
+- **Charlas en el menú:** `GET /api/charlas/proximas` → `{ proximas }` con `count` en la base (3 h
+  de margen). App ya no baja `/api/charlas` en cada cambio de pantalla.
+
+## Anterior: cierre de sesión por inactividad (RNF01)
 
 - `lib/sesion.js`: guarda la última actividad en `localStorage` (`trackly-ultima-actividad`) y con
   más de `HORAS_INACTIVIDAD` (8) sin uso cierra la sesión y el login muestra "Por seguridad, tu

@@ -135,10 +135,11 @@ function App() {
     if (!tieneEquipo) return
     Promise.all([
       apiFetch(`/api/recordatorios?fecha=${fechaLocal()}`),
-      apiFetch('/api/charlas').catch(() => []),
+      // solo cuántas charlas vienen (no la lista con sus invitados)
+      apiFetch('/api/charlas/proximas').catch(() => ({ proximas: 0 })),
       apiFetch('/api/leads/totales'),
     ])
-      .then(([recordatorios, charlas, totales]) => setContadores({ recordatorios, charlas, totales, ahora: Date.now() }))
+      .then(([recordatorios, charlas, totales]) => setContadores({ recordatorios, charlas, totales }))
       .catch(() => setContadores(null))
   }, [tieneEquipo, vista, cambios])
 

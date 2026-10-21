@@ -25,6 +25,15 @@ async function listar(supabase) {
   }));
 }
 
+// cuántas charlas no pasaron todavía (contador del menú), contadas en la base sin traer filas.
+// Con 3 horas de margen, como en la pantalla: una charla que está ocurriendo sigue contando.
+async function contarProximas(supabase) {
+  const desde = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
+  const { count, error } = await supabase.from('charlas').select('id', { count: 'exact', head: true }).gte('fecha', desde);
+  lanzarSiError(error);
+  return { proximas: count ?? 0 };
+}
+
 // una charla con sus invitados: nivel de interés, asesor del lead y quién lo invitó (RF32)
 async function obtener(supabase, id) {
   const { data, error } = await supabase
@@ -92,4 +101,4 @@ async function delLead(supabase, leadId) {
   return data.filter((i) => i.charla).sort((a, b) => new Date(a.charla.fecha) - new Date(b.charla.fecha));
 }
 
-module.exports = { listar, obtener, guardar, eliminar, invitar, marcarAsistencia, delLead };
+module.exports = { listar, contarProximas, obtener, guardar, eliminar, invitar, marcarAsistencia, delLead };
