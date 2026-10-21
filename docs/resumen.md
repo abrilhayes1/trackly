@@ -64,7 +64,21 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: Mi perfil (RF46, nuevo) y recuperar contraseña
+## Último trabajo: cierre de sesión por inactividad (RNF01)
+
+- `lib/sesion.js`: guarda la última actividad en `localStorage` (`trackly-ultima-actividad`) y con
+  más de `HORAS_INACTIVIDAD` (8) sin uso cierra la sesión y el login muestra "Por seguridad, tu
+  sesión se cerró…". Cuenta para todas las pestañas y entre visitas (cerrar el navegador y volver al
+  otro día).
+- Al abrir la app (`getSession`) se revisa antes de mostrar nada. Con la app abierta,
+  `vigilarActividad` cuenta clics, teclas y rueda del mouse (guarda como mucho una vez por minuto) y
+  revisa cada minuto y al volver a la pestaña; antes de contar una actividad revisa si ya venció (por
+  si la compu estuvo suspendida).
+- `SIGNED_IN` marca la actividad y `SIGNED_OUT` la borra. Una sesión guardada vencida se ignora en
+  `onAuthStateChange`.
+- Para cambiar las horas: `HORAS_INACTIVIDAD` en `lib/sesion.js`.
+
+## Anterior: Mi perfil (RF46, nuevo) y recuperar contraseña
 
 - **Pantalla Mi perfil** (`pages/Perfil.jsx`, vista `perfil`): se abre tocando tu nombre abajo a la
   izquierda del menú. Muestra:

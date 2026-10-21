@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from './lib/supabaseClient'
 import { apiFetch } from './lib/api'
 import MisLeads from './pages/MisLeads'
@@ -19,6 +19,7 @@ import ResultadosBusqueda from './components/ResultadosBusqueda'
 import DetalleLead from './components/DetalleLead'
 import { ConfigEquipoContext } from './lib/configEquipo'
 import { LeadsEquipoContext, VIGENCIA_LISTA_MS } from './lib/leadsEquipo'
+import { HORAS_INACTIVIDAD, marcarActividad, olvidarActividad, sesionVencida, vigilarActividad } from './lib/sesion'
 import { calcularContadores } from './lib/contadores'
 import { fechaLocal } from './lib/agenda'
 
@@ -49,19 +50,48 @@ function App() {
   const [error, setError] = useState(null)
   const [cargando, setCargando] = useState(true)
 
+  // las dos solo usan funciones estables (set...), así que no cambian entre renders
+  const cerrarSesion = useCallback(() => {
+    olvidarActividad()
+    supabase.auth.signOut()
+    setSesion(null)
+    setBusqueda('')
+    setLeadAbierto(null)
+    setVista('leads')
+    setPerfil(undefined)
+    setLista({ leads: [], listo: false, error: null })
+    setConfigLista(false)
+  }, [])
+
+  const cerrarPorInactividad = useCallback(() => {
+    cerrarSesion()
+    setMensajeLogin(`Por seguridad, tu sesión se cerró después de ${HORAS_INACTIVIDAD} horas sin uso. Ingresá de nuevo.`)
+  }, [cerrarSesion])
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      setSesion(data.session)
+      // si la sesión guardada lleva más de HORAS_INACTIVIDAD sin uso, se cierra antes de mostrar nada
+      if (data.session && sesionVencida()) {
+        cerrarPorInactividad()
+      } else {
+        if (data.session) marcarActividad()
+        setSesion(data.session)
+      }
       setCargando(false)
     })
 
     const { data: listener } = supabase.auth.onAuthStateChange((evento, session) => {
+      // una sesión vencida guardada no se usa (getSession la cierra)
+      if (session && sesionVencida()) return
+      // ingreso nuevo: arranca a contar desde ahora; al salir se borra la marca
+      if (evento === 'SIGNED_IN') marcarActividad()
+      if (evento === 'SIGNED_OUT') olvidarActividad()
       setSesion(session)
       if (evento === 'PASSWORD_RECOVERY') setRecuperando(true)
     })
 
     return () => listener.subscription.unsubscribe()
-  }, [])
+  }, [cerrarPorInactividad])
 
   const userId = sesion?.user.id
 
@@ -183,16 +213,11 @@ function App() {
     }
   }
 
-  function cerrarSesion() {
-    supabase.auth.signOut()
-    setSesion(null)
-    setBusqueda('')
-    setLeadAbierto(null)
-    setVista('leads')
-    setPerfil(undefined)
-    setLista({ leads: [], listo: false, error: null })
-    setConfigLista(false)
-  }
+  // mientras hay sesión, se mide la inactividad
+  useEffect(() => {
+    if (!userId) return
+    return vigilarActividad(cerrarPorInactividad)
+  }, [userId, cerrarPorInactividad])
 
   // al cambiar de pantalla se limpia la búsqueda, para no quedar viendo resultados viejos
   function navegar(nuevaVista) {
