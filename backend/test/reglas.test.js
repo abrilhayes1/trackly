@@ -50,7 +50,10 @@ test('validarDefinicion de un reporte exige medida, agrupación y vista válidas
   assert.throws(() => validarDefinicion([]), /no es válida/);
 });
 
-test('los errores técnicos de la base llegan en castellano y con el código HTTP correcto', () => {
+test('los errores técnicos de la base llegan en castellano y con el código HTTP correcto', (t) => {
+  // el servidor anota los errores técnicos; en el test no hace falta verlos
+  t.mock.method(console, 'error', () => {});
+
   const propio = traducirErrorDeBase({ code: '42501', message: 'Solo el líder puede reasignar leads' });
   assert.equal(propio.status, 403);
   assert.equal(propio.message, 'Solo el líder puede reasignar leads');
