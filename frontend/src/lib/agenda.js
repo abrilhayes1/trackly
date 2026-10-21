@@ -35,13 +35,38 @@ export function textoPendientes(delDia) {
   return `${pendientes} pendiente${pendientes === 1 ? '' : 's'}`
 }
 
-// "ayer" o "4 oct"
+// "ayer", "mañana" o "4 oct"
 export function etiquetaFecha(fecha, hoy) {
   const [anio, mes, dia] = fecha.split('-').map(Number)
-  const [anioHoy, mesHoy, diaHoy] = hoy.split('-').map(Number)
-  const ayer = new Date(anioHoy, mesHoy - 1, diaHoy - 1)
-  if (anio === ayer.getFullYear() && mes === ayer.getMonth() + 1 && dia === ayer.getDate()) return 'ayer'
-  return `${dia} ${MESES[mes - 1]}`
+  if (fecha === diasDespues(hoy, -1)) return 'ayer'
+  if (fecha === diasDespues(hoy, 1)) return 'mañana'
+  const nombreDia = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'][new Date(anio, mes - 1, dia).getDay()]
+  return fecha > hoy ? `${nombreDia} ${dia} ${MESES[mes - 1]}` : `${dia} ${MESES[mes - 1]}`
+}
+
+// "2026-10-05" + 2 -> "2026-10-07" (en hora local)
+export function diasDespues(fecha, n) {
+  const [anio, mes, dia] = fecha.split('-').map(Number)
+  return fechaLocal(new Date(anio, mes - 1, dia + n))
+}
+
+// Los recordatorios que se cargan en la tarjeta de cada lead (RF25), con la misma forma que los de
+// la agenda, para mostrarlos juntos. Cuentan como hechos si después se registró un contacto.
+export function recordatoriosDeLeads(leads, userId) {
+  return leads
+    .filter((l) => l.asesor_id === userId && l.estado === 'activo' && l.recordatorio)
+    .map((l) => {
+      const f = new Date(l.recordatorio)
+      return {
+        id: `lead-${l.id}`,
+        lead: l,
+        fecha: fechaLocal(f),
+        hora: `${dos(f.getHours())}:${dos(f.getMinutes())}`,
+        contacto: l.nombre,
+        nota: 'Recordatorio del contacto',
+        hecho: !!l.ultimo_contacto && new Date(l.ultimo_contacto) >= f,
+      }
+    })
 }
 
 // por fecha y después por hora (sin hora, al final)

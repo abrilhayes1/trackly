@@ -12,7 +12,8 @@ export function calcularContadores({ leads, recordatorios, charlas = [], ahora =
   return {
     leads: agruparLeads(leads, config, userId).porVencer.length,
     alertas: alertas.vencenHoy.length + alertas.porVencer.length + alertas.recordatorios.length,
-    agenda: recordatorios.filter((r) => !r.hecho).length,
+    // los de la agenda pendientes más los de los contactos de hoy o atrasados
+    agenda: recordatorios.filter((r) => !r.hecho).length + alertas.recordatorios.length,
     archivo: leads.filter((l) => l.estado === 'vencido').length,
     exitosos: leads.filter((l) => l.estado === 'ganado' && propios(l)).length,
     perdidos: leads.filter((l) => l.estado === 'perdido' && propios(l)).length,

@@ -2,25 +2,28 @@
 const { ErrorHttp, lanzarSiError } = require('../lib/errores');
 const { fechaValida, validarRecordatorio, ordenarRecordatorios } = require('../lib/recordatorios');
 
-// Agenda del usuario: los recordatorios del día que manda el navegador (?fecha=2026-10-05)
-// más los de días anteriores que todavía no se marcaron como hechos.
-// La "fecha de hoy" la manda el navegador porque el servidor trabaja en hora UTC.
-async function listar(supabase, user, fecha) {
+// Agenda del usuario: los recordatorios desde el día que manda el navegador (?fecha=2026-10-05)
+// hasta ?hasta= (opcional, para ver los próximos días), más los de días anteriores que todavía no
+// se marcaron como hechos. La "fecha de hoy" la manda el navegador porque el servidor trabaja en UTC.
+async function listar(supabase, user, fecha, hasta) {
   if (!fechaValida(fecha)) {
     throw new ErrorHttp(400, 'Falta la fecha (formato AAAA-MM-DD)');
+  }
+  if (hasta !== undefined && (!fechaValida(hasta) || hasta < fecha)) {
+    throw new ErrorHttp(400, 'La fecha "hasta" no es válida');
   }
 
   const propios = () =>
     supabase.from('recordatorios').select('*').eq('asesor_id', user.id);
 
-  const [delDia, atrasados] = await Promise.all([
-    propios().eq('fecha', fecha),
+  const [delPeriodo, atrasados] = await Promise.all([
+    propios().gte('fecha', fecha).lte('fecha', hasta ?? fecha),
     propios().lt('fecha', fecha).eq('hecho', false),
   ]);
 
-  lanzarSiError(delDia.error || atrasados.error);
+  lanzarSiError(delPeriodo.error || atrasados.error);
 
-  return [...atrasados.data, ...delDia.data].sort(ordenarRecordatorios);
+  return [...atrasados.data, ...delPeriodo.data].sort(ordenarRecordatorios);
 }
 
 async function crear(supabase, user, body) {

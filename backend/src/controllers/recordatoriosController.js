@@ -1,7 +1,7 @@
 const recordatoriosService = require('../services/recordatoriosService');
 
 async function listar(req, res) {
-  res.json(await recordatoriosService.listar(req.supabase, req.user, req.query.fecha));
+  res.json(await recordatoriosService.listar(req.supabase, req.user, req.query.fecha, req.query.hasta));
 }
 
 async function crear(req, res) {

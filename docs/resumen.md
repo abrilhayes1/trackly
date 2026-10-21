@@ -64,7 +64,18 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: Reportes personalizados (RF45, nuevo)
+## Último trabajo: Agenda unificada (RF25 / RF27)
+
+- La Agenda junta los recordatorios manuales y los que se ponen en la tarjeta de un lead
+  (`leads.recordatorio`). Los de un lead llevan la etiqueta "contacto", muestran su nombre y al
+  tocarlos se abre la tarjeta. Se dan por hechos cuando se registra un contacto posterior.
+- Secciones: atrasados (días anteriores sin hacer), hoy y **próximos 7 días**.
+- Los recordatorios manuales se pueden crear para cualquier día (hoy o después), no solo para hoy.
+- Backend: `GET /api/recordatorios?fecha=AAAA-MM-DD&hasta=AAAA-MM-DD` devuelve el rango más los
+  atrasados sin hacer. No hace falta SQL nuevo.
+- Contador del menú de Agenda: manuales pendientes más los recordatorios de leads de hoy o atrasados.
+
+## Anterior: Reportes personalizados (RF45, nuevo)
 
 - `database/13_reportes.sql`: tabla `reportes` (nombre, `definicion` jsonb, creado_por, compartido)
   con RLS. Cada uno ve los suyos más los compartidos. Solo el líder comparte y edita los

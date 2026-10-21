@@ -28,12 +28,13 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 | **RF02** (Invitaciones) | El líder invita por email | El líder carga los emails; la persona entra sola al equipo cuando crea su cuenta con ese email. **Pendiente:** mandar el email de invitación (necesita configurar SMTP). |
 | **RF06** (Campos de cierre) | Definir nombre, tipo y si es obligatorio | Igual. Los tipos son texto, número y lista de opciones; se pueden ordenar. Los equipos que ya existían arrancaron con carrera, modalidad, descuento e importe. |
 | **RF29** (Eventos) | Con categoría | La categoría es opcional y se sugiere desde las categorías de origen. El menú muestra el nombre que eligió el equipo ("Charlas", "Webinars"...) y solo aparece si el equipo usa eventos. |
+| **RF25 / RF27** (Agenda y recordatorios) | La agenda muestra los recordatorios del día | La Agenda junta los recordatorios manuales y los de las tarjetas de los leads (al tocarlos se abre la tarjeta), con secciones atrasados, hoy y próximos 7 días. Los recordatorios manuales se pueden crear para cualquier día futuro. |
 | **RF08 / RF04** (Estados) | — | El estado de un lead no se cambia a mano: cambia solo al cerrar, reclamar o reactivar, y cada cambio queda en el historial. |
 
 ## Detalles que conviene mencionar
 
 - **Navegación (2.2):** los contadores del menú son: Mis leads (por vencer), Alertas de hoy,
-  Agenda (recordatorios pendientes), Charlas (próximas), Archivo (vencidos), Casos exitosos,
+  Agenda (recordatorios pendientes, manuales y de leads), Charlas (próximas), Archivo (vencidos), Casos exitosos,
   Cerrados perdidos y, para el líder, Panel del equipo (sin asignar).
 - **Vistas del líder (2.1 / RF38):** hay una pantalla propia, **Panel del equipo**, con pestañas
   Asesores (resumen por asesor, RF40), Leads del equipo (reasignar, RF39) y Sin asignar.

@@ -241,7 +241,7 @@ function App() {
             <AlertasHoy userId={userId} onAbrirLead={setLeadAbierto} cambios={cambios} />
           )}
 
-          {!buscando && vista === 'agenda' && <Agenda />}
+          {!buscando && vista === 'agenda' && <Agenda userId={userId} onAbrirLead={setLeadAbierto} cambios={cambios} />}
 
           {!buscando && vista === 'charlas' && (
             <Charlas
