@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { apiFetch } from '../lib/api'
 import { iniciales, fechaHoraCorta } from '../lib/formato'
 import { detalleCierre } from '../lib/cierre'
@@ -46,8 +46,17 @@ function primerNombre(nombre) {
   return (nombre || '').split(' ')[0]
 }
 
+const POR_PAGINA = 30
+
+// una página de cierres, del más nuevo al más viejo; el filtro por asesor lo hace el servidor
+const urlPagina = (tipo, asesor, desde) =>
+  `/api/cierres?tipo=${tipo}&limite=${POR_PAGINA}&desde=${desde}${asesor ? `&asesor=${asesor}` : ''}`
+
 export default function CasosCerrados({ tipo, rol, onAbrirLead, cambios }) {
   const [cierres, setCierres] = useState([])
+  const [hayMas, setHayMas] = useState(false)
+  const [cargandoMas, setCargandoMas] = useState(false)
+  const [miembros, setMiembros] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [filtro, setFiltro] = useState('')
@@ -56,36 +65,44 @@ export default function CasosCerrados({ tipo, rol, onAbrirLead, cambios }) {
   const camposCierre = useConfigEquipo().config?.campos_cierre || []
   const esLider = rol === 'lider'
 
-  // se carga al abrir la pantalla y cada vez que se modifica un lead desde la tarjeta
+  // se carga al abrir la pantalla, al cambiar el filtro y cada vez que se modifica un lead desde la tarjeta
   useEffect(() => {
-    apiFetch(`/api/cierres?tipo=${tipo}`)
+    apiFetch(urlPagina(tipo, filtro, 0))
       .then((datos) => {
-        setCierres(datos)
+        setCierres(datos.cierres)
+        setHayMas(datos.hayMas)
         setError(null)
       })
       .catch((e) => setError(e.message))
       .finally(() => setCargando(false))
-  }, [tipo, cambios])
+  }, [tipo, cambios, filtro])
 
-  // asesores que tienen cierres en esta lista (para el filtro del líder)
-  const asesores = useMemo(() => {
-    const mapa = new Map()
-    cierres.forEach((c) => {
-      const id = c.lead?.asesor_id
-      if (id && !mapa.has(id)) mapa.set(id, c.lead?.asesor?.nombre || 'Sin nombre')
-    })
-    return [...mapa]
-      .map(([id, nombre]) => ({ id, nombre }))
-      .sort((a, b) => a.nombre.localeCompare(b.nombre))
-  }, [cierres])
+  // el líder filtra por cualquier persona del equipo
+  useEffect(() => {
+    if (!esLider) return
+    apiFetch('/api/config/equipo')
+      .then((equipo) => setMiembros(equipo.miembros))
+      .catch(() => setMiembros([]))
+  }, [esLider])
 
-  // si el asesor filtrado ya no tiene cierres en la lista, se vuelve a "Todos"
-  const filtroActivo = asesores.some((a) => a.id === filtro) ? filtro : ''
+  async function verMas() {
+    setCargandoMas(true)
+    try {
+      const datos = await apiFetch(urlPagina(tipo, filtro, cierres.length))
+      // por si alguien cerró uno nuevo mientras tanto, no se repiten
+      setCierres((actuales) => [...actuales, ...datos.cierres.filter((c) => !actuales.some((a) => a.id === c.id))])
+      setHayMas(datos.hayMas)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setCargandoMas(false)
+    }
+  }
+
+  const asesores = miembros.map((m) => ({ id: m.id, nombre: m.nombre }))
+  const filtroActivo = filtro
   const mostrarFiltro = esLider && asesores.length > 1
-
-  const visibles = cierres.filter(
-    (c) => !filtroActivo || c.lead?.asesor_id === filtroActivo
-  )
+  const visibles = cierres
 
   return (
     <div className="p-5">
@@ -183,6 +200,18 @@ export default function CasosCerrados({ tipo, rol, onAbrirLead, cambios }) {
             </div>
           )
         })}
+
+      {!cargando && !error && hayMas && (
+        <div className="text-center mt-3">
+          <button
+            onClick={verMas}
+            disabled={cargandoMas}
+            className="text-xs px-4 py-2 rounded-md border border-border-secondary bg-bg-primary text-text-secondary hover:text-text-primary disabled:opacity-50"
+          >
+            {cargandoMas ? 'Cargando...' : 'Ver más'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

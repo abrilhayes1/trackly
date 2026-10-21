@@ -2,6 +2,7 @@
 // filtros y cómo verlo, con vista previa en vivo. Privados, o compartidos con el equipo (líder).
 import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../lib/api'
+import { leadsParaAnalisis } from '../lib/analisis'
 import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
 import { etiquetaInteres } from '../lib/interes'
 import { useTooltip } from '../lib/useTooltip'
@@ -296,8 +297,8 @@ export default function Reportes({ userId, rol, cambios }) {
 
   useEffect(() => {
     Promise.all([
-      apiFetch('/api/leads?campos=analisis'),
-      apiFetch('/api/cierres?tipo=ganado'),
+      leadsParaAnalisis(`${userId}:${cambios}`),
+      apiFetch('/api/cierres?tipo=ganado&campos=analisis'),
       apiFetch('/api/reportes'),
       esLider ? apiFetch('/api/config/equipo') : Promise.resolve({ miembros: [] }),
     ])
@@ -309,7 +310,7 @@ export default function Reportes({ userId, rol, cambios }) {
         setError(null)
       })
       .catch((e) => setError(e.message))
-  }, [esLider, cambios, recargas])
+  }, [esLider, cambios, recargas, userId])
 
   const contexto = useMemo(
     () => ({ userId, esLider, miembros, campos: config?.campos_cierre || [], ahora }),

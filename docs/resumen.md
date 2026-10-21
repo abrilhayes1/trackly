@@ -64,7 +64,21 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: rendimiento, puntos 1 a 4 de la revisión
+## Último trabajo: rendimiento, puntos 5 a 7 de la revisión
+
+- **Casos exitosos / Cerrados perdidos paginados:** `GET /api/cierres?tipo=…&limite=30&desde=N` (y
+  `&asesor=<id>` para el líder, con `leads!inner`) devuelve `{ cierres, hayMas }`; se pide uno de más
+  para saber si hay otra página. La pantalla muestra 30 y un botón "Ver más"; los asesores del filtro
+  salen de `/api/config/equipo`. `?campos=analisis` devuelve solo `lead_id, tipo, datos` (Reportes).
+  Sin parámetros responde como antes (lista completa).
+- **Historial para análisis compartido** (`lib/analisis.js`, `leadsParaAnalisis(clave)`): Estadísticas,
+  Reportes y Mi perfil reutilizan el mismo pedido de `?campos=analisis` durante un minuto mientras no
+  cambie nada (clave = usuario + `cambios`).
+- **Pantallas bajo demanda:** en `App.jsx`, todo menos Mis leads y Alertas se carga con
+  `React.lazy` (con `Suspense` y "Cargando..."). Carga inicial: ~169 KB → ~143 KB comprimidos; lo que
+  queda es React y supabase-js.
+
+## Anterior: rendimiento, puntos 1 a 4 de la revisión
 
 - **`database/15_rendimiento.sql`**:
   - Recorre `pg_policies` (esquema public, también las reglas creadas a mano al principio) y

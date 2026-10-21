@@ -1,7 +1,7 @@
 const cierresService = require('../services/cierresService');
 
 async function listar(req, res) {
-  res.json(await cierresService.listar(req.supabase, req.query.tipo));
+  res.json(await cierresService.listar(req.supabase, req.query));
 }
 
 async function obtener(req, res) {

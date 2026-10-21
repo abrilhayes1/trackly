@@ -1,17 +1,19 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { supabase } from './lib/supabaseClient'
 import { apiFetch } from './lib/api'
 import MisLeads from './pages/MisLeads'
 import AlertasHoy from './pages/AlertasHoy'
-import CasosCerrados from './pages/CasosCerrados'
-import Agenda from './pages/Agenda'
-import Archivo from './pages/Archivo'
-import Onboarding from './pages/Onboarding'
-import Configuracion from './pages/Configuracion'
-import PanelLider from './pages/PanelLider'
-import Charlas from './pages/Charlas'
-import Estadisticas from './pages/Estadisticas'
-import Perfil from './pages/Perfil'
+// Mis leads y Alertas van en la carga inicial; el resto de las pantallas se descarga recién la
+// primera vez que se abre (la primera carga de la app es más liviana)
+const CasosCerrados = lazy(() => import('./pages/CasosCerrados'))
+const Agenda = lazy(() => import('./pages/Agenda'))
+const Archivo = lazy(() => import('./pages/Archivo'))
+const Onboarding = lazy(() => import('./pages/Onboarding'))
+const Configuracion = lazy(() => import('./pages/Configuracion'))
+const PanelLider = lazy(() => import('./pages/PanelLider'))
+const Charlas = lazy(() => import('./pages/Charlas'))
+const Estadisticas = lazy(() => import('./pages/Estadisticas'))
+const Perfil = lazy(() => import('./pages/Perfil'))
 import CambioContrasena from './components/CambioContrasena'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
@@ -280,12 +282,14 @@ function App() {
   // usuario sin equipo: arma el suyo (si alguien lo invitó, /api/me ya lo sumó a ese equipo)
   if (sesion && perfil === null) {
     return (
-      <Onboarding
-        email={sesion.user.email}
-        nombreSugerido={sesion.user.user_metadata?.full_name || sesion.user.user_metadata?.name || ''}
-        onListo={() => setRecargasPerfil((n) => n + 1)}
-        onCerrarSesion={cerrarSesion}
-      />
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-text-secondary text-sm">Cargando...</div>}>
+        <Onboarding
+          email={sesion.user.email}
+          nombreSugerido={sesion.user.user_metadata?.full_name || sesion.user.user_metadata?.name || ''}
+          onListo={() => setRecargasPerfil((n) => n + 1)}
+          onCerrarSesion={cerrarSesion}
+        />
+      </Suspense>
     )
   }
 
@@ -316,6 +320,9 @@ function App() {
         <main className="flex-1 min-w-0 bg-bg-primary">
           <Topbar busqueda={busqueda} onBuscar={setBusqueda} />
 
+          {/* mientras se descarga una pantalla que todavía no se abrió */}
+          <Suspense fallback={<p className="p-5 text-sm text-text-secondary">Cargando...</p>}>
+
           {buscando && (
             <ResultadosBusqueda
               q={textoBusqueda}
@@ -342,7 +349,7 @@ function App() {
           )}
 
           {!buscando && vista === 'perfil' && perfil && (
-            <Perfil perfil={perfil} usuario={sesion.user} onPerfilCambiado={setPerfil} />
+            <Perfil perfil={perfil} usuario={sesion.user} cambios={cambios} onPerfilCambiado={setPerfil} />
           )}
 
           {!buscando && vista === 'stats' && <Estadisticas userId={userId} rol={perfil?.rol} cambios={cambios} />}
@@ -385,6 +392,8 @@ function App() {
               cambios={cambios}
             />
           )}
+
+          </Suspense>
 
           {/* Mis leads queda montada pero oculta cuando se busca o se ve otra pantalla, así no se vuelve a cargar */}
           <div className={buscando || vista !== 'leads' ? 'hidden' : ''}>

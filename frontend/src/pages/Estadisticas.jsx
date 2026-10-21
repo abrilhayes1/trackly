@@ -6,6 +6,7 @@ import { TarjetaGrafico as Tarjeta, Barras, Columnas } from '../components/Grafi
 import { useTooltip } from '../lib/useTooltip'
 import Reportes from './Reportes'
 import { apiFetch } from '../lib/api'
+import { leadsParaAnalisis } from '../lib/analisis'
 import Avatar from '../components/Avatar'
 import { useTerminos } from '../lib/configEquipo'
 import { calcularEstadisticas, PERIODOS, porcentaje } from '../lib/estadisticas'
@@ -47,7 +48,7 @@ export default function Estadisticas({ userId, rol, cambios }) {
   const tooltip = useTooltip()
 
   useEffect(() => {
-    Promise.all([apiFetch('/api/leads?campos=analisis'), esLider ? apiFetch('/api/config/equipo') : Promise.resolve({ miembros: [] })])
+    Promise.all([leadsParaAnalisis(`${userId}:${cambios}`), esLider ? apiFetch('/api/config/equipo') : Promise.resolve({ miembros: [] })])
       .then(([l, equipo]) => {
         setLeads(l)
         setMiembros(equipo.miembros)
@@ -56,7 +57,7 @@ export default function Estadisticas({ userId, rol, cambios }) {
       })
       .catch((e) => setError(e.message))
       .finally(() => setCargando(false))
-  }, [esLider, cambios])
+  }, [esLider, cambios, userId])
 
   // el asesor ve solo lo suyo; el líder, todo el equipo o una persona
   const asesorId = esLider ? asesor : userId

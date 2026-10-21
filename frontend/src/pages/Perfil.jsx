@@ -2,6 +2,7 @@
 // sus números, la contraseña y el modo claro / oscuro. El email, el rol y el equipo solo se muestran.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { apiFetch } from '../lib/api'
+import { leadsParaAnalisis } from '../lib/analisis'
 import { achicarFoto } from '../lib/foto'
 import { preferenciaTema, aplicarTema, alCambiarTema } from '../lib/tema'
 import { useLeadsEquipo } from '../lib/leadsEquipo'
@@ -46,7 +47,7 @@ function Aviso({ aviso }) {
   return <p className={`text-xs border rounded-md px-3 py-2 mt-3 ${clases}`}>{aviso.texto}</p>
 }
 
-export default function Perfil({ perfil, usuario, onPerfilCambiado }) {
+export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
   const { varios, Varios } = useTerminos()
   const { leads, listo } = useLeadsEquipo()
   const [cerrados, setCerrados] = useState(null)
@@ -69,7 +70,7 @@ export default function Perfil({ perfil, usuario, onPerfilCambiado }) {
 
   // ganados y perdidos propios (para la tasa de conversión); solo las columnas de análisis
   useEffect(() => {
-    apiFetch('/api/leads?campos=analisis')
+    leadsParaAnalisis(`${usuario.id}:${cambios}`)
       .then((todos) => {
         const mios = todos.filter((l) => l.asesor_id === usuario.id)
         setCerrados({
@@ -78,7 +79,7 @@ export default function Perfil({ perfil, usuario, onPerfilCambiado }) {
         })
       })
       .catch(() => setCerrados(null))
-  }, [usuario.id])
+  }, [usuario.id, cambios])
 
   const numeros = useMemo(() => {
     const activos = leads.filter((l) => l.estado === 'activo' && l.asesor_id === usuario.id)
