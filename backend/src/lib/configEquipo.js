@@ -1,7 +1,7 @@
 // Validación y armado de la configuración del equipo, compartida por el onboarding y la pantalla
 // de configuración. La base vuelve a validar todo (validar_config_equipo); acá se arma el objeto
 // con los nombres de columna y se dan mensajes claros antes de llegar a la base.
-const { ErrorHttp } = require('./errores');
+const { ErrorHttp, lanzarSiError } = require('./errores');
 
 const RUBROS = ['educacion', 'salud', 'servicios', 'tecnologia', 'otro'];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -60,12 +60,9 @@ function limpiarEmails(lista) {
 }
 
 // Errores de las funciones de la base → respuesta HTTP
+// (se mantiene por compatibilidad: ahora lanzarSiError ya elige el código HTTP y el mensaje)
 function lanzarErrorDeBase(error) {
-  if (!error) return;
-  if (error.code === '22023') throw new ErrorHttp(400, error.message);
-  if (error.code === '23505') throw new ErrorHttp(409, error.message);
-  if (error.code === '42501') throw new ErrorHttp(403, error.message);
-  throw new ErrorHttp(400, error.message);
+  lanzarSiError(error);
 }
 
 module.exports = { armarConfig, limpiarEmails, lanzarErrorDeBase };
