@@ -22,7 +22,7 @@ function Dato({ label, children }) {
 }
 
 // item: el recordatorio a ver (o null para uno nuevo); fechaInicial: el día elegido para uno nuevo
-export default function RecordatorioModal({ item, fechaInicial, horaInicial, hoy, onCerrar, onGuardado, onAbrirLead }) {
+export default function RecordatorioModal({ item, fechaInicial, horaInicial, hoy, onCerrar, onGuardado, onCompletar, onAbrirLead }) {
   const nuevo = !item
   const deLead = !!item?.lead
   const [fecha, setFecha] = useState(item?.fecha ?? fechaInicial)
@@ -51,6 +51,17 @@ export default function RecordatorioModal({ item, fechaInicial, horaInicial, hoy
         body: JSON.stringify(cuerpo),
       })
       onGuardado(guardado)
+    } catch (e) {
+      setError(e.message)
+      setGuardando(false)
+    }
+  }
+
+  async function completar() {
+    setError(null)
+    setGuardando(true)
+    try {
+      await onCompletar(item)
     } catch (e) {
       setError(e.message)
       setGuardando(false)
@@ -109,9 +120,22 @@ export default function RecordatorioModal({ item, fechaInicial, horaInicial, hoy
               {fechaLarga(item.fecha)} a las {hhmm(item.hora)}
             </Dato>
             <p className="text-xs text-text-tertiary mb-4">
-              Se da por hecho cuando registrás un contacto. Para cambiar la fecha, abrí la tarjeta.
+              {item.hecho
+                ? 'Ya registraste un contacto después de este recordatorio.'
+                : 'Se da por hecho cuando registrás un contacto con el lead. Para cambiar la fecha, abrí la tarjeta.'}
             </p>
-            <div className="flex justify-end gap-2">
+            {error && <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-3">{error}</p>}
+            <div className="flex items-center gap-2">
+              {!item.hecho && (
+                <button
+                  onClick={completar}
+                  disabled={guardando}
+                  className="text-xs px-3 py-2 rounded-md border border-green-border bg-green-bg text-green-text whitespace-nowrap disabled:opacity-60"
+                >
+                  {guardando ? 'Guardando...' : '✓ Registré el contacto'}
+                </button>
+              )}
+              <span className="ml-auto" />
               <button
                 onClick={onCerrar}
                 className="text-xs px-3 py-2 rounded-md border border-border-secondary bg-bg-primary text-text-secondary"
@@ -172,7 +196,7 @@ export default function RecordatorioModal({ item, fechaInicial, horaInicial, hoy
             <div className="flex items-center gap-2">
               {!nuevo && (
                 <button
-                  onClick={() => enviar({ hecho: !item.hecho })}
+                  onClick={completar}
                   disabled={guardando}
                   className={`text-xs px-3 py-2 rounded-md border disabled:opacity-60 ${
                     item.hecho

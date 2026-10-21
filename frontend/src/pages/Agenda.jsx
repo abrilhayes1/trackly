@@ -46,31 +46,53 @@ function estadoDe(item, hoy, ahora) {
 }
 
 // un recordatorio en una columna de días o semana
-function Evento({ item, estado, compacto, onAbrir }) {
+function Evento({ item, estado, compacto, onAbrir, onCompletar }) {
   const deLead = !!item.lead
+  // los de un contacto se completan registrando el contacto (y no se pueden desmarcar desde acá)
+  const conCheck = !deLead || !item.hecho
+  const tituloCheck = deLead ? 'Registré el contacto' : item.hecho ? 'Volver a pendiente' : 'Marcar como hecho'
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => onAbrir(item)}
+      onKeyDown={(e) => e.key === 'Enter' && onAbrir(item)}
       title={`${hhmm(item.hora)} · ${item.contacto}${item.nota ? ` · ${item.nota}` : ''}`}
-      className={`w-full text-left bg-bg-primary border border-border-tertiary rounded-md hover:border-accent transition-colors ${
+      className={`relative w-full text-left cursor-pointer bg-bg-primary border border-border-tertiary rounded-md hover:border-accent transition-colors ${
         compacto ? 'px-2 py-1.5' : 'px-2.5 py-2'
       } ${item.hecho ? 'opacity-50' : ''}`}
     >
-      <div className="flex items-center gap-1.5">
+      {conCheck && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onCompletar(item)
+          }}
+          title={tituloCheck}
+          aria-label={tituloCheck}
+          className={`absolute top-1.5 right-1.5 w-[18px] h-[18px] rounded-full border flex items-center justify-center text-[10px] leading-none ${
+            item.hecho
+              ? 'bg-green-bg border-green-border text-green-text'
+              : 'border-border-secondary text-transparent hover:border-green-border hover:text-green-text hover:bg-green-bg'
+          }`}
+        >
+          ✓
+        </button>
+      )}
+      <div className="flex items-center gap-1.5 pr-5">
         <span className={`text-[11px] font-semibold tabular-nums ${colorHora[estado]}`}>{hhmm(item.hora) || '—'}</span>
         <span
           className={`w-1.5 h-1.5 rounded-full shrink-0 ${deLead ? 'bg-dot-blue' : 'bg-accent'}`}
           title={deLead ? 'Recordatorio de un contacto' : 'Recordatorio de la agenda'}
         />
-        {item.hecho && <span className="text-[10px] text-green-text">✓</span>}
       </div>
       <div className={`text-xs text-text-primary truncate mt-0.5 ${item.hecho ? 'line-through' : ''}`}>{item.contacto}</div>
       {!compacto && item.nota && <div className="text-[11px] text-text-tertiary truncate mt-0.5">{item.nota}</div>}
-    </button>
+    </div>
   )
 }
 
-function Columna({ fecha, hoy, items, compacto, ahora, onAbrir, onNuevo }) {
+function Columna({ fecha, hoy, items, compacto, ahora, onAbrir, onNuevo, onCompletar }) {
   const esHoy = fecha === hoy
   const pendientes = items.filter((r) => !r.hecho).length
   return (
@@ -91,7 +113,7 @@ function Columna({ fecha, hoy, items, compacto, ahora, onAbrir, onNuevo }) {
       <div className="flex-1 flex flex-col gap-1.5 p-2 min-h-[320px]">
         {items.length === 0 && <p className="text-[11px] text-text-tertiary text-center pt-3">Sin recordatorios</p>}
         {items.map((r) => (
-          <Evento key={r.id} item={r} estado={estadoDe(r, hoy, ahora)} compacto={compacto} onAbrir={onAbrir} />
+          <Evento key={r.id} item={r} estado={estadoDe(r, hoy, ahora)} compacto={compacto} onAbrir={onAbrir} onCompletar={onCompletar} />
         ))}
         {fecha >= hoy && (
           <button
@@ -168,7 +190,7 @@ function Mes({ dias, cursor, hoy, porDia, ahora, onAbrir, onVerDia }) {
   )
 }
 
-export default function Agenda({ userId, onAbrirLead, cambios }) {
+export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
   const [ahora, setAhora] = useState(() => new Date())
   const hoy = fechaLocal(ahora)
   const [vista, setVista] = useState(leerVista)
@@ -222,6 +244,28 @@ export default function Agenda({ userId, onAbrirLead, cambios }) {
 
   function abrir(item) {
     setModal({ item })
+  }
+
+  // ✓: los de la agenda se marcan o desmarcan; en los de un contacto se registra el contacto de hoy
+  // (si el recordatorio todavía no llegó, además se quita, porque el contacto ya se hizo)
+  async function completar(item) {
+    if (item.lead) {
+      const futuro = new Date(item.lead.recordatorio) > new Date()
+      const respuesta = await apiFetch(`/api/leads/${item.lead.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ ultimo_contacto: new Date().toISOString(), ...(futuro && { recordatorio: null }) }),
+      })
+      setModal(null)
+      onCambioLead(respuesta)
+    } else {
+      const r = await apiFetch(`/api/recordatorios/${item.id}`, { method: 'PATCH', body: JSON.stringify({ hecho: !item.hecho }) })
+      guardado(r)
+    }
+  }
+
+  function completarDesdeTarjeta(item) {
+    setError(null)
+    completar(item).catch((e) => setError(e.message))
   }
 
   function guardado(r) {
@@ -316,6 +360,7 @@ export default function Agenda({ userId, onAbrirLead, cambios }) {
               ahora={ahora}
               onAbrir={abrir}
               onNuevo={(f) => setModal({ fecha: f })}
+              onCompletar={completarDesdeTarjeta}
             />
           ))}
         </div>
@@ -338,6 +383,7 @@ export default function Agenda({ userId, onAbrirLead, cambios }) {
           hoy={hoy}
           onCerrar={() => setModal(null)}
           onGuardado={guardado}
+          onCompletar={completar}
           onAbrirLead={(lead) => {
             setModal(null)
             onAbrirLead(lead)
