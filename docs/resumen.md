@@ -82,8 +82,8 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   hace falta SQL nuevo.
 - Cada recordatorio en las vistas Días y Semana tiene un círculo ✓ para completarlo sin abrirlo.
   En los manuales marca o desmarca "hecho"; en los de un lead registra el contacto de hoy (si el
-  recordatorio todavía no llegó, además lo quita). En la ventana del recordatorio de un lead está
-  el botón "✓ Registré el contacto".
+  recordatorio todavía no llegó, además lo quita). En la ventana del recordatorio de un lead se
+  cambian el día y la hora (se guardan en `leads.recordatorio`) y está el botón "✓ Registré el contacto".
 - Contador del menú de Agenda: manuales pendientes de hoy o atrasados más los recordatorios de
   leads de hoy o atrasados.
 

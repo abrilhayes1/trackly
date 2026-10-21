@@ -22,7 +22,17 @@ function Dato({ label, children }) {
 }
 
 // item: el recordatorio a ver (o null para uno nuevo); fechaInicial: el día elegido para uno nuevo
-export default function RecordatorioModal({ item, fechaInicial, horaInicial, hoy, onCerrar, onGuardado, onCompletar, onAbrirLead }) {
+export default function RecordatorioModal({
+  item,
+  fechaInicial,
+  horaInicial,
+  hoy,
+  onCerrar,
+  onGuardado,
+  onCompletar,
+  onMoverLead,
+  onAbrirLead,
+}) {
   const nuevo = !item
   const deLead = !!item?.lead
   const [fecha, setFecha] = useState(item?.fecha ?? fechaInicial)
@@ -62,6 +72,19 @@ export default function RecordatorioModal({ item, fechaInicial, horaInicial, hoy
     setGuardando(true)
     try {
       await onCompletar(item)
+    } catch (e) {
+      setError(e.message)
+      setGuardando(false)
+    }
+  }
+
+  // los de un contacto: el día y la hora se guardan en el lead
+  async function moverLead() {
+    if (!fecha || !hora) return setError('Elegí el día y la hora')
+    setError(null)
+    setGuardando(true)
+    try {
+      await onMoverLead(item, new Date(`${fecha}T${hora}`).toISOString())
     } catch (e) {
       setError(e.message)
       setGuardando(false)
@@ -116,14 +139,17 @@ export default function RecordatorioModal({ item, fechaInicial, horaInicial, hoy
               Recordatorio de un contacto
             </span>
             <Dato label="Contacto">{item.contacto}</Dato>
-            <Dato label="Cuándo">
-              {fechaLarga(item.fecha)} a las {hhmm(item.hora)}
-            </Dato>
-            <p className="text-xs text-text-tertiary mb-4">
-              {item.hecho
-                ? 'Ya registraste un contacto después de este recordatorio.'
-                : 'Se da por hecho cuando registrás un contacto con el lead. Para cambiar la fecha, abrí la tarjeta.'}
-            </p>
+            <div className="grid grid-cols-[1fr_110px] gap-2 mb-3">
+              <div>
+                <Etiqueta>Día</Etiqueta>
+                <input type="date" className={campo} value={fecha} onChange={(e) => setFecha(e.target.value)} />
+              </div>
+              <div>
+                <Etiqueta>Hora</Etiqueta>
+                <input type="time" className={campo} value={hora} onChange={(e) => setHora(e.target.value)} />
+              </div>
+            </div>
+            {item.hecho && <p className="text-xs text-text-tertiary mb-3">Ya registraste un contacto después de este recordatorio.</p>}
             {error && <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-3">{error}</p>}
             <div className="flex items-center gap-2">
               {!item.hecho && (
@@ -137,16 +163,17 @@ export default function RecordatorioModal({ item, fechaInicial, horaInicial, hoy
               )}
               <span className="ml-auto" />
               <button
-                onClick={onCerrar}
-                className="text-xs px-3 py-2 rounded-md border border-border-secondary bg-bg-primary text-text-secondary"
-              >
-                Cerrar
-              </button>
-              <button
                 onClick={() => onAbrirLead(item.lead)}
-                className="text-xs font-medium px-3 py-2 rounded-md bg-accent text-white hover:bg-accent-dark"
+                className="text-xs px-3 py-2 rounded-md border border-border-secondary bg-bg-primary text-text-secondary whitespace-nowrap"
               >
                 Abrir tarjeta
+              </button>
+              <button
+                onClick={moverLead}
+                disabled={guardando || (fecha === item.fecha && hora === hhmm(item.hora))}
+                className="text-xs font-medium px-3 py-2 rounded-md bg-accent text-white hover:bg-accent-dark whitespace-nowrap disabled:opacity-50"
+              >
+                Guardar cambios
               </button>
             </div>
           </div>

@@ -263,6 +263,12 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
     }
   }
 
+  async function moverLead(item, recordatorio) {
+    const respuesta = await apiFetch(`/api/leads/${item.lead.id}`, { method: 'PATCH', body: JSON.stringify({ recordatorio }) })
+    setModal(null)
+    onCambioLead(respuesta)
+  }
+
   function completarDesdeTarjeta(item) {
     setError(null)
     completar(item).catch((e) => setError(e.message))
@@ -384,6 +390,7 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
           onCerrar={() => setModal(null)}
           onGuardado={guardado}
           onCompletar={completar}
+          onMoverLead={moverLead}
           onAbrirLead={(lead) => {
             setModal(null)
             onAbrirLead(lead)
