@@ -22,7 +22,8 @@ app.use(cors(origenes.length ? { origin: origenes } : undefined));
 // 1.000 pedidos por minuto por IP: alcanza para un equipo entero trabajando desde la misma red (en
 // una oficina suelen salir todos con la misma IP), pero corta a quien intente saturar el servidor
 app.use('/api', limitarPedidos({ maximo: 1000 }));
-app.use(express.json());
+// 1 MB alcanza para una tanda de importación de contactos (500 filas)
+app.use(express.json({ limit: '1mb' }));
 
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, mensaje: 'Trackly backend funcionando' });

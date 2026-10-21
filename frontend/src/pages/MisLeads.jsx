@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { agruparLeads } from '../lib/urgencia'
 import LeadCard from '../components/LeadCard'
 import NuevoLeadModal from '../components/NuevoLeadModal'
+// la ventana de importar (y las librerías para leer Excel) se descarga recién al abrirla
+const ImportarLeads = lazy(() => import('../components/ImportarLeads'))
 import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
 import { useLeadsEquipo } from '../lib/leadsEquipo'
 
@@ -19,13 +21,14 @@ const tarjetas = [
   { clave: 'sinContactar', label: 'Sin contactar', color: 'text-urgent-blue' },
 ]
 
-export default function MisLeads({ onAbrirLead, onCambio }) {
+export default function MisLeads({ rol, onAbrirLead, onCambio }) {
   // la lista y la configuración las carga App una sola vez para toda la app
   const { leads, listo, error } = useLeadsEquipo()
   const { config } = useConfigEquipo()
   const cargando = !listo
   const [userId, setUserId] = useState(null)
   const [modalAbierto, setModalAbierto] = useState(false)
+  const [importando, setImportando] = useState(false)
   const { uno, varios } = useTerminos()
 
   useEffect(() => {
@@ -68,8 +71,22 @@ export default function MisLeads({ onAbrirLead, onCambio }) {
 
   return (
     <div className="p-5">
-      <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">Mis {varios}</h1>
-      <p className="text-xs text-text-secondary mb-5">{subtitulo}</p>
+      <div className="flex items-start justify-between gap-3 mb-5">
+        <div>
+          <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">Mis {varios}</h1>
+          <p className="text-xs text-text-secondary">{subtitulo}</p>
+        </div>
+        <button
+          onClick={() => setImportando(true)}
+          className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-border-secondary bg-bg-primary text-text-secondary hover:text-text-primary"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+            <path d="M12 15V3m0 0L8 7m4-4l4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M4 14v5a2 2 0 002 2h12a2 2 0 002-2v-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          Importar desde Excel
+        </button>
+      </div>
 
       {cargando && <p className="text-sm text-text-secondary">Cargando...</p>}
 
@@ -145,6 +162,12 @@ export default function MisLeads({ onAbrirLead, onCambio }) {
       </button>
 
       {modalAbierto && <NuevoLeadModal onCerrar={() => setModalAbierto(false)} onCreado={alCrearLead} />}
+
+      {importando && (
+        <Suspense fallback={null}>
+          <ImportarLeads rol={rol} userId={userId} onCerrar={() => setImportando(false)} onImportado={onCambio} />
+        </Suspense>
+      )}
     </div>
   )
 }

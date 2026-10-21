@@ -6,6 +6,10 @@ async function listar(req, res) {
   res.json(await leadsService.listar(req.supabase, req.query.estado, req.query.campos));
 }
 
+async function importar(req, res) {
+  res.json(await leadsService.importar(req.supabase, req.body));
+}
+
 async function totales(req, res) {
   res.json(await leadsService.totales(req.supabase, req.user));
 }
@@ -42,4 +46,16 @@ async function reactivar(req, res) {
   res.json(await leadsService.reactivar(req.supabase, req.params.id));
 }
 
-module.exports = { listar, totales, buscar, crear, actualizar, listarHistorial, agregarHistorial, reclamar, reactivar, reasignar };
+module.exports = {
+  listar,
+  totales,
+  importar,
+  buscar,
+  crear,
+  actualizar,
+  listarHistorial,
+  agregarHistorial,
+  reclamar,
+  reactivar,
+  reasignar,
+};

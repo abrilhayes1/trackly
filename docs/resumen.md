@@ -64,7 +64,31 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: calidad, puntos 8 a 11 de la revisión
+## Último trabajo: importar contactos desde Excel o CSV (RF47, nuevo)
+
+- **Botón "Importar desde Excel"** en Mis leads (arriba a la derecha) → `components/ImportarLeads.jsx`
+  (se carga con `lazy`). Pasos: archivo (arrastrar o elegir, planilla de ejemplo en CSV), revisar
+  (qué columna es cada dato, origen para los que no lo traen, "Asignar a" solo para el líder,
+  contadores y vista previa de 50 filas), importar en tandas de 200 con barra de avance, y
+  resultado (lista de los que no entraron y botón para descargarlos en CSV).
+- **Lógica** en `lib/importar.js` (con tests):
+  - `detectarColumnas` reconoce títulos comunes ("Celular", "E-mail", "Fuente", "Observaciones"…);
+  - `armarFilas` une nombre y apellido y usa el número de fila del Excel;
+  - `revisarFilas` usa las mismas reglas que la base;
+  - `claveTelefono` toma los últimos 10 dígitos;
+  - `aCSV` arma un CSV con `;` y BOM;
+  - `leerPlanilla` usa read-excel-file 9.3.12 para .xlsx y papaparse 5.7.0 para CSV, que se
+    descargan solo al importar. Los .xls viejos piden guardarse como .xlsx.
+- **Backend:** `POST /api/leads/importar { filas, asesorId?, sinAsignar?, archivo }` (máximo 500 por
+  tanda) → RPC `importar_leads`. `express.json` ahora acepta hasta 1 MB.
+- **SQL:** `database/16_importar_leads.sql`.
+  - `clave_telefono()` y `importar_leads(filas, asesor, sin_asignar, archivo)` (security definer).
+  - El asesor importa solo a su nombre; el líder, a cualquier miembro o sin asignar.
+  - Compara contra todos los leads del equipo (cualquier estado) y contra las filas ya importadas.
+  - Inserta activos con historial "Importado desde una planilla (archivo) por X."
+  - Devuelve `{ importados, repetidos, errores }`. Probado en Postgres local.
+
+## Anterior: calidad, puntos 8 a 11 de la revisión
 
 - **Errores claros:** `lib/errores.js` → `traducirErrorDeBase`. Los mensajes propios (castellano, de las
   funciones SQL y del backend) pasan tal cual. Los técnicos de Postgres, PostgREST o Storage (inglés)

@@ -27,6 +27,18 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 - Prioridad media, Etapa 2. Caso de uso sugerido: **CU19 — Gestionar mi perfil** (actor: Asesor y Líder).
 - El email, el rol y el equipo no se cambian desde acá (el rol lo define el líder).
 
+### RF47 — Importar contactos desde una planilla *(nuevo, sección 4.2 Gestión de leads)*
+> El sistema debe permitir importar contactos desde un archivo de Excel (.xlsx) o CSV. El sistema
+> reconoce las columnas por su título (nombre, apellido, teléfono, email, origen, consulta) y deja
+> corregirlas; muestra una vista previa que marca las filas con errores (sin nombre, sin teléfono ni
+> email, email inválido) y las repetidas (mismo teléfono o email que un contacto del equipo o que
+> otra fila del archivo), que no se importan. El asesor importa a su nombre; el líder puede asignarlos
+> a sí mismo, a otra persona del equipo o dejarlos sin asignar. Los contactos entran activos, con una
+> entrada en su historial, y al terminar se puede descargar la lista de los que no se importaron.
+
+- Prioridad media, Etapa 2. Caso de uso sugerido: **CU20 — Importar contactos** (actor: Asesor y Líder).
+- Hasta 2.000 contactos por archivo; el teléfono se compara por sus últimos 10 dígitos.
+
 ## Requerimientos que cambian
 
 | Dónde | Antes | Ahora |

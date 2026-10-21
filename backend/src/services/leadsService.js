@@ -58,6 +58,40 @@ async function totales(supabase, user) {
   return { ganados: ganados.count ?? 0, perdidos: perdidos.count ?? 0 };
 }
 
+// Importar contactos de una planilla (la app lee el archivo y manda las filas de a tandas).
+// La función de la base valida cada fila, saltea repetidos y decide a quién se asignan según el rol.
+const MAX_FILAS_POR_TANDA = 500;
+
+async function importar(supabase, body) {
+  const { filas, asesorId, sinAsignar, archivo } = body ?? {};
+  if (!Array.isArray(filas) || filas.length === 0) {
+    throw new ErrorHttp(400, 'No llegó ninguna fila para importar');
+  }
+  if (filas.length > MAX_FILAS_POR_TANDA) {
+    throw new ErrorHttp(400, `Se pueden mandar hasta ${MAX_FILAS_POR_TANDA} filas por tanda`);
+  }
+
+  // solo los campos que se importan, como texto
+  const texto = (v) => (v === undefined || v === null ? '' : String(v));
+  const limpias = filas.map((f) => ({
+    fila: Number.isInteger(f?.fila) ? f.fila : undefined,
+    nombre: texto(f?.nombre),
+    telefono: texto(f?.telefono),
+    email: texto(f?.email),
+    origen: texto(f?.origen),
+    consulta: texto(f?.consulta),
+  }));
+
+  const { data, error } = await supabase.rpc('importar_leads', {
+    p_filas: limpias,
+    p_asesor_id: asesorId || null,
+    p_sin_asignar: sinAsignar === true,
+    p_archivo: typeof archivo === 'string' ? archivo : null,
+  });
+  lanzarSiError(error);
+  return data;
+}
+
 // buscador global: nombre, teléfono o email, en todo el equipo (la RLS limita al tenant)
 async function buscar(supabase, consulta) {
   const q = String(consulta || '').trim();
@@ -262,4 +296,16 @@ async function reasignar(supabase, leadId, body) {
 }
 const reactivar = (supabase, leadId) => tomarLead(supabase, 'reactivar_lead', leadId);
 
-module.exports = { listar, totales, buscar, crear, actualizar, listarHistorial, agregarHistorial, reclamar, reactivar, reasignar };
+module.exports = {
+  listar,
+  totales,
+  importar,
+  buscar,
+  crear,
+  actualizar,
+  listarHistorial,
+  agregarHistorial,
+  reclamar,
+  reactivar,
+  reasignar,
+};

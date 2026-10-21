@@ -379,7 +379,7 @@ function App() {
 
               {/* Mis leads queda montada pero oculta cuando se busca o se ve otra pantalla, así no se vuelve a cargar */}
               <div className={buscando || vista !== 'leads' ? 'hidden' : ''}>
-                <MisLeads onAbrirLead={setLeadAbierto} onCambio={() => setCambios((n) => n + 1)} />
+                <MisLeads rol={perfil?.rol} onAbrirLead={setLeadAbierto} onCambio={() => setCambios((n) => n + 1)} />
               </div>
             </main>
 
