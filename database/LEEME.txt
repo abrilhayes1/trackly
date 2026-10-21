@@ -14,6 +14,7 @@ Ejecutar en este orden (se pueden volver a correr sin duplicar nada, salvo 2_cie
   11_reasignacion.sql            reasignar_lead: el líder asigna o reasigna leads (RF39)
   12_charlas.sql                 charlas: crear/editar/eliminar, invitar y asistencia (RF29-RF34)
   13_reportes.sql                tabla reportes: reportes personalizados privados o compartidos (RF45)
+  14_perfil.sql                  Mi perfil: foto (bucket "avatares" en Storage) y cambiar el propio nombre
   seed_leads_ejemplo.sql         OPCIONAL: leads de ejemplo en tu equipo (cambiá el email adentro)
   chequeo_cierres.sql            solo lectura: tiene que dar 1, 1, 1, 3, 2
 

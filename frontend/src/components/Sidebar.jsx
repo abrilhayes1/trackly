@@ -1,4 +1,5 @@
 import { useTerminos, useConfigEquipo } from '../lib/configEquipo'
+import Avatar from './Avatar'
 import { nombreEventos } from '../lib/charlas'
 import { iniciales as inicialesDe } from '../lib/formato'
 
@@ -241,17 +242,27 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
       )}
 
       <div className="mt-auto px-4 pt-3.5 border-t border-border-tertiary">
-        <div className="flex items-center gap-[9px]">
-          <div className="w-[30px] h-[30px] rounded-full bg-avatar-bg text-avatar-text flex items-center justify-center text-[11px] font-semibold shrink-0">
-            {iniciales}
-          </div>
+        <button
+          onClick={() => onNavegar('perfil')}
+          title="Ver mi perfil"
+          className={`w-full flex items-center gap-[9px] text-left rounded-md -mx-1.5 px-1.5 py-1 hover:bg-bg-tertiary ${
+            vista === 'perfil' ? 'bg-bg-tertiary' : ''
+          }`}
+        >
+          {perfil?.avatar_url ? (
+            <Avatar nombre={nombre} foto={perfil.avatar_url} tamano="w-[30px] h-[30px] text-[11px]" />
+          ) : (
+            <div className="w-[30px] h-[30px] rounded-full bg-avatar-bg text-avatar-text flex items-center justify-center text-[11px] font-semibold shrink-0">
+              {iniciales}
+            </div>
+          )}
           <div className="min-w-0">
             <div className="text-xs font-medium text-text-primary truncate">{nombre}</div>
             <div className="text-[10px] text-text-secondary">
               {etiquetaRol[perfil?.rol] || ''}
             </div>
           </div>
-        </div>
+        </button>
         <button
           onClick={onCerrarSesion}
           className="text-[10px] text-text-tertiary hover:text-red-text mt-1.5"

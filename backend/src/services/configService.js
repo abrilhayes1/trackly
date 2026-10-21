@@ -22,7 +22,8 @@ async function guardar(supabase, body) {
 // Miembros del equipo e invitaciones pendientes (las invitaciones solo las ve el líder)
 async function equipo(supabase) {
   const [miembros, invitaciones] = await Promise.all([
-    supabase.from('profiles').select('id, nombre, rol').order('nombre'),
+    // con '*' sigue andando aunque todavía no se haya corrido 14_perfil.sql (avatar_url)
+    supabase.from('profiles').select('*').order('nombre'),
     supabase
       .from('invitaciones')
       .select('id, email, rol, created_at')

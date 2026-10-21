@@ -6,7 +6,7 @@ import { TarjetaGrafico as Tarjeta, Barras, Columnas } from '../components/Grafi
 import { useTooltip } from '../lib/useTooltip'
 import Reportes from './Reportes'
 import { apiFetch } from '../lib/api'
-import { iniciales } from '../lib/formato'
+import Avatar from '../components/Avatar'
 import { useTerminos } from '../lib/configEquipo'
 import { calcularEstadisticas, PERIODOS, porcentaje } from '../lib/estadisticas'
 
@@ -106,9 +106,7 @@ export default function Estadisticas({ userId, rol, cambios }) {
             </Chip>
             {miembros.map((m) => (
               <Chip key={m.id} conAvatar activo={asesor === m.id} onClick={() => setAsesor(m.id)}>
-                <span className="w-5 h-5 rounded-full bg-avatar-bg text-avatar-text inline-flex items-center justify-center text-[8px] font-semibold">
-                  {iniciales(m.nombre)}
-                </span>
+                <Avatar nombre={m.nombre} foto={m.avatar_url} tamano="w-5 h-5 text-[8px]" />
                 {m.nombre.split(' ')[0]}
               </Chip>
             ))}

@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../lib/api'
 import { agruparLeads } from '../lib/urgencia'
-import { iniciales } from '../lib/formato'
 import { colorPorInteres, sinCategoria, etiquetaInteres } from '../lib/interes'
 import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
 import { useLeadsEquipo } from '../lib/leadsEquipo'
+import Avatar from '../components/Avatar'
 
 const ESTADOS = {
   porVencer: { label: 'Por vencer', clases: 'bg-red-bg text-red-text border-red-border' },
@@ -18,14 +18,6 @@ const ESTADOS = {
 
 function Pill({ clases, children }) {
   return <span className={`text-[10px] px-[7px] py-0.5 rounded-full border whitespace-nowrap ${clases}`}>{children}</span>
-}
-
-function Avatar({ nombre, tamano = 'w-6 h-6 text-[9px]' }) {
-  return (
-    <span className={`${tamano} rounded-full bg-avatar-bg text-avatar-text inline-flex items-center justify-center font-semibold shrink-0`}>
-      {iniciales(nombre)}
-    </span>
-  )
 }
 
 function Indicador({ label, valor, color = 'text-text-primary' }) {
@@ -186,7 +178,7 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
           ← Volver al panel
         </button>
         <div className="flex items-center gap-3 mb-5">
-          <Avatar nombre={m?.nombre} tamano="w-[42px] h-[42px] text-sm" />
+          <Avatar nombre={m?.nombre} foto={m?.avatar_url} tamano="w-[42px] h-[42px] text-sm" />
           <div>
             <h1 className="text-base font-semibold tracking-tight text-text-primary">{m?.nombre}</h1>
             <p className="text-xs text-text-secondary">{m?.rol === 'lider' ? 'Líder de equipo' : 'Asesor comercial'}</p>
@@ -274,7 +266,7 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
                     }}
                     className="flex items-center gap-3 px-4 py-3 mb-2 border border-border-tertiary rounded-(--radius-lg) bg-bg-primary cursor-pointer hover:border-accent transition-colors"
                   >
-                    <Avatar nombre={m.nombre} tamano="w-[34px] h-[34px] text-[11px]" />
+                    <Avatar nombre={m.nombre} foto={m.avatar_url} tamano="w-[34px] h-[34px] text-[11px]" />
                     <div className="min-w-0">
                       <div className="text-[13px] font-medium text-text-primary">{m.nombre}</div>
                       <div className="text-[11px] text-text-secondary">
@@ -329,7 +321,11 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
                       <td className="px-2.5 py-2 border-b border-border-tertiary">
                         {l.asesor_id ? (
                           <span className="inline-flex items-center gap-1.5 text-text-secondary">
-                            <Avatar nombre={nombreDe(l.asesor_id)} tamano="w-[22px] h-[22px] text-[8px]" />
+                            <Avatar
+                              nombre={nombreDe(l.asesor_id)}
+                              foto={miembros.find((x) => x.id === l.asesor_id)?.avatar_url}
+                              tamano="w-[22px] h-[22px] text-[8px]"
+                            />
                             {nombreDe(l.asesor_id) || 'Otro asesor'}
                           </span>
                         ) : (

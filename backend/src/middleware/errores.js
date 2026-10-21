@@ -15,6 +15,11 @@ function manejarErrores(err, req, res, next) {
     return res.status(400).json({ error: 'El cuerpo del pedido no es un JSON válido' });
   }
 
+  // el cuerpo del pedido supera el límite (por ejemplo, una foto muy pesada)
+  if (err.type === 'entity.too.large') {
+    return res.status(413).json({ error: 'El archivo es demasiado grande' });
+  }
+
   // cualquier otra cosa es un error nuestro: se registra y no se le muestra el detalle al usuario
   console.error(err);
   res.status(500).json({ error: 'Error interno del servidor' });

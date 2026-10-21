@@ -17,6 +17,16 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 - Agregarlo también al **backlog (Anexo F)** como ítem de prioridad media, Etapa 2.
 - Caso de uso sugerido: **CU18 — Crear reporte personalizado** (actor: Asesor y Líder).
 
+### RF46 — Gestión de la cuenta propia *(nuevo, sección 4.1 Acceso y equipo)*
+> El sistema debe permitir a cada usuario ver su perfil (foto, nombre, email, rol, equipo, fecha de
+> ingreso y forma de ingreso) y sus números (leads activos, contactados, ganados, perdidos y tasa de
+> conversión); cambiar su nombre y su foto, que se ven en todo el equipo; cambiar su contraseña si
+> ingresa con email, y elegir el modo claro, oscuro o el del sistema. Si ingresa con Google y nunca
+> eligió una foto, se usa la de su cuenta de Google.
+
+- Prioridad media, Etapa 2. Caso de uso sugerido: **CU19 — Gestionar mi perfil** (actor: Asesor y Líder).
+- El email, el rol y el equipo no se cambian desde acá (el rol lo define el líder).
+
 ## Requerimientos que cambian
 
 | Dónde | Antes | Ahora |
@@ -26,6 +36,7 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 | **RF37** (Estadísticas) | Dashboard con leads por origen, interés, evolución semanal y tasa de contacto | Igual, más los indicadores de ganados y **tasa de conversión** (ganados sobre cerrados), y filtros por período (30 días, 90 días o todo) y por asesor (líder). |
 | **RF17 / RF18 / RF36** (Vencido, reclamo y archivo) | — | La vista **Archivo** tiene dos pestañas: *Vencidos* (se reclaman, con confirmación) y *Archivados* (se reactivan). |
 | **RF05** (Onboarding) | 5 pasos | Mismos 5 pasos. El paso 1 pide además el nombre de la persona y el paso 2 pide también el aviso previo y los días hasta pasar a Archivo. |
+| **RF01** (Login) | Email/contraseña y Google | Igual, más **"¿Olvidaste tu contraseña?"**: Supabase manda un enlace por email y, al volver, la persona elige una contraseña nueva antes de entrar. |
 | **RF02** (Invitaciones) | El líder invita por email | El líder carga los emails; la persona entra sola al equipo cuando crea su cuenta con ese email. **Pendiente:** mandar el email de invitación (necesita configurar SMTP). |
 | **RF06** (Campos de cierre) | Definir nombre, tipo y si es obligatorio | Igual. Los tipos son texto, número y lista de opciones; se pueden ordenar. Los equipos que ya existían arrancaron con carrera, modalidad, descuento e importe. |
 | **RF29** (Eventos) | Con categoría | La categoría es opcional y se sugiere desde las categorías de origen. El menú muestra el nombre que eligió el equipo ("Charlas", "Webinars"...) y solo aparece si el equipo usa eventos. |
@@ -52,7 +63,7 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 |---|---|---|
 | Frontend web | React + Vite + Tailwind CSS | Igual, **publicado en Vercel** |
 | Backend | Node.js + Express en Railway | Igual (Railway) |
-| Base de datos | Supabase | Igual; además **pg_cron** para el proceso nocturno de vencimiento (CU16) |
+| Base de datos | Supabase | Igual; además **pg_cron** para el proceso nocturno de vencimiento (CU16) y **Supabase Storage** para las fotos de perfil (la app las achica a unos 30 KB y las sube a través del backend, como pide RNF02) |
 | Integraciones | WhatsApp, Gmail API, Outlook, Google auth | WhatsApp (wa.me) y Gmail (enlace para redactar); Google OAuth funcionando. Outlook y Gmail API quedan como mejora. |
 
 ## Pendientes que siguen en la documentación

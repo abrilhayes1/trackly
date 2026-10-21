@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { temaActual, aplicarTema } from '../lib/tema'
+import { useEffect, useState } from 'react'
+import { temaActual, aplicarTema, alCambiarTema } from '../lib/tema'
 
 export default function Topbar({ busqueda, onBuscar }) {
   const hoy = new Date()
@@ -13,6 +13,9 @@ export default function Topbar({ busqueda, onBuscar }) {
   const fecha = hoy.charAt(0).toUpperCase() + hoy.slice(1)
   const [tema, setTema] = useState(temaActual)
   const oscuro = tema === 'oscuro'
+
+  // si se cambia desde Mi perfil (o el sistema, con "según el sistema"), el botón se entera
+  useEffect(() => alCambiarTema(() => setTema(temaActual())), [])
 
   function alternarTema() {
     const nuevo = oscuro ? 'claro' : 'oscuro'

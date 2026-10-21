@@ -11,6 +11,8 @@ import Configuracion from './pages/Configuracion'
 import PanelLider from './pages/PanelLider'
 import Charlas from './pages/Charlas'
 import Estadisticas from './pages/Estadisticas'
+import Perfil from './pages/Perfil'
+import CambioContrasena from './components/CambioContrasena'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
@@ -36,7 +38,9 @@ function App() {
   const [lista, setLista] = useState({ leads: [], listo: false, error: null })
   const [recargasLista, setRecargasLista] = useState(0)
   const ultimaCarga = useRef(0)
-  const [modoLogin, setModoLogin] = useState('ingresar') // 'ingresar' | 'crear'
+  const [modoLogin, setModoLogin] = useState('ingresar') // 'ingresar' | 'crear' | 'recuperar'
+  // volvió del email de "olvidé mi contraseña": antes de entrar elige una nueva
+  const [recuperando, setRecuperando] = useState(false)
   const [mensajeLogin, setMensajeLogin] = useState(null)
   const [vista, setVista] = useState('leads')
   const [busqueda, setBusqueda] = useState('')
@@ -51,8 +55,9 @@ function App() {
       setCargando(false)
     })
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((evento, session) => {
       setSesion(session)
+      if (evento === 'PASSWORD_RECOVERY') setRecuperando(true)
     })
 
     return () => listener.subscription.unsubscribe()
@@ -111,6 +116,22 @@ function App() {
     e.preventDefault()
     setError(null)
     setMensajeLogin(null)
+
+    if (modoLogin === 'recuperar') {
+      if (!email.trim()) {
+        setError('Escribí el email con el que creaste tu cuenta.')
+        return
+      }
+      // Supabase manda un email con un enlace que vuelve a la app para elegir la contraseña nueva
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: window.location.origin })
+      if (error) {
+        setError(/rate limit/i.test(error.message) ? 'Se mandaron demasiados emails. Probá de nuevo en un rato.' : error.message)
+        return
+      }
+      setMensajeLogin('Si hay una cuenta con ese email, te llegó un enlace para elegir una contraseña nueva.')
+      setModoLogin('ingresar')
+      return
+    }
 
     if (modoLogin === 'crear') {
       if (password.length < 6) {
@@ -213,6 +234,23 @@ function App() {
     )
   }
 
+  if (sesion && recuperando) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{ background: 'linear-gradient(135deg, var(--color-purple-bg) 0%, var(--color-bg-secondary) 60%)' }}
+      >
+        <div className="bg-bg-primary border border-border-tertiary rounded-2xl w-full max-w-md px-8 py-9">
+          <h1 className="text-center text-2xl font-semibold tracking-tight text-accent-text mb-1">
+            Trackly<span className="text-green-border">.</span>
+          </h1>
+          <p className="text-center text-xs text-text-secondary mb-6">Elegí una contraseña nueva para {sesion.user.email}</p>
+          <CambioContrasena textoBoton="Guardar y entrar" onListo={() => setRecuperando(false)} />
+        </div>
+      </div>
+    )
+  }
+
   // usuario sin equipo: arma el suyo (si alguien lo invitó, /api/me ya lo sumó a ese equipo)
   if (sesion && perfil === null) {
     return (
@@ -275,6 +313,10 @@ function App() {
               cambios={cambios}
               onCambio={() => setCambios((n) => n + 1)}
             />
+          )}
+
+          {!buscando && vista === 'perfil' && perfil && (
+            <Perfil perfil={perfil} usuario={sesion.user} onPerfilCambiado={setPerfil} />
           )}
 
           {!buscando && vista === 'stats' && <Estadisticas userId={userId} rol={perfil?.rol} cambios={cambios} />}
@@ -354,7 +396,7 @@ function App() {
           Trackly<span className="text-green-border">.</span>
         </h1>
         <p className="text-center text-xs text-text-secondary mb-7">
-          {modoLogin === 'crear' ? 'Creá tu cuenta' : 'Ingresá a tu cuenta'}
+          {modoLogin === 'crear' ? 'Creá tu cuenta' : modoLogin === 'recuperar' ? 'Te mandamos un enlace para elegir una contraseña nueva' : 'Ingresá a tu cuenta'}
         </p>
 
         <div className="mb-3">
@@ -367,8 +409,24 @@ function App() {
           />
         </div>
 
+        {modoLogin !== 'recuperar' && (
         <div className="mb-3">
-          <label className="block text-xs text-text-secondary mb-1">Contraseña</label>
+          <div className="flex items-baseline justify-between mb-1">
+            <label className="block text-xs text-text-secondary">Contraseña</label>
+            {modoLogin === 'ingresar' && (
+              <button
+                type="button"
+                onClick={() => {
+                  setModoLogin('recuperar')
+                  setError(null)
+                  setMensajeLogin(null)
+                }}
+                className="text-[11px] text-accent hover:underline"
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+            )}
+          </div>
           <input
             type="password"
             value={password}
@@ -376,14 +434,17 @@ function App() {
             className="w-full text-sm px-3 py-2 rounded-md border border-border-secondary bg-bg-secondary text-text-primary focus:outline-none focus:border-accent focus:bg-bg-primary"
           />
         </div>
+        )}
 
         <button
           type="submit"
           className="w-full text-sm font-medium text-white bg-accent hover:bg-accent-dark rounded-md py-2.5 mt-1"
         >
-          {modoLogin === 'crear' ? 'Crear cuenta' : 'Ingresar'}
+          {modoLogin === 'crear' ? 'Crear cuenta' : modoLogin === 'recuperar' ? 'Mandarme el enlace' : 'Ingresar'}
         </button>
 
+        {modoLogin !== 'recuperar' && (
+        <>
         <div className="flex items-center gap-2.5 my-4 text-[11px] text-text-tertiary">
           <span className="flex-1 h-px bg-border-tertiary" />o<span className="flex-1 h-px bg-border-tertiary" />
         </div>
@@ -401,6 +462,8 @@ function App() {
           </svg>
           Continuar con Google
         </button>
+        </>
+        )}
 
         {error && (
           <p className="text-red-border text-xs mt-3 text-center">{error}</p>
@@ -410,17 +473,17 @@ function App() {
         )}
 
         <p className="text-center text-[11px] text-text-tertiary mt-6">
-          {modoLogin === 'crear' ? '¿Ya tenés cuenta? ' : '¿Todavía no tenés cuenta? '}
+          {modoLogin === 'ingresar' ? '¿Todavía no tenés cuenta? ' : modoLogin === 'crear' ? '¿Ya tenés cuenta? ' : ''}
           <button
             type="button"
             onClick={() => {
-              setModoLogin(modoLogin === 'crear' ? 'ingresar' : 'crear')
+              setModoLogin(modoLogin === 'ingresar' ? 'crear' : 'ingresar')
               setError(null)
               setMensajeLogin(null)
             }}
             className="text-accent hover:underline"
           >
-            {modoLogin === 'crear' ? 'Ingresá' : 'Creá una'}
+            {modoLogin === 'ingresar' ? 'Creá una' : modoLogin === 'crear' ? 'Ingresá' : 'Volver a ingresar'}
           </button>
         </p>
       </form>

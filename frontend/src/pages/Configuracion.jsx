@@ -1,6 +1,7 @@
 // Configuración del equipo (RF02, RF06, RF07): solo para el líder. Lo mismo que se eligió en el
 // onboarding, editable, más los miembros del equipo y las invitaciones pendientes.
 import { useEffect, useState } from 'react'
+import Avatar from '../components/Avatar'
 import { apiFetch } from '../lib/api'
 import { useConfigEquipo, RUBROS, EMAIL_VALIDO, errorVencimiento } from '../lib/configEquipo'
 import {
@@ -15,7 +16,6 @@ import {
   EditorCamposCierre,
 } from '../components/CamposEquipo'
 import { TIPOS_CAMPO, nuevoIdCampo } from '../lib/cierre'
-import { iniciales } from '../lib/formato'
 
 const etiquetaRol = { lider: 'Líder', asesor: 'Asesor' }
 
@@ -308,9 +308,7 @@ export default function Configuracion({ rol, nombreEquipo, onGuardado }) {
           <div className="mb-4">
             {equipo.miembros.map((m) => (
               <div key={m.id} className="flex items-center gap-2 py-1.5 border-b border-border-tertiary last:border-0">
-                <span className="w-6 h-6 rounded-full bg-avatar-bg text-avatar-text inline-flex items-center justify-center text-[9px] font-semibold">
-                  {iniciales(m.nombre)}
-                </span>
+                <Avatar nombre={m.nombre} foto={m.avatar_url} />
                 <span className="text-xs text-text-primary flex-1">{m.nombre}</span>
                 <span className="text-[10px] text-text-secondary">{etiquetaRol[m.rol] || m.rol}</span>
               </div>

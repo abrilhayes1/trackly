@@ -64,7 +64,35 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: modo oscuro
+## Último trabajo: Mi perfil (RF46, nuevo) y recuperar contraseña
+
+- **Pantalla Mi perfil** (`pages/Perfil.jsx`, vista `perfil`): se abre tocando tu nombre abajo a la
+  izquierda del menú. Muestra:
+  - foto, nombre, rol, equipo, email, "en el equipo desde" y si ingresás con Google o con email;
+  - Mis números: activos y contactados (de la lista compartida), ganados, perdidos y tasa de
+    conversión (de `?campos=analisis`, solo los propios);
+  - Datos personales: cambiar el nombre (el email no se cambia);
+  - Seguridad: cambiar la contraseña (`components/CambioContrasena.jsx`, con
+    `supabase.auth.updateUser`); si entra solo con Google, un texto;
+  - Preferencias: modo claro, oscuro o según el sistema (`lib/tema.js` → `preferenciaTema`,
+    `aplicarTema`, `alCambiarTema`; el botón de la barra superior se sincroniza).
+- **Foto:** `lib/foto.js` la recorta cuadrada y la achica a 256 px JPG en el navegador. `PUT /api/me/foto`
+  (cuerpo = imagen cruda, máximo 1 MB, se revisan los primeros bytes) la sube al bucket `avatares` en
+  `avatares/<id>/<fecha>.jpg`, la guarda con la RPC `cambiar_mi_foto` y borra las anteriores.
+  `DELETE /api/me/foto` la quita (`avatar_url = ''`). Con `avatar_url = null` y login con Google,
+  `GET /api/me` toma la foto de Google. `components/Avatar.jsx` muestra la foto o las iniciales (también
+  si la foto no carga) en el menú, el Panel del equipo, los filtros de Estadísticas y Configuración.
+- **Nombre:** `PATCH /api/me { nombre }` → RPC `cambiar_mi_nombre` (2 a 80 caracteres; borra
+  `avatar_iniciales` para recalcularlas).
+- **SQL:** `database/14_perfil.sql` (columna `profiles.avatar_url`, RPCs `cambiar_mi_nombre` y
+  `cambiar_mi_foto`, bucket público `avatares` con políticas por carpeta). Probado en Postgres local.
+  `configService.equipo` y `meService` leen `profiles` con `*`, así no fallan si el script todavía
+  no se corrió.
+- **Login:** "¿Olvidaste tu contraseña?" (modo `recuperar`) → `resetPasswordForEmail` con
+  `redirectTo` = la URL de la app; al volver, el evento `PASSWORD_RECOVERY` muestra la pantalla para
+  elegir la contraseña nueva. Usa el email de Supabase (límite de pocos por hora sin SMTP propio).
+
+## Anterior: modo oscuro
 
 - Botón sol / luna en la barra superior; se recuerda en el navegador y, si nunca se eligió, sigue al
   sistema. Detalle en **Estilos**.
