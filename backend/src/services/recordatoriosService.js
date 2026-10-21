@@ -78,4 +78,36 @@ async function marcar(supabase, user, id, body) {
   return data;
 }
 
-module.exports = { listar, crear, marcar };
+// editar día, hora, contacto y nota (y opcionalmente si está hecho); si solo viene "hecho", es marcar
+async function actualizar(supabase, user, id, body) {
+  const datos = body ?? {};
+  if (Object.keys(datos).every((k) => k === 'hecho')) {
+    return marcar(supabase, user, id, datos);
+  }
+
+  const { error: errorValidacion, valores } = validarRecordatorio(datos);
+  if (errorValidacion) {
+    throw new ErrorHttp(400, errorValidacion);
+  }
+  if (datos.hecho !== undefined && typeof datos.hecho !== 'boolean') {
+    throw new ErrorHttp(400, '"hecho" tiene que ser true o false');
+  }
+
+  const { data, error } = await supabase
+    .from('recordatorios')
+    .update({ ...valores, ...(datos.hecho !== undefined && { hecho: datos.hecho }) })
+    .eq('id', id)
+    .eq('asesor_id', user.id)
+    .select()
+    .maybeSingle();
+
+  lanzarSiError(error);
+
+  if (!data) {
+    throw new ErrorHttp(404, 'Recordatorio no encontrado');
+  }
+
+  return data;
+}
+
+module.exports = { listar, crear, marcar, actualizar };

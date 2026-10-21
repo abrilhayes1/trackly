@@ -9,7 +9,7 @@ async function crear(req, res) {
 }
 
 async function marcar(req, res) {
-  res.json(await recordatoriosService.marcar(req.supabase, req.user, req.params.id, req.body));
+  res.json(await recordatoriosService.actualizar(req.supabase, req.user, req.params.id, req.body));
 }
 
 module.exports = { listar, crear, marcar };

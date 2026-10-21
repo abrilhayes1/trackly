@@ -64,16 +64,24 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: Agenda unificada (RF25 / RF27)
+## Último trabajo: Agenda con vistas (RF25 / RF27)
 
-- La Agenda junta los recordatorios manuales y los que se ponen en la tarjeta de un lead
-  (`leads.recordatorio`). Los de un lead llevan la etiqueta "contacto", muestran su nombre y al
-  tocarlos se abre la tarjeta. Se dan por hechos cuando se registra un contacto posterior.
-- Secciones: atrasados (días anteriores sin hacer), hoy y **próximos 7 días**.
-- Los recordatorios manuales se pueden crear para cualquier día (hoy o después), no solo para hoy.
-- Backend: `GET /api/recordatorios?fecha=AAAA-MM-DD&hasta=AAAA-MM-DD` devuelve el rango más los
-  atrasados sin hacer. No hace falta SQL nuevo.
-- Contador del menú de Agenda: manuales pendientes más los recordatorios de leads de hoy o atrasados.
+- La Agenda junta los recordatorios manuales (punto violeta) y los que se ponen en la tarjeta de un
+  lead (`leads.recordatorio`, punto azul). Los de un lead se dan por hechos cuando se registra un
+  contacto posterior.
+- Tres vistas, con flechas ‹ Hoy › para moverse: **Días** (5 días desde el elegido), **Semana**
+  (lunes a domingo) y **Mes** (calendario de 6 semanas; tocar un día lo abre en la vista Días). La
+  vista elegida se recuerda en el navegador.
+- Arriba, una franja roja con los atrasados (días anteriores sin hacer).
+- Al tocar un recordatorio se abre una ventana (`components/RecordatorioModal.jsx`): los manuales se
+  editan (día, hora, contacto, nota) y se marcan como hechos; los de un lead muestran el detalle y
+  un botón para abrir su tarjeta. "+ Nuevo recordatorio" o "+ Agregar" en un día crean uno para
+  cualquier fecha desde hoy.
+- Backend: `GET /api/recordatorios?fecha=desde&hasta=hasta` devuelve el rango más los atrasados sin
+  hacer; `PATCH /api/recordatorios/:id` acepta `{ hecho }` o los datos completos para editar. No
+  hace falta SQL nuevo.
+- Contador del menú de Agenda: manuales pendientes de hoy o atrasados más los recordatorios de
+  leads de hoy o atrasados.
 
 ## Anterior: Reportes personalizados (RF45, nuevo)
 
