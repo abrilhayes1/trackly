@@ -146,7 +146,7 @@ export default function RecordatorioModal({ item, fechaInicial, horaInicial, hoy
                 onClick={() => onAbrirLead(item.lead)}
                 className="text-xs font-medium px-3 py-2 rounded-md bg-accent text-white hover:bg-accent-dark"
               >
-                Abrir tarjeta del contacto
+                Abrir tarjeta
               </button>
             </div>
           </div>
