@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
-import { apiFetch } from '../lib/api'
+import { useMemo } from 'react'
+import { useConfigEquipo } from '../lib/configEquipo'
+import { useLeadsEquipo } from '../lib/leadsEquipo'
 import { calcularAlertas } from '../lib/alertas'
 import { colorPorInteres, sinCategoria, etiquetaInteres } from '../lib/interes'
 import { fechaHoraCorta } from '../lib/formato'
@@ -67,23 +68,11 @@ function AlertaCard({ lead, seccion, ahora, onAbrir }) {
   )
 }
 
-export default function AlertasHoy({ userId, onAbrirLead, cambios }) {
-  const [leads, setLeads] = useState([])
-  const [config, setConfig] = useState(null)
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
-
-  // se carga al abrir la pantalla y cada vez que se modifica un lead desde la tarjeta
-  useEffect(() => {
-    Promise.all([apiFetch('/api/leads'), apiFetch('/api/config')])
-      .then(([leadsData, configData]) => {
-        setLeads(leadsData)
-        setConfig(configData)
-        setError(null)
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setCargando(false))
-  }, [cambios])
+export default function AlertasHoy({ userId, onAbrirLead }) {
+  // la lista y la configuración las carga App una sola vez para toda la app
+  const { leads, listo, error } = useLeadsEquipo()
+  const { config } = useConfigEquipo()
+  const cargando = !listo
 
   const ahora = useMemo(() => new Date(), [leads, config])
   const alertas = useMemo(

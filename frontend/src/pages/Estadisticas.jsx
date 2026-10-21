@@ -47,7 +47,7 @@ export default function Estadisticas({ userId, rol, cambios }) {
   const tooltip = useTooltip()
 
   useEffect(() => {
-    Promise.all([apiFetch('/api/leads'), esLider ? apiFetch('/api/config/equipo') : Promise.resolve({ miembros: [] })])
+    Promise.all([apiFetch('/api/leads?campos=analisis'), esLider ? apiFetch('/api/config/equipo') : Promise.resolve({ miembros: [] })])
       .then(([l, equipo]) => {
         setLeads(l)
         setMiembros(equipo.miembros)

@@ -1,8 +1,9 @@
 // Agenda (RF25 / RF27): los recordatorios manuales y los de las tarjetas de los contactos, en tres
 // vistas (5 días, semana y mes). Al tocar uno se abre su detalle.
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../lib/api'
 import RecordatorioModal from '../components/RecordatorioModal'
+import { useLeadsEquipo } from '../lib/leadsEquipo'
 import {
   fechaLocal,
   hhmm,
@@ -196,7 +197,9 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
   const [vista, setVista] = useState(leerVista)
   const [cursor, setCursor] = useState(hoy)
   const [items, setItems] = useState([])
-  const [deLeads, setDeLeads] = useState([])
+  // los recordatorios de las tarjetas salen de la lista compartida de leads (no se vuelve a pedir)
+  const { leads, listo, error: errorLeads } = useLeadsEquipo()
+  const deLeads = useMemo(() => recordatoriosDeLeads(leads, userId), [leads, userId])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   // { item } para ver uno; { fecha } para crear uno nuevo
@@ -212,17 +215,16 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
     return () => clearInterval(reloj)
   }, [])
 
-  // los del período en pantalla (más los atrasados sin hacer) y los de las tarjetas de los contactos
+  // los recordatorios manuales del período en pantalla (más los atrasados sin hacer)
   useEffect(() => {
-    Promise.all([apiFetch(`/api/recordatorios?fecha=${desde}&hasta=${hasta}`), apiFetch('/api/leads')])
-      .then(([datos, leads]) => {
+    apiFetch(`/api/recordatorios?fecha=${desde}&hasta=${hasta}`)
+      .then((datos) => {
         setItems(datos)
-        setDeLeads(recordatoriosDeLeads(leads, userId))
         setError(null)
       })
       .catch((e) => setError(e.message))
       .finally(() => setCargando(false))
-  }, [desde, hasta, userId, cambios])
+  }, [desde, hasta, cambios])
 
   const todos = [...items, ...deLeads].sort(ordenarRecordatorios)
   const atrasados = todos.filter((r) => !r.hecho && r.fecha < hoy)
@@ -327,7 +329,9 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-3">{error}</p>}
+      {(error || errorLeads) && (
+        <p className="text-sm text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-3">{error || errorLeads}</p>
+      )}
 
       {atrasados.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap bg-red-bg border border-red-border/40 rounded-md px-3 py-2 mb-4">
@@ -350,7 +354,7 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
         </div>
       )}
 
-      {cargando ? (
+      {cargando || !listo ? (
         <p className="text-sm text-text-secondary">Cargando...</p>
       ) : vista === 'mes' ? (
         <Mes dias={dias} cursor={cursor} hoy={hoy} porDia={porDia} ahora={ahora} onAbrir={abrir} onVerDia={verDia} />

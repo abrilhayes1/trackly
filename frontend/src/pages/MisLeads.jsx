@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { apiFetch } from '../lib/api'
 import { agruparLeads } from '../lib/urgencia'
 import LeadCard from '../components/LeadCard'
 import NuevoLeadModal from '../components/NuevoLeadModal'
-import { useTerminos } from '../lib/configEquipo'
+import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
+import { useLeadsEquipo } from '../lib/leadsEquipo'
 
 const secciones = [
   { clave: 'porVencer', titulo: 'Por vencer', badge: 'bg-red-bg text-urgent-red' },
@@ -19,12 +19,12 @@ const tarjetas = [
   { clave: 'sinContactar', label: 'Sin contactar', color: 'text-urgent-blue' },
 ]
 
-export default function MisLeads({ onAbrirLead, cambios }) {
-  const [leads, setLeads] = useState([])
-  const [config, setConfig] = useState(null)
+export default function MisLeads({ onAbrirLead, onCambio }) {
+  // la lista y la configuración las carga App una sola vez para toda la app
+  const { leads, listo, error } = useLeadsEquipo()
+  const { config } = useConfigEquipo()
+  const cargando = !listo
   const [userId, setUserId] = useState(null)
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
   const [modalAbierto, setModalAbierto] = useState(false)
   const { uno, varios } = useTerminos()
 
@@ -33,22 +33,6 @@ export default function MisLeads({ onAbrirLead, cambios }) {
       setUserId(data.session?.user.id ?? null)
     })
   }, [])
-
-  const cargar = useCallback(() => {
-    return Promise.all([apiFetch('/api/leads'), apiFetch('/api/config')])
-      .then(([leadsData, configData]) => {
-        setLeads(leadsData)
-        setConfig(configData)
-        setError(null)
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setCargando(false))
-  }, [])
-
-  // se vuelve a cargar al abrir la pantalla y cada vez que se modifica un lead desde la tarjeta
-  useEffect(() => {
-    cargar()
-  }, [cargar, cambios])
 
   const grupos = useMemo(
     () => agruparLeads(leads, config, userId),
@@ -74,8 +58,9 @@ export default function MisLeads({ onAbrirLead, cambios }) {
     return grupos.porVencer.filter((l) => l.dias >= plazo - 1).length
   }, [grupos, config])
 
-  function alCrearLead(nuevoLead) {
-    setLeads((actuales) => [nuevoLead, ...actuales])
+  // el lead nuevo aparece cuando App vuelve a pedir la lista
+  function alCrearLead() {
+    onCambio()
     setModalAbierto(false)
   }
 

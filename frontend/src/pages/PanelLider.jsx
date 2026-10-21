@@ -6,6 +6,7 @@ import { agruparLeads } from '../lib/urgencia'
 import { iniciales } from '../lib/formato'
 import { colorPorInteres, sinCategoria, etiquetaInteres } from '../lib/interes'
 import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
+import { useLeadsEquipo } from '../lib/leadsEquipo'
 
 const ESTADOS = {
   porVencer: { label: 'Por vencer', clases: 'bg-red-bg text-red-text border-red-border' },
@@ -79,13 +80,16 @@ function Pestana({ activa, onClick, children, cantidad }) {
   )
 }
 
-export default function PanelLider({ rol, onAbrirLead, cambios, onCambio }) {
+export default function PanelLider({ rol, onAbrirLead, onCambio }) {
   const { config } = useConfigEquipo()
   const { Uno, Varios, varios } = useTerminos()
-  const [leads, setLeads] = useState([])
+  // los leads (activos y vencidos del equipo) salen de la lista compartida; acá solo se piden los miembros
+  const { leads, listo, error: errorLeads } = useLeadsEquipo()
   const [miembros, setMiembros] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
+  const [cargandoEquipo, setCargandoEquipo] = useState(true)
+  const [errorEquipo, setErrorEquipo] = useState(null)
+  const cargando = cargandoEquipo || !listo
+  const error = errorEquipo || errorLeads
   const [pestana, setPestana] = useState('asesores')
   const [asesorAbierto, setAsesorAbierto] = useState(null)
   const [reasignando, setReasignando] = useState(null)
@@ -93,15 +97,14 @@ export default function PanelLider({ rol, onAbrirLead, cambios, onCambio }) {
 
   useEffect(() => {
     if (rol !== 'lider') return
-    Promise.all([apiFetch('/api/leads'), apiFetch('/api/config/equipo')])
-      .then(([leadsData, equipo]) => {
-        setLeads(leadsData)
+    apiFetch('/api/config/equipo')
+      .then((equipo) => {
         setMiembros(equipo.miembros)
-        setError(null)
+        setErrorEquipo(null)
       })
-      .catch((e) => setError(e.message))
-      .finally(() => setCargando(false))
-  }, [rol, cambios])
+      .catch((e) => setErrorEquipo(e.message))
+      .finally(() => setCargandoEquipo(false))
+  }, [rol])
 
   // grupo de urgencia de cada lead activo, con la misma regla que Mis leads (por cada asesor)
   const grupoDe = useMemo(() => {
@@ -138,7 +141,6 @@ export default function PanelLider({ rol, onAbrirLead, cambios, onCambio }) {
     setAviso(null)
     try {
       await apiFetch(`/api/leads/${lead.id}/reasignar`, { method: 'POST', body: JSON.stringify({ asesorId }) })
-      setLeads((actuales) => actuales.map((l) => (l.id === lead.id ? { ...l, asesor_id: asesorId } : l)))
       setAviso({
         tipo: 'ok',
         texto: `${lead.nombre} ${lead.asesor_id ? 'pasó a' : 'quedó asignado a'} ${nombreDe(asesorId)}. Ya aparece en su vista.`,

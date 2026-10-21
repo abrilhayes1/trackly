@@ -3,7 +3,7 @@ import { apiFetch } from '../lib/api'
 import { iniciales } from '../lib/formato'
 import { colorPorInteres, sinCategoria, etiquetaInteres } from '../lib/interes'
 import { textoArchivo, ordenarArchivo, claveInteres } from '../lib/archivo'
-import { useTerminos } from '../lib/configEquipo'
+import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
 
 function primerNombre(nombre) {
   return (nombre || '').split(' ')[0]
@@ -65,7 +65,7 @@ function textosDe({ varios }) {
 
 export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio }) {
   const [leads, setLeads] = useState([])
-  const [config, setConfig] = useState(null)
+  const { config } = useConfigEquipo()
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [pestana, setPestana] = useState('vencido')
@@ -83,10 +83,9 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
 
   // se carga al abrir la pantalla y cada vez que algo cambia (por ejemplo, un lead reclamado)
   useEffect(() => {
-    Promise.all([apiFetch('/api/leads?estado=vencido,archivo'), apiFetch('/api/config')])
-      .then(([leadsData, configData]) => {
+    apiFetch('/api/leads?estado=vencido,archivo')
+      .then((leadsData) => {
         setLeads(leadsData)
-        setConfig(configData)
         setError(null)
       })
       .catch((e) => setError(e.message))

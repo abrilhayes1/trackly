@@ -21,6 +21,7 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 
 | Dónde | Antes | Ahora |
 |---|---|---|
+| **RNF04** (Rendimiento) | Cargar en menos de 2 s con hasta 5.000 leads | Mismo objetivo; se explica cómo se cumple: la app descarga **una sola lista de trabajo** (leads activos y vencidos) y la comparten todas las pantallas. Se vuelve a pedir solo cuando algo cambia o si pasó más de un minuto. Los ganados y perdidos no se descargan para los contadores: se cuentan en la base. Estadísticas y Reportes piden el historial con solo las columnas que usan, y solo al abrirse. |
 | **RNF11** (Responsividad) | La web se adapta de 360 a 1920 px | La web es de escritorio: funciona desde 1024 px (si la ventana es más angosta, aparece una barra para desplazarse). El celular se cubre con la app mobile (RF41 a RF44). |
 | **RF37** (Estadísticas) | Dashboard con leads por origen, interés, evolución semanal y tasa de contacto | Igual, más los indicadores de ganados y **tasa de conversión** (ganados sobre cerrados), y filtros por período (30 días, 90 días o todo) y por asesor (líder). |
 | **RF17 / RF18 / RF36** (Vencido, reclamo y archivo) | — | La vista **Archivo** tiene dos pestañas: *Vencidos* (se reclaman, con confirmación) y *Archivados* (se reactivan). |

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from './lib/supabaseClient'
 import { apiFetch } from './lib/api'
 import MisLeads from './pages/MisLeads'
@@ -16,6 +16,7 @@ import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
 import DetalleLead from './components/DetalleLead'
 import { ConfigEquipoContext } from './lib/configEquipo'
+import { LeadsEquipoContext, VIGENCIA_LISTA_MS } from './lib/leadsEquipo'
 import { calcularContadores } from './lib/contadores'
 import { fechaLocal } from './lib/agenda'
 
@@ -29,7 +30,12 @@ function App() {
   const [recargasPerfil, setRecargasPerfil] = useState(0)
   const [configEquipo, setConfigEquipo] = useState(null)
   const [recargasConfig, setRecargasConfig] = useState(0)
+  const [configLista, setConfigLista] = useState(false)
   const [contadores, setContadores] = useState(null)
+  // lista de trabajo compartida (activos y vencidos); ultimaCarga sirve para saber si quedó vieja
+  const [lista, setLista] = useState({ leads: [], listo: false, error: null })
+  const [recargasLista, setRecargasLista] = useState(0)
+  const ultimaCarga = useRef(0)
   const [modoLogin, setModoLogin] = useState('ingresar') // 'ingresar' | 'crear'
   const [mensajeLogin, setMensajeLogin] = useState(null)
   const [vista, setVista] = useState('leads')
@@ -74,17 +80,30 @@ function App() {
     apiFetch('/api/config')
       .then(setConfigEquipo)
       .catch(() => setConfigEquipo(null))
+      .finally(() => setConfigLista(true))
   }, [tieneEquipo, recargasConfig])
 
-  // contadores del menú: se recalculan al cambiar de pantalla y cada vez que se modifica un lead
+  // la lista de trabajo se pide una vez y de nuevo solo cuando se modifica algo (o quedó vieja)
+  useEffect(() => {
+    if (!tieneEquipo) return
+    apiFetch('/api/leads?estado=activo,vencido')
+      .then((leads) => {
+        ultimaCarga.current = Date.now()
+        setLista({ leads, listo: true, error: null })
+      })
+      .catch((e) => setLista((actual) => ({ ...actual, listo: true, error: e.message })))
+  }, [tieneEquipo, cambios, recargasLista])
+
+  // contadores del menú: los leads salen de la lista compartida; los recordatorios de hoy, los
+  // eventos y los totales de cerrados (solo números) se piden al cambiar de pantalla, que es poco
   useEffect(() => {
     if (!tieneEquipo) return
     Promise.all([
-      apiFetch('/api/leads'),
       apiFetch(`/api/recordatorios?fecha=${fechaLocal()}`),
       apiFetch('/api/charlas').catch(() => []),
+      apiFetch('/api/leads/totales'),
     ])
-      .then(([leads, recordatorios, charlas]) => setContadores({ leads, recordatorios, charlas, ahora: Date.now() }))
+      .then(([recordatorios, charlas, totales]) => setContadores({ recordatorios, charlas, totales, ahora: Date.now() }))
       .catch(() => setContadores(null))
   }, [tieneEquipo, vista, cambios])
 
@@ -150,12 +169,16 @@ function App() {
     setLeadAbierto(null)
     setVista('leads')
     setPerfil(undefined)
+    setLista({ leads: [], listo: false, error: null })
+    setConfigLista(false)
   }
 
   // al cambiar de pantalla se limpia la búsqueda, para no quedar viendo resultados viejos
   function navegar(nuevaVista) {
     setVista(nuevaVista)
     setBusqueda('')
+    // si la lista tiene más de un minuto, se actualiza para ver lo que cambió el resto del equipo
+    if (Date.now() - ultimaCarga.current > VIGENCIA_LISTA_MS) setRecargasLista((n) => n + 1)
   }
 
   // cuando se modifica un lead desde la tarjeta: la tarjeta se actualiza
@@ -212,6 +235,7 @@ function App() {
 
     return (
       <ConfigEquipoContext.Provider value={contextoConfig}>
+      <LeadsEquipoContext.Provider value={{ ...lista, listo: lista.listo && configLista }}>
       <div className="flex min-h-screen min-w-[1024px]">
         <Sidebar
           email={sesion.user.email}
@@ -220,8 +244,8 @@ function App() {
           onNavegar={navegar}
           onCerrarSesion={cerrarSesion}
           contadores={
-            contadores && configEquipo
-              ? calcularContadores({ ...contadores, config: configEquipo, userId, rol: perfil?.rol })
+            contadores && configEquipo && lista.listo
+              ? calcularContadores({ ...contadores, leads: lista.leads, config: configEquipo, userId, rol: perfil?.rol })
               : null
           }
         />
@@ -238,7 +262,7 @@ function App() {
           )}
 
           {!buscando && vista === 'alertas' && (
-            <AlertasHoy userId={userId} onAbrirLead={setLeadAbierto} cambios={cambios} />
+            <AlertasHoy userId={userId} onAbrirLead={setLeadAbierto} />
           )}
 
           {!buscando && vista === 'agenda' && <Agenda userId={userId} onAbrirLead={setLeadAbierto} onCambioLead={alCambiarLead} cambios={cambios} />}
@@ -259,7 +283,6 @@ function App() {
             <PanelLider
               rol={perfil?.rol}
               onAbrirLead={setLeadAbierto}
-              cambios={cambios}
               onCambio={() => setCambios((n) => n + 1)}
             />
           )}
@@ -297,7 +320,7 @@ function App() {
 
           {/* Mis leads queda montada pero oculta cuando se busca o se ve otra pantalla, así no se vuelve a cargar */}
           <div className={buscando || vista !== 'leads' ? 'hidden' : ''}>
-            <MisLeads onAbrirLead={setLeadAbierto} cambios={cambios} />
+            <MisLeads onAbrirLead={setLeadAbierto} onCambio={() => setCambios((n) => n + 1)} />
           </div>
         </main>
 
@@ -312,6 +335,7 @@ function App() {
           />
         )}
       </div>
+      </LeadsEquipoContext.Provider>
       </ConfigEquipoContext.Provider>
     )
   }

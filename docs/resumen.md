@@ -64,7 +64,26 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: Agenda con vistas (RF25 / RF27)
+## Último trabajo: menos descargas de datos (RNF04)
+
+Antes cada pantalla pedía `GET /api/leads` completo (todos los estados y columnas) y App lo volvía a
+pedir en cada cambio de vista para los contadores. Ahora:
+- **Lista de trabajo compartida** (`lib/leadsEquipo.js`, `LeadsEquipoContext`): App pide
+  `GET /api/leads?estado=activo,vencido` una vez y de nuevo solo cuando cambia algo (`cambios`) o, al
+  navegar, si tiene más de un minuto (`VIGENCIA_LISTA_MS`). La usan Mis leads, Alertas, Agenda, el
+  detalle de una charla, el Panel del líder y los contadores (`useLeadsEquipo()`). Su `listo` también
+  espera a que haya cargado la configuración.
+- **Contadores de cerrados:** `GET /api/leads/totales` → `{ ganados, perdidos }` con `count` en la
+  base (`head: true`, sin filas). El asesor cuenta los suyos; el líder, los del equipo.
+- **Estadísticas y Reportes:** `GET /api/leads?campos=analisis` (todas las filas, solo id, estado,
+  asesor_id, fecha_ingreso, ultimo_contacto, origen, interes y destacado).
+- **Configuración:** las pantallas usan `useConfigEquipo()` en vez de pedir `/api/config` cada vez.
+- Archivo sigue pidiendo `?estado=vencido,archivo` (los archivados no están en la lista de trabajo).
+- Medido en el navegador con datos de prueba: recorrer 5 pantallas pide la lista una sola vez (antes,
+  2 veces por cada clic).
+- Pendiente posible: estadísticas calculadas en la base (RPC) y paginar ganados y perdidos.
+
+## Anterior: Agenda con vistas (RF25 / RF27)
 
 - La Agenda junta los recordatorios manuales (punto violeta) y los que se ponen en la tarjeta de un
   lead (`leads.recordatorio`, punto azul). Los de un lead se dan por hechos cuando se registra un

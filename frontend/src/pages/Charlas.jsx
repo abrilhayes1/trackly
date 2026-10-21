@@ -5,6 +5,7 @@ import { apiFetch } from '../lib/api'
 import { iniciales } from '../lib/formato'
 import { colorPorInteres, sinCategoria, etiquetaInteres } from '../lib/interes'
 import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
+import { useLeadsEquipo } from '../lib/leadsEquipo'
 import { nombreEventos, fechaCharla, aInputs, desdeInputs } from '../lib/charlas'
 
 const campo =
@@ -109,7 +110,8 @@ function FormCharla({ inicial, categorias, onGuardado, onCancelar }) {
 function Detalle({ charlaId, userId, esLider, categorias, onVolver, onAbrirLead, onCambio, cambios }) {
   const { varios } = useTerminos()
   const [charla, setCharla] = useState(null)
-  const [leads, setLeads] = useState([])
+  // para invitar alcanzan los activos de la lista compartida
+  const { leads } = useLeadsEquipo()
   const [error, setError] = useState(null)
   const [editando, setEditando] = useState(false)
   const [filtro, setFiltro] = useState('')
@@ -119,10 +121,9 @@ function Detalle({ charlaId, userId, esLider, categorias, onVolver, onAbrirLead,
   const [recargas, setRecargas] = useState(0)
 
   useEffect(() => {
-    Promise.all([apiFetch(`/api/charlas/${charlaId}`), apiFetch('/api/leads')])
-      .then(([c, l]) => {
+    apiFetch(`/api/charlas/${charlaId}`)
+      .then((c) => {
         setCharla(c)
-        setLeads(l)
         setError(null)
       })
       .catch((e) => setError(e.message))

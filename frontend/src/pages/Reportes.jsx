@@ -296,7 +296,7 @@ export default function Reportes({ userId, rol, cambios }) {
 
   useEffect(() => {
     Promise.all([
-      apiFetch('/api/leads'),
+      apiFetch('/api/leads?campos=analisis'),
       apiFetch('/api/cierres?tipo=ganado'),
       apiFetch('/api/reportes'),
       esLider ? apiFetch('/api/config/equipo') : Promise.resolve({ miembros: [] }),

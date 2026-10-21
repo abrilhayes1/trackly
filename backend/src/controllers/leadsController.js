@@ -3,7 +3,11 @@
 const leadsService = require('../services/leadsService');
 
 async function listar(req, res) {
-  res.json(await leadsService.listar(req.supabase, req.query.estado));
+  res.json(await leadsService.listar(req.supabase, req.query.estado, req.query.campos));
+}
+
+async function totales(req, res) {
+  res.json(await leadsService.totales(req.supabase, req.user));
 }
 
 async function buscar(req, res) {
@@ -40,4 +44,4 @@ async function reactivar(req, res) {
   res.json(await leadsService.reactivar(req.supabase, req.params.id));
 }
 
-module.exports = { listar, buscar, crear, actualizar, listarHistorial, agregarHistorial, reclamar, reactivar, reasignar };
+module.exports = { listar, totales, buscar, crear, actualizar, listarHistorial, agregarHistorial, reclamar, reactivar, reasignar };

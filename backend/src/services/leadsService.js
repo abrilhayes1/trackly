@@ -13,26 +13,47 @@ function fechaValida(valor) {
 
 const ESTADOS_VALIDOS = ['activo', 'vencido', 'archivo', 'ganado', 'perdido'];
 
-// Sin filtro devuelve todos los leads del equipo. Con ?estado=vencido,archivo devuelve solo
-// esos (y trae el nombre del asesor), que es lo que necesita la pantalla Archivo.
-async function listar(supabase, estados) {
-  if (estados === undefined || estados === '') {
-    const { data, error } = await supabase.from('leads').select('*');
-    lanzarSiError(error);
-    return data;
+// Columnas que alcanzan para Estadísticas y Reportes (no hace falta nombre, contacto ni consulta)
+const COLUMNAS_ANALISIS = 'id, estado, asesor_id, fecha_ingreso, ultimo_contacto, origen, interes, destacado';
+
+// Sin filtro devuelve todos los leads del equipo. Con ?estado=activo,vencido devuelve solo esos
+// (y trae el nombre del asesor): es la lista de trabajo de la app, sin el historial de cerrados.
+// Con ?campos=analisis devuelve todos, pero solo las columnas que usan Estadísticas y Reportes.
+async function listar(supabase, estados, campos) {
+  if (campos !== undefined && campos !== 'analisis') {
+    throw new ErrorHttp(400, 'Campos inválidos (usá analisis)');
   }
 
-  const lista = String(estados).split(',').map((e) => e.trim());
-  if (lista.some((e) => !ESTADOS_VALIDOS.includes(e))) {
-    throw new ErrorHttp(400, 'Estado inválido (usá activo, vencido, archivo, ganado o perdido)');
+  let consulta = supabase.from('leads').select(campos === 'analisis' ? COLUMNAS_ANALISIS : '*, asesor:profiles(nombre)');
+
+  if (estados !== undefined && estados !== '') {
+    const lista = String(estados).split(',').map((e) => e.trim());
+    if (lista.some((e) => !ESTADOS_VALIDOS.includes(e))) {
+      throw new ErrorHttp(400, 'Estado inválido (usá activo, vencido, archivo, ganado o perdido)');
+    }
+    consulta = consulta.in('estado', lista);
   }
 
-  const { data, error } = await supabase
-    .from('leads')
-    .select('*, asesor:profiles(nombre)')
-    .in('estado', lista);
+  const { data, error } = await consulta;
   lanzarSiError(error);
   return data;
+}
+
+// Cuántos ganados y perdidos hay (para los contadores del menú), contados en la base sin traer filas.
+// El asesor cuenta los suyos; el líder, los de todo el equipo (como en sus pantallas).
+async function totales(supabase, user) {
+  const { data: perfil, error: errorPerfil } = await supabase.from('profiles').select('rol').eq('id', user.id).maybeSingle();
+  lanzarSiError(errorPerfil);
+
+  const contar = (estado) => {
+    let q = supabase.from('leads').select('id', { count: 'exact', head: true }).eq('estado', estado);
+    if (perfil?.rol !== 'lider') q = q.eq('asesor_id', user.id);
+    return q;
+  };
+
+  const [ganados, perdidos] = await Promise.all([contar('ganado'), contar('perdido')]);
+  lanzarSiError(ganados.error || perdidos.error);
+  return { ganados: ganados.count ?? 0, perdidos: perdidos.count ?? 0 };
 }
 
 // buscador global: nombre, teléfono o email, en todo el equipo (la RLS limita al tenant)
@@ -256,4 +277,4 @@ async function reasignar(supabase, leadId, body) {
 }
 const reactivar = (supabase, leadId) => tomarLead(supabase, 'reactivar_lead', leadId);
 
-module.exports = { listar, buscar, crear, actualizar, listarHistorial, agregarHistorial, reclamar, reactivar, reasignar };
+module.exports = { listar, totales, buscar, crear, actualizar, listarHistorial, agregarHistorial, reclamar, reactivar, reasignar };

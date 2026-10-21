@@ -5,6 +5,7 @@ const leads = require('../controllers/leadsController');
 
 router.get('/', requireAuth, leads.listar);
 router.get('/buscar', requireAuth, leads.buscar);
+router.get('/totales', requireAuth, leads.totales);
 router.post('/', requireAuth, leads.crear);
 router.patch('/:id', requireAuth, leads.actualizar);
 router.get('/:id/historial', requireAuth, leads.listarHistorial);
