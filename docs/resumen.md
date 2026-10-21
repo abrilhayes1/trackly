@@ -64,7 +64,35 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: rendimiento, puntos 5 a 7 de la revisión
+## Último trabajo: calidad, puntos 8 a 11 de la revisión
+
+- **Errores claros:** `lib/errores.js` → `traducirErrorDeBase`. Los mensajes propios (castellano, de las
+  funciones SQL y del backend) pasan tal cual. Los técnicos de Postgres, PostgREST o Storage (inglés)
+  se registran en el servidor y al usuario le llega un texto según el código: 42501 → 403, 23505 /
+  23503 / 23514 → 409, P0002 / PGRST116 → 404, sin conexión → 503. `lanzarErrorDeBase` quedó como
+  alias. En el frontend, `apiFetch` da mensajes claros sin conexión, si la respuesta no es JSON y
+  para 401, 413, 429, 502 y 503.
+- **Seguridad del servidor** (`middleware/seguridad.js`, sin librerías):
+  - encabezados tipo helmet y `x-powered-by` apagado;
+  - `limitarPedidos` en memoria por IP: 1.000 por minuto en `/api` y 10 por minuto en
+    `PUT /api/me/foto`, con 429 y `Retry-After`;
+  - `trust proxy` para Railway.
+  - La app se arma en `src/app.js` e `index.js` solo la arranca.
+- **Formato:** Prettier 3 en los dos (`.prettierrc.json`, ancho 140; el frontend sin punto y coma).
+  Comandos `npm run formato` y `npm run formato:revisar`. El lint del frontend quedó sin errores ni
+  avisos.
+- **Tests** (`npm test` en cada carpeta):
+  - Backend: `backend/test/` con `node --test` (validaciones, errores; el servidor con un Supabase
+    falso que firma tokens ES256: encabezados, 401, token válido / vencido / falso / anónimo, JWKS
+    descargado una vez, 429).
+  - Frontend: `frontend/src/lib/__tests__/` con Vitest (agenda, urgencia, alertas, contadores,
+    reportes, estadísticas).
+- **GitHub Actions** (`.github/workflows/chequeo.yml`): en cada push a main y en cada PR corre formato
+  y tests del backend, y lint, formato, tests y build del frontend.
+- `middleware/auth.js` crea el cliente que valida tokens con el primer pedido, así se puede cargar
+  la app sin variables de entorno (tests).
+
+## Anterior: rendimiento, puntos 5 a 7 de la revisión
 
 - **Casos exitosos / Cerrados perdidos paginados:** `GET /api/cierres?tipo=…&limite=30&desde=N` (y
   `&asesor=<id>` para el líder, con `leads!inner`) devuelve `{ cierres, hayMas }`; se pide uno de más
