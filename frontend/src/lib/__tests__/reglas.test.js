@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-import { agruparLeads } from '../urgencia'
+import { agruparLeads, fechaProximoContacto, tieneProximoPaso } from '../urgencia'
 import { calcularAlertas } from '../alertas'
 import { calcularContadores } from '../contadores'
 
@@ -15,13 +15,17 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers())
 
 describe('urgencia de Mis leads (plazo 14 días, aviso 3)', () => {
+  const en = (dias) => new Date(AHORA.getTime() + dias * 864e5).toISOString()
+
   test('cada lead va a su grupo', () => {
     const g = agruparLeads(
       [
-        lead(1, { ultimo_contacto: hace(12) }), // a 2 días del plazo → por vencer
-        lead(2, { ultimo_contacto: hace(5) }), // esta semana
+        lead(1, { ultimo_contacto: hace(12) }), // a 2 días del plazo → por vencer (aunque no tenga próximo paso)
+        lead(2, { ultimo_contacto: hace(5), recordatorio: en(2) }), // con próximo contacto, hace 5 días → esta semana
         lead(3, { ultimo_contacto: null, fecha_ingreso: hace(2) }), // nunca contactado
-        lead(4, { ultimo_contacto: hace(1) }), // al día
+        lead(4, { ultimo_contacto: hace(1), recordatorio: en(1) }), // con próximo contacto, ayer → al día
+        lead(7, { ultimo_contacto: hace(1) }), // contactado sin recordatorio → sin próximo paso
+        lead(8, { ultimo_contacto: hace(1), recordatorio: hace(3) }), // el recordatorio ya se atendió → sin próximo paso
         lead(5, { ultimo_contacto: hace(1), asesor_id: 'otro' }), // de otra persona: no aparece
         lead(6, { estado: 'ganado' }), // cerrado: no aparece (RNF14)
       ],
@@ -32,12 +36,25 @@ describe('urgencia de Mis leads (plazo 14 días, aviso 3)', () => {
     expect(g.estaSemana.map((l) => l.id)).toEqual([2])
     expect(g.sinContactar.map((l) => l.id)).toEqual([3])
     expect(g.alDia.map((l) => l.id)).toEqual([4])
+    expect(g.sinProximoPaso.map((l) => l.id).sort()).toEqual([7, 8])
   })
 
   test('sin vencimiento configurado nadie está por vencer', () => {
-    const g = agruparLeads([lead(1, { ultimo_contacto: hace(40) })], { vencimiento_habilitado: false }, 'yo')
+    const g = agruparLeads([lead(1, { ultimo_contacto: hace(40), recordatorio: en(1) })], { vencimiento_habilitado: false }, 'yo')
     expect(g.porVencer).toHaveLength(0)
     expect(g.estaSemana).toHaveLength(1)
+  })
+
+  test('próximo paso: recordatorio posterior al último contacto', () => {
+    expect(tieneProximoPaso({ ultimo_contacto: hace(1), recordatorio: en(1) })).toBe(true)
+    expect(tieneProximoPaso({ ultimo_contacto: hace(1), recordatorio: hace(2) })).toBe(false)
+    expect(tieneProximoPaso({ ultimo_contacto: null, recordatorio: en(1) })).toBe(true)
+    expect(tieneProximoPaso({ ultimo_contacto: hace(1), recordatorio: null })).toBe(false)
+  })
+
+  test('los botones rápidos programan el próximo contacto a la misma hora en punto', () => {
+    const ahora = new Date(2026, 9, 21, 15, 42)
+    expect(new Date(fechaProximoContacto(3, ahora))).toEqual(new Date(2026, 9, 24, 15, 0))
   })
 })
 

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { apiFetch } from '../lib/api'
-import { diasDesde } from '../lib/urgencia'
+import { diasDesde, tieneProximoPaso, PROXIMOS_CONTACTOS, fechaProximoContacto } from '../lib/urgencia'
 import { colorPorInteres, sinCategoria, etiquetaInteres } from '../lib/interes'
 import { iniciales, fechaHoraCorta, aInputDateTime, desdeInputDateTime, numeroWhatsApp } from '../lib/formato'
 import CierreLead from './CierreLead'
@@ -31,6 +31,10 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
   const [guardando, setGuardando] = useState(false)
   const [entrada, setEntrada] = useState('')
   const [recordatorio, setRecordatorio] = useState(aInputDateTime(lead.recordatorio))
+  // próximo paso: si se acaba de registrar el contacto se pregunta; "No hace falta" lo oculta
+  const [recienContactado, setRecienContactado] = useState(false)
+  const [sinProximoOk, setSinProximoOk] = useState(false)
+  const campoRecordatorio = useRef(null)
 
   const esLider = rol === 'lider'
   const { config } = useConfigEquipo()
@@ -262,16 +266,64 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
             </div>
             <button
               disabled={!puedeEditar || guardando}
-              onClick={() => guardarCambios({ ultimo_contacto: new Date().toISOString() })}
+              onClick={() => {
+                setRecienContactado(true)
+                setSinProximoOk(false)
+                guardarCambios({ ultimo_contacto: new Date().toISOString() })
+              }}
               className={botonSecundario}
             >
               Registré contacto hoy
             </button>
           </div>
 
+          {/* contactado pero sin próximo contacto programado: botones rápidos para programarlo */}
+          {puedeEditar && lead.estado === 'activo' && lead.ultimo_contacto && !tieneProximoPaso(lead) && !sinProximoOk && (
+            <div className="rounded-md border border-purple-border/50 bg-purple-bg px-3 py-2.5 mb-2.5">
+              <div className="text-xs font-medium text-purple-text mb-2">
+                {recienContactado ? '¿Cuándo lo volvés a contactar?' : 'Sin próximo contacto programado'}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {PROXIMOS_CONTACTOS.map((o) => (
+                  <button
+                    key={o.dias}
+                    disabled={guardando}
+                    onClick={() => {
+                      const fecha = fechaProximoContacto(o.dias)
+                      setRecordatorio(aInputDateTime(fecha))
+                      guardarCambios({ recordatorio: fecha })
+                    }}
+                    className={botonSecundario}
+                  >
+                    {o.etiqueta}
+                  </button>
+                ))}
+                <button
+                  disabled={guardando}
+                  onClick={() => {
+                    // abre el calendario del campo Recordatorio (o lo enfoca si el navegador no puede)
+                    campoRecordatorio.current?.focus()
+                    campoRecordatorio.current?.showPicker?.()
+                  }}
+                  className={botonSecundario}
+                >
+                  Elegir fecha
+                </button>
+                <button
+                  disabled={guardando}
+                  onClick={() => setSinProximoOk(true)}
+                  className="text-[11px] px-2 py-1.5 text-text-tertiary hover:text-text-primary"
+                >
+                  No hace falta
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="text-[10px] text-text-tertiary mb-1">Recordatorio</div>
           <div className="flex gap-1.5">
             <input
+              ref={campoRecordatorio}
               type="datetime-local"
               value={recordatorio}
               disabled={!puedeEditar || guardando}

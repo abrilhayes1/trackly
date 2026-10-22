@@ -64,7 +64,30 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: importar contactos desde Excel o CSV (RF47, nuevo)
+## Último trabajo: "Sin próximo paso" y secciones recortadas en Mis leads
+
+- **Grupos** (`lib/urgencia.js`, `agruparLeads`), en este orden de prioridad:
+  - porVencer;
+  - sinContactar;
+  - **sinProximoPaso**: contactado y sin un recordatorio pendiente (`tieneProximoPaso`: recordatorio
+    posterior al último contacto);
+  - estaSemana / alDia: contactados con próximo paso, según los días.
+  - `PanelLider` y `LeadCard` conocen el grupo nuevo (violeta).
+- **Mis leads:**
+  - 4 tarjetas arriba, que abren la sección;
+  - cada sección muestra `limite` contactos (`lib/preferencias.js`, `porSeccion`, 7 por defecto, en
+    `localStorage` `trackly-por-seccion`; se elige en Mi perfil → Preferencias) más "Ver todos (N)";
+  - "Ver todos" (estado `abierta`) muestra la sección completa con buscador (nombre, teléfono, email,
+    consulta, origen) y "← Volver";
+  - App remonta MisLeads (`key={visitasLeads}`) cada vez que se toca "Mis leads" en el menú, para
+    volver a la vista principal.
+- **Tarjeta del lead** (`DetalleLead`): si está activo, contactado y sin próximo paso, muestra
+  botones rápidos (`PROXIMOS_CONTACTOS`: mañana, 3 días, 1 semana, a la misma hora en punto con
+  `fechaProximoContacto`), "Elegir fecha" (abre el calendario del campo Recordatorio) y "No hace
+  falta". Justo después de "Registré contacto hoy" el título es "¿Cuándo lo volvés a contactar?".
+- Sin SQL. Tests actualizados (25).
+
+## Anterior: importar contactos desde Excel o CSV (RF47, nuevo)
 
 - **Botón "Importar desde Excel"** en Mis leads (arriba a la derecha) → `components/ImportarLeads.jsx`
   (se carga con `lazy`). Pasos: archivo (arrastrar o elegir, planilla de ejemplo en CSV), revisar

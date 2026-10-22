@@ -49,6 +49,8 @@ function App() {
   const [busqueda, setBusqueda] = useState('')
   const [leadAbierto, setLeadAbierto] = useState(null)
   const [cambios, setCambios] = useState(0)
+  // cada vez que se toca "Mis leads" en el menú, vuelve a la vista principal (sale de "Ver todos")
+  const [visitasLeads, setVisitasLeads] = useState(0)
   const [error, setError] = useState(null)
   const [cargando, setCargando] = useState(true)
 
@@ -225,6 +227,7 @@ function App() {
   function navegar(nuevaVista) {
     setVista(nuevaVista)
     setBusqueda('')
+    if (nuevaVista === 'leads') setVisitasLeads((n) => n + 1)
     // si la lista tiene más de un minuto, se actualiza para ver lo que cambió el resto del equipo
     if (Date.now() - ultimaCarga.current > VIGENCIA_LISTA_MS) setRecargasLista((n) => n + 1)
   }
@@ -379,7 +382,7 @@ function App() {
 
               {/* Mis leads queda montada pero oculta cuando se busca o se ve otra pantalla, así no se vuelve a cargar */}
               <div className={buscando || vista !== 'leads' ? 'hidden' : ''}>
-                <MisLeads rol={perfil?.rol} onAbrirLead={setLeadAbierto} onCambio={() => setCambios((n) => n + 1)} />
+                <MisLeads key={visitasLeads} rol={perfil?.rol} onAbrirLead={setLeadAbierto} onCambio={() => setCambios((n) => n + 1)} />
               </div>
             </main>
 

@@ -12,6 +12,7 @@ const ESTADOS = {
   porVencer: { label: 'Por vencer', clases: 'bg-red-bg text-red-text border-red-border' },
   estaSemana: { label: 'Esta semana', clases: 'bg-amber-bg text-amber-text border-amber-border' },
   sinContactar: { label: 'Sin contactar', clases: 'bg-avatar-bg text-urgent-blue border-dot-blue' },
+  sinProximoPaso: { label: 'Sin próximo paso', clases: 'bg-purple-bg text-purple-text border-purple-border' },
   alDia: { label: 'Al día', clases: 'bg-green-bg text-green-text border-green-border' },
   vencido: { label: 'Vencido', clases: 'bg-bg-tertiary text-text-primary border-border-primary' },
 }

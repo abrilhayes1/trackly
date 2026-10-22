@@ -5,6 +5,7 @@ import { apiFetch } from '../lib/api'
 import { leadsParaAnalisis } from '../lib/analisis'
 import { achicarFoto } from '../lib/foto'
 import { preferenciaTema, aplicarTema, alCambiarTema } from '../lib/tema'
+import { OPCIONES_POR_SECCION, porSeccion, guardarPorSeccion } from '../lib/preferencias'
 import { useLeadsEquipo } from '../lib/leadsEquipo'
 import { useTerminos } from '../lib/configEquipo'
 import Avatar from '../components/Avatar'
@@ -57,6 +58,7 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
   const [subiendo, setSubiendo] = useState(false)
   const [avisoFoto, setAvisoFoto] = useState(null)
   const [tema, setTema] = useState(preferenciaTema)
+  const [cuantos, setCuantos] = useState(porSeccion)
   const elegirArchivo = useRef(null)
 
   const proveedores = usuario.app_metadata?.providers || [usuario.app_metadata?.provider].filter(Boolean)
@@ -255,6 +257,26 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
               {t.etiqueta}
             </button>
           ))}
+        </div>
+        <div className="text-[11px] font-medium text-text-secondary mt-4 mb-1.5">{`${Varios} por sección en Mis ${varios}`}</div>
+        <div className="flex items-center gap-2">
+          <div className="inline-flex p-0.5 rounded-md bg-bg-tertiary">
+            {OPCIONES_POR_SECCION.map((n) => (
+              <button
+                key={n}
+                onClick={() => {
+                  guardarPorSeccion(n)
+                  setCuantos(n)
+                }}
+                className={`text-xs px-3 py-1 rounded ${
+                  cuantos === n ? 'bg-bg-primary text-text-primary font-medium shadow-sm' : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                {n === 0 ? 'Todos' : n}
+              </button>
+            ))}
+          </div>
+          <span className="text-[11px] text-text-tertiary">El resto se ve con "Ver todos"</span>
         </div>
       </Tarjeta>
     </div>

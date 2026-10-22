@@ -4,6 +4,7 @@ const estiloPorGrupo = {
   porVencer: { dot: 'bg-dot-red', dias: 'text-urgent-red' },
   estaSemana: { dot: 'bg-dot-amber', dias: 'text-urgent-amber' },
   sinContactar: { dot: 'bg-dot-blue', dias: 'text-urgent-blue' },
+  sinProximoPaso: { dot: 'bg-purple-border', dias: 'text-purple-text' },
   alDia: { dot: 'bg-green-border', dias: 'text-text-tertiary' },
 }
 
