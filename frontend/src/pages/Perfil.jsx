@@ -167,8 +167,7 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
 
   return (
     <div className="p-5 max-w-[760px]">
-      <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">Mi perfil</h1>
-      <p className="text-xs text-text-secondary mb-5">Tu foto y tu nombre los ve todo el equipo</p>
+      <h1 className="text-base font-semibold tracking-tight text-text-primary mb-5">Mi perfil</h1>
 
       {/* encabezado: quién sos */}
       <section className="bg-bg-primary border border-border-tertiary rounded-(--radius-lg) px-5 py-5 mb-3">
@@ -215,7 +214,7 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
         <Aviso aviso={avisoFoto} />
       </section>
 
-      <Tarjeta titulo="Mis números" sub={`Los ${varios} que tenés asignados y tus cierres`}>
+      <Tarjeta titulo="Mis números">
         <div className="grid grid-cols-4 gap-2">
           <Numero label={`${Varios} activos`} valor={listo ? numeros.activos : '…'} />
           <Numero
@@ -248,7 +247,6 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
             >
               {guardandoNombre ? 'Guardando...' : 'Guardar nombre'}
             </button>
-            <span className="text-[11px] text-text-tertiary">El email es con el que ingresás y no se puede cambiar.</span>
           </div>
           <Aviso aviso={avisoNombre} />
         </form>
@@ -264,10 +262,7 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
         )}
       </Tarjeta>
 
-      <Tarjeta
-        titulo="Plantillas de mensajes"
-        sub="Textos armados para WhatsApp y email. En la tarjeta de cada contacto elegís una y se completa sola con su nombre."
-      >
+      <Tarjeta titulo="Plantillas de mensajes">
         <PlantillasEditor rol={perfil.rol} userId={usuario.id} />
       </Tarjeta>
 
@@ -304,7 +299,6 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
               </button>
             ))}
           </div>
-          <span className="text-[11px] text-text-tertiary">El resto se ve con "Ver todos"</span>
         </div>
         <div className="text-[11px] font-medium text-text-secondary mt-4 mb-1.5">Al entrar, abrir</div>
         <div className="inline-flex p-0.5 rounded-md bg-bg-tertiary">
@@ -412,7 +406,6 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
               )
             })}
           </div>
-          <span className="text-[11px] text-text-tertiary">Tocá un día para ocultarlo. Si tiene recordatorios, se muestra igual.</span>
         </div>
       </Tarjeta>
     </div>
