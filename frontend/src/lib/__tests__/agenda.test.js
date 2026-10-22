@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import {
+  diaDeSemana,
   diasDespues,
   diasDeVista,
   estadoRecordatorio,
@@ -78,10 +79,10 @@ describe('recordatorios', () => {
   })
 })
 
-describe('agenda sin fines de semana', () => {
+describe('agenda con días ocultos', () => {
   test('la vista Días junta 5 días hábiles (con el fin de semana del medio)', () => {
     // jueves 22/10/2026
-    expect(diasDeVista('dias', '2026-10-22', true)).toEqual([
+    expect(diasDeVista('dias', '2026-10-22', [0, 6])).toEqual([
       '2026-10-22',
       '2026-10-23',
       '2026-10-24',
@@ -92,7 +93,12 @@ describe('agenda sin fines de semana', () => {
     ])
   })
   test('las flechas avanzan y retroceden 5 días hábiles', () => {
-    expect(moverCursor('dias', '2026-10-22', 1, true)).toBe('2026-10-29')
-    expect(moverCursor('dias', '2026-10-29', -1, true)).toBe('2026-10-22')
+    expect(moverCursor('dias', '2026-10-22', 1, [0, 6])).toBe('2026-10-29')
+    expect(moverCursor('dias', '2026-10-29', -1, [0, 6])).toBe('2026-10-22')
+  })
+  test('cualquier día: sin miércoles, 5 días visibles desde el martes 20', () => {
+    const dias = diasDeVista('dias', '2026-10-20', [3])
+    expect(dias.filter((d) => diaDeSemana(d) !== 3)).toEqual(['2026-10-20', '2026-10-22', '2026-10-23', '2026-10-24', '2026-10-25'])
+    expect(moverCursor('dias', '2026-10-20', 1, [3])).toBe('2026-10-26')
   })
 })

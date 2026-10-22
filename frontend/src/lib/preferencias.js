@@ -60,6 +60,24 @@ export const PANTALLAS_INICIO = [
 export const pantallaInicial = () => leer('trackly-pantalla-inicial', 'leads', (v) => PANTALLAS_INICIO.some((p) => p.valor === v))
 export const guardarPantallaInicial = (v) => guardar('trackly-pantalla-inicial', v)
 
-// Agenda: no mostrar sábados ni domingos en las vistas Días y Semana (salvo que tengan recordatorios)
-export const agendaSinFinde = () => leer('trackly-agenda-sin-finde', false, (v) => typeof v === 'boolean')
-export const guardarAgendaSinFinde = (v) => guardar('trackly-agenda-sin-finde', v)
+// Agenda: días de la semana que no se muestran en las vistas Días y Semana (0 = domingo … 6 = sábado),
+// salvo que tengan recordatorios. Siempre queda al menos un día visible.
+export const DIAS_SEMANA = [
+  { valor: 1, etiqueta: 'Lun' },
+  { valor: 2, etiqueta: 'Mar' },
+  { valor: 3, etiqueta: 'Mié' },
+  { valor: 4, etiqueta: 'Jue' },
+  { valor: 5, etiqueta: 'Vie' },
+  { valor: 6, etiqueta: 'Sáb' },
+  { valor: 0, etiqueta: 'Dom' },
+]
+export function agendaDiasOcultos() {
+  // quien había elegido "ocultar sábados y domingos" (versión anterior) arranca con esos dos
+  const anterior = leer('trackly-agenda-sin-finde', false, (v) => typeof v === 'boolean')
+  return leer(
+    'trackly-agenda-dias-ocultos',
+    anterior ? [0, 6] : [],
+    (v) => Array.isArray(v) && v.length < 7 && v.every((d) => d >= 0 && d <= 6),
+  )
+}
+export const guardarAgendaDiasOcultos = (dias) => guardar('trackly-agenda-dias-ocultos', [...dias].sort())

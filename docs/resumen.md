@@ -98,10 +98,11 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - `proximosDias` (1 a 4 de [1,2,3,5,7,10,14,30]; por defecto [1,3,7]);
   - `horaRecordatorios` (null = misma hora, o "HH:MM");
   - `pantallaInicial` (leads, alertas o agenda; App la usa como vista inicial);
-  - `agendaSinFinde` (Días junta 5 hábiles y Semana muestra lunes a viernes; los sábados y domingos
-    con recordatorios se muestran igual);
+  - `agendaDiasOcultos` (lista de días de la semana que no se ven en Días y Semana, cualquiera de los 7,
+    siempre queda al menos uno; Días junta 5 días visibles; un día oculto con recordatorios se muestra igual;
+    quien tenía la opción vieja "sin fin de semana" arranca con sábado y domingo ocultos);
   - `porSeccion`.
-- Tests: frontend 38, backend 11.
+- Tests: frontend 39, backend 11.
 
 ## Anterior: "Sin próximo paso" y secciones recortadas en Mis leads
 

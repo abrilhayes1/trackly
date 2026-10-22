@@ -52,7 +52,8 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 > Cada usuario puede elegir: la pantalla con la que abre la app (Mis leads, Alertas o Agenda), los
 > botones para programar el próximo contacto (de 1 a 4, entre 1 y 30 días), si esos recordatorios
 > quedan a la misma hora o a una hora fija, cuántos contactos se ven por sección en Mis leads, el modo
-> claro u oscuro y si la Agenda oculta sábados y domingos vacíos. Se guardan en el navegador.
+> claro u oscuro y qué días de la semana muestra la Agenda (se puede ocultar cualquiera; un día oculto
+> con recordatorios se muestra igual). Se guardan en el navegador.
 
 ## Requerimientos que cambian
 

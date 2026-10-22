@@ -17,8 +17,9 @@ import {
   PANTALLAS_INICIO,
   pantallaInicial,
   guardarPantallaInicial,
-  agendaSinFinde,
-  guardarAgendaSinFinde,
+  DIAS_SEMANA,
+  agendaDiasOcultos,
+  guardarAgendaDiasOcultos,
 } from '../lib/preferencias'
 import { etiquetaProximo } from '../lib/urgencia'
 import PlantillasEditor from '../components/PlantillasEditor'
@@ -78,7 +79,7 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
   const [proximos, setProximos] = useState(proximosDias)
   const [hora, setHora] = useState(horaRecordatorios)
   const [inicio, setInicio] = useState(pantallaInicial)
-  const [sinFinde, setSinFinde] = useState(agendaSinFinde)
+  const [ocultos, setOcultos] = useState(agendaDiasOcultos)
   const elegirArchivo = useRef(null)
 
   const proveedores = usuario.app_metadata?.providers || [usuario.app_metadata?.provider].filter(Boolean)
@@ -386,17 +387,33 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
           )}
         </div>
 
-        <label className="flex items-center gap-2 text-xs text-text-secondary mt-4 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={sinFinde}
-            onChange={(e) => {
-              guardarAgendaSinFinde(e.target.checked)
-              setSinFinde(e.target.checked)
-            }}
-          />
-          En la Agenda, ocultar sábados y domingos (vistas Días y Semana; se muestran igual si tienen recordatorios)
-        </label>
+        <div className="text-[11px] font-medium text-text-secondary mt-4 mb-1.5">Días que se muestran en la Agenda</div>
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            {DIAS_SEMANA.map((d) => {
+              const visible = !ocultos.includes(d.valor)
+              // siempre tiene que quedar al menos un día visible
+              const ultimo = visible && ocultos.length === 6
+              return (
+                <button
+                  key={d.valor}
+                  disabled={ultimo}
+                  onClick={() => {
+                    const nuevos = visible ? [...ocultos, d.valor] : ocultos.filter((x) => x !== d.valor)
+                    guardarAgendaDiasOcultos(nuevos)
+                    setOcultos(nuevos)
+                  }}
+                  className={`text-xs w-11 py-1 rounded-md border disabled:opacity-40 ${
+                    visible ? 'bg-accent text-white border-accent' : 'bg-bg-primary text-text-tertiary border-border-secondary line-through'
+                  }`}
+                >
+                  {d.etiqueta}
+                </button>
+              )
+            })}
+          </div>
+          <span className="text-[11px] text-text-tertiary">Tocá un día para ocultarlo. Si tiene recordatorios, se muestra igual.</span>
+        </div>
       </Tarjeta>
     </div>
   )
