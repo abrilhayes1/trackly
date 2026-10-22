@@ -30,6 +30,7 @@ function armarConfig(body) {
     eventos_habilitado: b.eventosHabilitado === true,
     termino_evento: texto(b.terminoEvento),
     email_diario: b.emailDiario !== false,
+    dias_habiles: b.diasHabiles === true,
   };
 
   if (!config.equipo_nombre) throw new ErrorHttp(400, 'Ingresá el nombre del equipo');
@@ -41,6 +42,15 @@ function armarConfig(body) {
   if (b.camposCierre !== undefined) {
     if (!Array.isArray(b.camposCierre)) throw new ErrorHttp(400, 'Los campos de cierre tienen que venir en una lista');
     config.campos_cierre = b.camposCierre;
+  }
+  // motivos de pérdida: solo se mandan si vinieron; la base los limpia (sin repetidos ni vacíos)
+  if (b.motivosPerdida !== undefined) {
+    if (!Array.isArray(b.motivosPerdida) || b.motivosPerdida.some((m) => typeof m !== 'string')) {
+      throw new ErrorHttp(400, 'Los motivos de pérdida tienen que venir en una lista');
+    }
+    if (b.motivosPerdida.length > 20) throw new ErrorHttp(400, 'Podés tener hasta 20 motivos de pérdida');
+    if (b.motivosPerdida.some((m) => m.trim().length > 60)) throw new ErrorHttp(400, 'Cada motivo puede tener hasta 60 letras');
+    config.motivos_perdida = b.motivosPerdida;
   }
   if (config.categorias_origen.length > 30) {
     throw new ErrorHttp(400, 'Podés tener hasta 30 categorías de origen');

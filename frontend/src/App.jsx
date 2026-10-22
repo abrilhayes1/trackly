@@ -23,6 +23,7 @@ import { ConfigEquipoContext } from './lib/configEquipo'
 import { LeadsEquipoContext, VIGENCIA_LISTA_MS } from './lib/leadsEquipo'
 import { HORAS_INACTIVIDAD, marcarActividad, olvidarActividad, sesionVencida, vigilarActividad } from './lib/sesion'
 import { calcularContadores } from './lib/contadores'
+import { pantallaInicial } from './lib/preferencias'
 import { fechaLocal } from './lib/agenda'
 
 function App() {
@@ -45,7 +46,8 @@ function App() {
   // volvió del email de "olvidé mi contraseña": antes de entrar elige una nueva
   const [recuperando, setRecuperando] = useState(false)
   const [mensajeLogin, setMensajeLogin] = useState(null)
-  const [vista, setVista] = useState('leads')
+  // la pantalla con la que abre la app la elige cada uno en Mi perfil
+  const [vista, setVista] = useState(pantallaInicial)
   const [busqueda, setBusqueda] = useState('')
   const [leadAbierto, setLeadAbierto] = useState(null)
   const [cambios, setCambios] = useState(0)
@@ -392,6 +394,8 @@ function App() {
                 lead={leadAbierto}
                 userId={userId}
                 rol={perfil?.rol}
+                miNombre={perfil?.nombre}
+                equipo={perfil?.tenants?.nombre}
                 onCerrar={() => setLeadAbierto(null)}
                 onCambio={alCambiarLead}
               />

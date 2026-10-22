@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../lib/api'
 import RecordatorioModal from '../components/RecordatorioModal'
 import { useLeadsEquipo } from '../lib/leadsEquipo'
+import { agendaSinFinde } from '../lib/preferencias'
 import {
   fechaLocal,
   hhmm,
@@ -14,6 +15,7 @@ import {
   VISTAS_AGENDA,
   moverCursor,
   diasDeVista,
+  esFinDeSemana,
   etiquetaPeriodo,
   tituloDia,
   nombreDia,
@@ -205,7 +207,9 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
   // { item } para ver uno; { fecha } para crear uno nuevo
   const [modal, setModal] = useState(null)
 
-  const dias = diasDeVista(vista, cursor)
+  // preferencia de Mi perfil: ocultar sábados y domingos en Días y Semana (si no tienen nada)
+  const [sinFinde] = useState(agendaSinFinde)
+  const dias = diasDeVista(vista, cursor, sinFinde)
   const desde = dias[0]
   const hasta = dias[dias.length - 1]
 
@@ -229,6 +233,8 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
   const todos = [...items, ...deLeads].sort(ordenarRecordatorios)
   const atrasados = todos.filter((r) => !r.hecho && r.fecha < hoy)
   const porDia = (fecha) => todos.filter((r) => r.fecha === fecha)
+  // columnas de Días y Semana: sin sábados ni domingos vacíos si así lo eligió en Mi perfil
+  const columnas = sinFinde ? dias.filter((d) => !esFinDeSemana(d) || porDia(d).length > 0) : dias
 
   function cambiarVista(v) {
     setVista(v)
@@ -300,7 +306,7 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
       </div>
 
       <div className="flex items-center gap-2 mb-4">
-        <button onClick={() => setCursor(moverCursor(vista, cursor, -1))} className={flecha} title="Anterior">
+        <button onClick={() => setCursor(moverCursor(vista, cursor, -1, sinFinde))} className={flecha} title="Anterior">
           ‹
         </button>
         <button
@@ -309,10 +315,12 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
         >
           Hoy
         </button>
-        <button onClick={() => setCursor(moverCursor(vista, cursor, 1))} className={flecha} title="Siguiente">
+        <button onClick={() => setCursor(moverCursor(vista, cursor, 1, sinFinde))} className={flecha} title="Siguiente">
           ›
         </button>
-        <span className="text-sm font-medium text-text-primary ml-2 first-letter:uppercase">{etiquetaPeriodo(vista, cursor)}</span>
+        <span className="text-sm font-medium text-text-primary ml-2 first-letter:uppercase">
+          {etiquetaPeriodo(vista, cursor, sinFinde)}
+        </span>
 
         <div className="ml-auto flex p-0.5 rounded-md bg-bg-tertiary">
           {VISTAS_AGENDA.map((v) => (
@@ -359,8 +367,8 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
       ) : vista === 'mes' ? (
         <Mes dias={dias} cursor={cursor} hoy={hoy} porDia={porDia} ahora={ahora} onAbrir={abrir} onVerDia={verDia} />
       ) : (
-        <div className={`grid gap-2 ${vista === 'semana' ? 'grid-cols-7' : 'grid-cols-5'}`}>
-          {dias.map((fecha) => (
+        <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${columnas.length}, minmax(0, 1fr))` }}>
+          {columnas.map((fecha) => (
             <Columna
               key={fecha}
               fecha={fecha}

@@ -67,3 +67,40 @@ test('los errores técnicos de la base llegan en castellano y con el código HTT
   assert.equal(traducirErrorDeBase({ message: 'TypeError: fetch failed' }).status, 503);
   assert.doesNotThrow(() => lanzarSiError(null));
 });
+
+test('plantillas: valida nombre, texto y canal antes de guardar', async () => {
+  const plantillas = require('../src/services/plantillasService');
+  const guardado = [];
+  const supabase = {
+    from: () => {
+      const q = {
+        select: () => q,
+        eq: () => q,
+        single: async () => ({ data: { tenant_id: 't1' }, error: null }),
+        insert: (fila) => {
+          guardado.push(fila);
+          return { select: () => ({ single: async () => ({ data: fila, error: null }) }) };
+        },
+      };
+      return q;
+    },
+  };
+  const creada = await plantillas.crear(
+    supabase,
+    { id: 'u1' },
+    { nombre: ' Hola ', texto: ' Hola {nombre} ', canal: 'whatsapp', asunto: 'x' },
+  );
+  assert.deepEqual(creada, {
+    nombre: 'Hola',
+    texto: 'Hola {nombre}',
+    asunto: null,
+    canal: 'whatsapp',
+    compartida: false,
+    tenant_id: 't1',
+    creado_por: 'u1',
+  });
+  await assert.rejects(plantillas.crear(supabase, { id: 'u1' }, { nombre: '', texto: 'x' }), /nombre/);
+  await assert.rejects(plantillas.crear(supabase, { id: 'u1' }, { nombre: 'x', texto: '   ' }), /texto/);
+  const conCanalRaro = await plantillas.crear(supabase, { id: 'u1' }, { nombre: 'x', texto: 'y', canal: 'sms' });
+  assert.equal(conCanalRaro.canal, 'ambos');
+});

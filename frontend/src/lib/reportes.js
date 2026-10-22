@@ -1,7 +1,7 @@
 // Reportes personalizados (RF45): cada reporte se define con qué medir, cómo agrupar, filtros y
 // cómo verlo. Acá se calcula con los leads y los cierres que ya ve el usuario.
 import { etiquetaInteres } from './interes'
-import { formatearNumero } from './cierre'
+import { formatearNumero, etiquetaMotivo } from './cierre'
 
 export const MEDIDAS = [
   { valor: 'cantidad', etiqueta: 'Cantidad de contactos' },
@@ -23,6 +23,7 @@ export const AGRUPAR = [
   { valor: 'semana', etiqueta: 'Semana de ingreso' },
   { valor: 'mes', etiqueta: 'Mes de ingreso' },
   { valor: 'campo_cierre', etiqueta: 'Un campo del cierre' },
+  { valor: 'motivo_perdida', etiqueta: 'Motivo de pérdida' },
 ]
 
 export const VISTAS = [
@@ -140,6 +141,8 @@ export function calcularReporte(leads, cierres, def, { userId, esLider, miembros
   if (f.destacados) base = base.filter((l) => l.destacado)
   // agrupar por un campo del cierre solo tiene sentido con los ganados que tienen ese dato
   if (def.agrupar === 'campo_cierre') base = base.filter((l) => l.estado === 'ganado' && cierreDe(l))
+  // el motivo de pérdida solo existe en los perdidos
+  if (def.agrupar === 'motivo_perdida') base = base.filter((l) => l.estado === 'perdido')
 
   const formato = formatoDe(def.medida)
 
@@ -158,6 +161,7 @@ export function calcularReporte(leads, cierres, def, { userId, esLider, miembros
       const d = new Date(l.fecha_ingreso)
       return d.getFullYear() * 12 + d.getMonth()
     },
+    motivo_perdida: (l) => etiquetaMotivo(cierreDe(l)?.motivo),
     campo_cierre: (l) => String(cierreDe(l)?.datos?.[def.campoAgrupar] ?? '').trim() || 'Sin dato',
   }[def.agrupar]
 

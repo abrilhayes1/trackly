@@ -5,7 +5,23 @@ import { apiFetch } from '../lib/api'
 import { leadsParaAnalisis } from '../lib/analisis'
 import { achicarFoto } from '../lib/foto'
 import { preferenciaTema, aplicarTema, alCambiarTema } from '../lib/tema'
-import { OPCIONES_POR_SECCION, porSeccion, guardarPorSeccion } from '../lib/preferencias'
+import {
+  OPCIONES_POR_SECCION,
+  porSeccion,
+  guardarPorSeccion,
+  OPCIONES_PROXIMOS,
+  proximosDias,
+  guardarProximosDias,
+  horaRecordatorios,
+  guardarHoraRecordatorios,
+  PANTALLAS_INICIO,
+  pantallaInicial,
+  guardarPantallaInicial,
+  agendaSinFinde,
+  guardarAgendaSinFinde,
+} from '../lib/preferencias'
+import { etiquetaProximo } from '../lib/urgencia'
+import PlantillasEditor from '../components/PlantillasEditor'
 import { useLeadsEquipo } from '../lib/leadsEquipo'
 import { useTerminos } from '../lib/configEquipo'
 import Avatar from '../components/Avatar'
@@ -59,6 +75,10 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
   const [avisoFoto, setAvisoFoto] = useState(null)
   const [tema, setTema] = useState(preferenciaTema)
   const [cuantos, setCuantos] = useState(porSeccion)
+  const [proximos, setProximos] = useState(proximosDias)
+  const [hora, setHora] = useState(horaRecordatorios)
+  const [inicio, setInicio] = useState(pantallaInicial)
+  const [sinFinde, setSinFinde] = useState(agendaSinFinde)
   const elegirArchivo = useRef(null)
 
   const proveedores = usuario.app_metadata?.providers || [usuario.app_metadata?.provider].filter(Boolean)
@@ -243,6 +263,13 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
         )}
       </Tarjeta>
 
+      <Tarjeta
+        titulo="Plantillas de mensajes"
+        sub="Textos armados para WhatsApp y email. En la tarjeta de cada contacto elegís una y se completa sola con su nombre."
+      >
+        <PlantillasEditor rol={perfil.rol} userId={usuario.id} />
+      </Tarjeta>
+
       <Tarjeta titulo="Preferencias" sub="Se guardan en este navegador">
         <div className="text-[11px] font-medium text-text-secondary mb-1.5">Apariencia</div>
         <div className="inline-flex p-0.5 rounded-md bg-bg-tertiary">
@@ -278,6 +305,98 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
           </div>
           <span className="text-[11px] text-text-tertiary">El resto se ve con "Ver todos"</span>
         </div>
+        <div className="text-[11px] font-medium text-text-secondary mt-4 mb-1.5">Al entrar, abrir</div>
+        <div className="inline-flex p-0.5 rounded-md bg-bg-tertiary">
+          {PANTALLAS_INICIO.map((o) => (
+            <button
+              key={o.valor}
+              onClick={() => {
+                guardarPantallaInicial(o.valor)
+                setInicio(o.valor)
+              }}
+              className={`text-xs px-3 py-1 rounded ${
+                inicio === o.valor ? 'bg-bg-primary text-text-primary font-medium shadow-sm' : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              {o.valor === 'leads' ? `Mis ${varios}` : o.etiqueta}
+            </button>
+          ))}
+        </div>
+
+        <div className="text-[11px] font-medium text-text-secondary mt-4 mb-1.5">Botones para programar el próximo contacto (hasta 4)</div>
+        <div className="flex flex-wrap gap-1.5">
+          {OPCIONES_PROXIMOS.map((d) => {
+            const activo = proximos.includes(d)
+            const bloqueado = (activo && proximos.length === 1) || (!activo && proximos.length >= 4)
+            return (
+              <button
+                key={d}
+                disabled={bloqueado}
+                onClick={() => {
+                  const nuevos = activo ? proximos.filter((x) => x !== d) : [...proximos, d].sort((a, b) => a - b)
+                  guardarProximosDias(nuevos)
+                  setProximos(nuevos)
+                }}
+                className={`text-xs px-2.5 py-1 rounded-full border disabled:opacity-40 ${
+                  activo ? 'bg-accent text-white border-accent' : 'bg-bg-primary text-text-secondary border-border-secondary'
+                }`}
+              >
+                {etiquetaProximo(d)}
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="text-[11px] font-medium text-text-secondary mt-4 mb-1.5">Hora de esos recordatorios</div>
+        <div className="flex items-center gap-2">
+          <div className="inline-flex p-0.5 rounded-md bg-bg-tertiary">
+            {[
+              [null, 'La misma hora en que lo programás'],
+              ['10:00', 'Una hora fija'],
+            ].map(([valor, etiqueta]) => {
+              const activo = valor === null ? hora === null : hora !== null
+              return (
+                <button
+                  key={etiqueta}
+                  onClick={() => {
+                    const nueva = valor === null ? null : hora || valor
+                    guardarHoraRecordatorios(nueva)
+                    setHora(nueva)
+                  }}
+                  className={`text-xs px-3 py-1 rounded ${
+                    activo ? 'bg-bg-primary text-text-primary font-medium shadow-sm' : 'text-text-secondary hover:text-text-primary'
+                  }`}
+                >
+                  {etiqueta}
+                </button>
+              )
+            })}
+          </div>
+          {hora !== null && (
+            <input
+              type="time"
+              value={hora}
+              onChange={(e) => {
+                if (!e.target.value) return
+                guardarHoraRecordatorios(e.target.value)
+                setHora(e.target.value)
+              }}
+              className="text-xs px-2 py-1 rounded-md border border-border-secondary bg-bg-secondary text-text-primary"
+            />
+          )}
+        </div>
+
+        <label className="flex items-center gap-2 text-xs text-text-secondary mt-4 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={sinFinde}
+            onChange={(e) => {
+              guardarAgendaSinFinde(e.target.checked)
+              setSinFinde(e.target.checked)
+            }}
+          />
+          En la Agenda, ocultar sábados y domingos (vistas Días y Semana; se muestran igual si tienen recordatorios)
+        </label>
       </Tarjeta>
     </div>
   )

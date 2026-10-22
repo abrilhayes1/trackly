@@ -38,6 +38,7 @@ export default function Estadisticas({ userId, rol, cambios }) {
   const { varios, Varios } = useTerminos()
   const esLider = rol === 'lider'
   const [leads, setLeads] = useState([])
+  const [cierres, setCierres] = useState([])
   const [miembros, setMiembros] = useState([])
   const [ahora, setAhora] = useState(0)
   const [cargando, setCargando] = useState(true)
@@ -48,9 +49,15 @@ export default function Estadisticas({ userId, rol, cambios }) {
   const tooltip = useTooltip()
 
   useEffect(() => {
-    Promise.all([leadsParaAnalisis(`${userId}:${cambios}`), esLider ? apiFetch('/api/config/equipo') : Promise.resolve({ miembros: [] })])
-      .then(([l, equipo]) => {
+    Promise.all([
+      leadsParaAnalisis(`${userId}:${cambios}`),
+      esLider ? apiFetch('/api/config/equipo') : Promise.resolve({ miembros: [] }),
+      // los perdidos con su motivo, para "¿Por qué se pierden?"
+      apiFetch('/api/cierres?tipo=perdido&campos=analisis').catch(() => []),
+    ])
+      .then(([l, equipo, c]) => {
         setLeads(l)
+        setCierres(c)
         setMiembros(equipo.miembros)
         setAhora(Date.now())
         setError(null)
@@ -61,7 +68,7 @@ export default function Estadisticas({ userId, rol, cambios }) {
 
   // el asesor ve solo lo suyo; el líder, todo el equipo o una persona
   const asesorId = esLider ? asesor : userId
-  const e = useMemo(() => calcularEstadisticas(leads, { dias, asesorId, ahora }), [leads, dias, asesorId, ahora])
+  const e = useMemo(() => calcularEstadisticas(leads, { dias, asesorId, ahora, cierres }), [leads, dias, asesorId, ahora, cierres])
   const periodo = PERIODOS.find((p) => p.valor === dias).etiqueta.toLowerCase()
 
   return (
@@ -143,6 +150,20 @@ export default function Estadisticas({ userId, rol, cambios }) {
                 </Tarjeta>
                 <Tarjeta titulo="Nivel de interés" sub={`Cómo están categorizados los ${varios} ingresados`} datos={e.porInteres}>
                   <Barras datos={e.porInteres} tooltip={tooltip} />
+                </Tarjeta>
+              </div>
+
+              <div className="mb-3">
+                <Tarjeta
+                  titulo="¿Por qué se pierden?"
+                  sub={`El motivo de los ${varios} cerrados como perdidos (los motivos se configuran en Configuración)`}
+                  datos={e.porMotivo}
+                >
+                  {e.perdidos === 0 ? (
+                    <p className="text-xs text-text-tertiary py-6 text-center">No hay perdidos en este período.</p>
+                  ) : (
+                    <Barras datos={e.porMotivo} tooltip={tooltip} />
+                  )}
                 </Tarjeta>
               </div>
 

@@ -50,6 +50,8 @@ function desdeConfig(config, nombreEquipo) {
     terminoEvento: config.termino_evento || 'Charla informativa',
     emailDiario: config.email_diario !== false,
     camposCierre: config.campos_cierre || [],
+    motivosPerdida: config.motivos_perdida || [],
+    diasHabiles: !!config.dias_habiles,
   }
 }
 
@@ -236,6 +238,27 @@ export default function Configuracion({ rol, nombreEquipo, onGuardado }) {
           sub="Avisa antes del plazo, vence al cumplirse y archiva si nadie lo reclama"
         />
         {form.vencimientoHabilitado && <CamposVencimiento valores={form} onCambiar={cambiar} />}
+        {form.vencimientoHabilitado && (
+          <Interruptor
+            prendido={form.diasHabiles}
+            onCambiar={(v) => cambiar({ diasHabiles: v })}
+            label="Contar solo días hábiles"
+            sub="Los plazos cuentan de lunes a viernes: sábados y domingos no suman días (los feriados sí cuentan)"
+          />
+        )}
+      </Tarjeta>
+
+      <Tarjeta
+        titulo="Cierre perdido"
+        descripcion="Los motivos que se ofrecen al cerrar un contacto como perdido (siempre está también la opción Otro). Con ellos se arma la estadística de por qué se pierden."
+      >
+        <Campo label="Motivos de pérdida" ayuda="Escribí cada motivo y presioná Enter. Hasta 20.">
+          <Etiquetas
+            valores={form.motivosPerdida}
+            onCambiar={(v) => cambiar({ motivosPerdida: v.slice(0, 20) })}
+            placeholder="Ej: Precio, Eligió otra opción, No respondió..."
+          />
+        </Campo>
       </Tarjeta>
 
       <Tarjeta

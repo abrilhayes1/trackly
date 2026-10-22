@@ -1,5 +1,6 @@
 // Cálculos del dashboard de estadísticas (RF37), a partir de los leads del equipo.
 import { etiquetaInteres } from './interes'
+import { etiquetaMotivo } from './cierre'
 
 const MS_DIA = 864e5
 
@@ -20,7 +21,8 @@ function inicioSemana(fecha) {
 // un lead cuenta como contactado si tiene contacto registrado o ya se cerró
 const fueContactado = (l) => !!l.ultimo_contacto || l.estado === 'ganado' || l.estado === 'perdido'
 
-export function calcularEstadisticas(leads, { dias, asesorId, ahora }) {
+// cierres (opcional): los cierres del equipo con su motivo, para "¿Por qué se pierden?"
+export function calcularEstadisticas(leads, { dias, asesorId, ahora, cierres = [] }) {
   const desde = dias ? ahora - dias * MS_DIA : 0
   const base = leads.filter((l) => (!asesorId || l.asesor_id === asesorId) && new Date(l.fecha_ingreso).getTime() >= desde)
 
@@ -38,6 +40,21 @@ export function calcularEstadisticas(leads, { dias, asesorId, ahora }) {
   if (porOrigen.length > 7) {
     const resto = porOrigen.slice(6).reduce((s, x) => s + x.valor, 0)
     porOrigen = [...porOrigen.slice(0, 6), { etiqueta: 'Otros', valor: resto }]
+  }
+
+  // por qué se pierden: el motivo de cada perdido del período (los 6 más comunes y el resto en "Otros")
+  const motivoPorLead = new Map(cierres.filter((c) => c.tipo === 'perdido').map((c) => [c.lead_id, c.motivo]))
+  const motivos = new Map()
+  base
+    .filter((l) => l.estado === 'perdido')
+    .forEach((l) => {
+      const m = etiquetaMotivo(motivoPorLead.get(l.id))
+      motivos.set(m, (motivos.get(m) || 0) + 1)
+    })
+  let porMotivo = [...motivos].map(([etiqueta, valor]) => ({ etiqueta, valor })).sort((a, b) => b.valor - a.valor)
+  if (porMotivo.length > 7) {
+    const resto = porMotivo.slice(6).reduce((s, x) => s + x.valor, 0)
+    porMotivo = [...porMotivo.slice(0, 6), { etiqueta: 'Otros', valor: resto }]
   }
 
   // por nivel de interés, en el orden de siempre
@@ -70,6 +87,7 @@ export function calcularEstadisticas(leads, { dias, asesorId, ahora }) {
     tasaConversion: ganados + perdidos ? ganados / (ganados + perdidos) : null,
     porOrigen,
     porInteres,
+    porMotivo,
     porSemana: porSemana.map((s) => ({
       etiqueta: s.inicio.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }),
       valor: s.valor,

@@ -33,7 +33,9 @@ export default function LeadCard({ lead, grupo, onAbrir }) {
       </div>
 
       <div className="flex flex-col items-end gap-[3px] shrink-0">
-        <span className={`text-[11px] font-medium ${estilo.dias}`}>{lead.dias === 0 ? 'hoy' : `${lead.dias}d`}</span>
+        <span className={`text-[11px] font-medium ${estilo.dias}`}>
+          {(lead.corridos ?? lead.dias) === 0 ? 'hoy' : (lead.corridos ?? lead.dias) === 1 ? 'ayer' : `${lead.dias}d`}
+        </span>
         <span className={`text-[10px] px-1.5 py-px rounded-full border ${colores.bg} ${colores.text} ${colores.border}`}>{etiqueta}</span>
       </div>
     </div>

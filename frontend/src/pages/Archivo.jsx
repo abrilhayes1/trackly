@@ -227,7 +227,7 @@ export default function Archivo({ userId, rol, onAbrirLead, cambios, onCambio })
               <div className="flex-1 min-w-0">
                 <div className="text-[13px] font-medium text-text-primary">{lead.nombre}</div>
                 <div className="text-[11px] text-text-secondary truncate mt-px">
-                  {textoArchivo(lead, diasArchivo, ahora)}
+                  {textoArchivo(lead, diasArchivo, ahora, !!config?.dias_habiles)}
                   {lead.origen ? ` · ${lead.origen}` : ''}
                   {!esLider && !esMio && lead.asesor?.nombre ? ` · de ${primerNombre(lead.asesor.nombre)}` : ''}
                 </div>

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { apiFetch } from '../lib/api'
-import { diasDesde, tieneProximoPaso, PROXIMOS_CONTACTOS, fechaProximoContacto } from '../lib/urgencia'
+import { diasDesde, tieneProximoPaso, etiquetaProximo, fechaProximoContacto } from '../lib/urgencia'
+import { proximosDias, horaRecordatorios } from '../lib/preferencias'
+import { completar, valoresDe, sirvePara, enlaceWhatsApp, enlaceGmail } from '../lib/plantillas'
 import { colorPorInteres, sinCategoria, etiquetaInteres } from '../lib/interes'
 import { iniciales, fechaHoraCorta, aInputDateTime, desdeInputDateTime, numeroWhatsApp } from '../lib/formato'
 import CierreLead from './CierreLead'
@@ -23,7 +25,7 @@ function Pill({ children, clases = 'bg-bg-secondary text-text-secondary border-b
   return <span className={`text-[10px] px-2 py-0.5 rounded-full border ${clases}`}>{children}</span>
 }
 
-export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
+export default function DetalleLead({ lead, userId, rol, miNombre, equipo, onCerrar, onCambio }) {
   const [historial, setHistorial] = useState([])
   const [cargandoHistorial, setCargandoHistorial] = useState(true)
   const [error, setError] = useState(null)
@@ -35,6 +37,15 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
   const [recienContactado, setRecienContactado] = useState(false)
   const [sinProximoOk, setSinProximoOk] = useState(false)
   const campoRecordatorio = useRef(null)
+  // plantillas de mensajes (las propias y las del equipo) para WhatsApp y email
+  const [plantillas, setPlantillas] = useState([])
+  const [plantillaId, setPlantillaId] = useState('')
+
+  useEffect(() => {
+    apiFetch('/api/plantillas')
+      .then(setPlantillas)
+      .catch(() => setPlantillas([]))
+  }, [])
 
   const esLider = rol === 'lider'
   const { config } = useConfigEquipo()
@@ -114,16 +125,24 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
     cargarHistorial()
   }
 
-  const dias = diasDesde(lead.ultimo_contacto || lead.fecha_ingreso)
+  const habiles = !!config?.dias_habiles
+  const dias = diasDesde(lead.ultimo_contacto || lead.fecha_ingreso, habiles)
+  // "hoy" se decide con días corridos (con días hábiles, el lunes un contacto del viernes da 0)
+  const corridos = diasDesde(lead.ultimo_contacto || lead.fecha_ingreso)
+  const hoy = corridos === 0
   const textoDias = lead.ultimo_contacto
-    ? dias === 0
+    ? hoy
       ? 'Contactado hoy'
-      : `${dias} días sin contacto`
-    : dias === 0
+      : corridos === 1
+        ? 'Contactado ayer'
+        : `${dias} ${habiles ? (dias === 1 ? 'día hábil' : 'días hábiles') : 'días'} sin contacto`
+    : hoy
       ? 'Ingresó hoy'
       : `Ingresó hace ${dias} días · sin contactar`
 
   const colores = lead.interes ? colorPorInteres[lead.interes] : sinCategoria
+  const plantilla = plantillas.find((p) => p.id === plantillaId)
+  const valores = valoresDe(lead, { miNombre, equipo })
   const whatsapp = numeroWhatsApp(lead.telefono)
   const inputClase =
     'text-xs px-2.5 py-1.5 rounded-md border border-border-secondary bg-bg-secondary text-text-primary focus:outline-none focus:border-accent focus:bg-bg-primary disabled:opacity-60 disabled:cursor-not-allowed'
@@ -226,30 +245,65 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
         </Seccion>
 
         <Seccion titulo="Contactar">
+          {plantillas.length > 0 && (whatsapp || lead.email) && (
+            <select value={plantillaId} onChange={(e) => setPlantillaId(e.target.value)} className={`${inputClase} w-full mb-2`}>
+              <option value="">Sin plantilla (mensaje en blanco)</option>
+              {plantillas.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nombre}
+                  {p.compartida ? ' · del equipo' : ''}
+                  {p.canal === 'whatsapp' ? ' · WhatsApp' : p.canal === 'email' ? ' · email' : ''}
+                </option>
+              ))}
+            </select>
+          )}
+          {plantilla && (
+            <div className="text-[11px] text-text-secondary bg-bg-secondary rounded-md px-3 py-2 mb-2 whitespace-pre-line max-h-28 overflow-auto">
+              {plantilla.asunto && sirvePara(plantilla, 'email') && (
+                <div className="font-medium text-text-primary mb-0.5">{completar(plantilla.asunto, valores)}</div>
+              )}
+              {completar(plantilla.texto, valores)}
+            </div>
+          )}
           <div className="flex gap-1.5">
             {whatsapp ? (
-              <a
-                href={`https://wa.me/${whatsapp}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex-1 text-center text-xs font-medium py-2 rounded-md border border-green-border bg-green-bg text-green-text hover:opacity-90"
-              >
-                WhatsApp
-              </a>
+              plantilla && !sirvePara(plantilla, 'whatsapp') ? (
+                <span className="flex-1 text-center text-xs py-2 rounded-md border border-border-tertiary text-text-tertiary">
+                  Esta plantilla es solo para email
+                </span>
+              ) : (
+                <a
+                  href={enlaceWhatsApp(whatsapp, plantilla ? completar(plantilla.texto, valores) : '')}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex-1 text-center text-xs font-medium py-2 rounded-md border border-green-border bg-green-bg text-green-text hover:opacity-90"
+                >
+                  WhatsApp
+                </a>
+              )
             ) : (
               <span className="flex-1 text-center text-xs py-2 rounded-md border border-border-tertiary text-text-tertiary">
                 Sin teléfono
               </span>
             )}
             {lead.email ? (
-              <a
-                href={`https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(lead.email)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex-1 text-center text-xs font-medium py-2 rounded-md border border-border-secondary bg-bg-primary text-text-primary hover:bg-bg-secondary"
-              >
-                Enviar correo
-              </a>
+              plantilla && !sirvePara(plantilla, 'email') ? (
+                <span className="flex-1 text-center text-xs py-2 rounded-md border border-border-tertiary text-text-tertiary">
+                  Esta plantilla es solo para WhatsApp
+                </span>
+              ) : (
+                <a
+                  href={enlaceGmail(
+                    lead.email,
+                    plantilla ? { asunto: completar(plantilla.asunto || '', valores), texto: completar(plantilla.texto, valores) } : {},
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex-1 text-center text-xs font-medium py-2 rounded-md border border-border-secondary bg-bg-primary text-text-primary hover:bg-bg-secondary"
+                >
+                  Enviar correo
+                </a>
+              )
             ) : (
               <span className="flex-1 text-center text-xs py-2 rounded-md border border-border-tertiary text-text-tertiary">Sin email</span>
             )}
@@ -284,18 +338,18 @@ export default function DetalleLead({ lead, userId, rol, onCerrar, onCambio }) {
                 {recienContactado ? '¿Cuándo lo volvés a contactar?' : 'Sin próximo contacto programado'}
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {PROXIMOS_CONTACTOS.map((o) => (
+                {proximosDias().map((dias) => (
                   <button
-                    key={o.dias}
+                    key={dias}
                     disabled={guardando}
                     onClick={() => {
-                      const fecha = fechaProximoContacto(o.dias)
+                      const fecha = fechaProximoContacto(dias, new Date(), horaRecordatorios())
                       setRecordatorio(aInputDateTime(fecha))
                       guardarCambios({ recordatorio: fecha })
                     }}
                     className={botonSecundario}
                   >
-                    {o.etiqueta}
+                    {etiquetaProximo(dias)}
                   </button>
                 ))}
                 <button

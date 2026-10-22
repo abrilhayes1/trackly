@@ -123,7 +123,7 @@ export default function MisLeads({ rol, onAbrirLead, onCambio }) {
   const itemsAbiertos = seccionAbierta ? seccionAbierta.items.filter(({ lead }) => !filtro || textoDe(lead).includes(filtro)) : []
 
   const subtitulo = config?.vencimiento_habilitado
-    ? `Vencen a los ${config.dias_vencimiento_lead} días sin contacto · ordenados por urgencia`
+    ? `Vencen a los ${config.dias_vencimiento_lead} ${config.dias_habiles ? 'días hábiles' : 'días'} sin contacto · ordenados por urgencia`
     : 'Ordenados automáticamente por urgencia'
 
   return (

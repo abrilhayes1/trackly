@@ -64,7 +64,46 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: "Sin próximo paso" y secciones recortadas en Mis leads
+## Último trabajo: motivos de pérdida, días hábiles, plantillas y preferencias
+
+- **SQL** `database/17_configurables.sql` (probado en Postgres local):
+  - `tenant_config.motivos_perdida` (text[]; los equipos existentes reciben 5 sugeridos) y
+    `tenant_config.dias_habiles`;
+  - `dias_transcurridos(desde, hasta, habiles)`;
+  - `procesar_vencimientos()` y `guardar_config_equipo()` nuevos (motivos con `limpiar_motivos`);
+  - tabla `plantillas` con RLS como `reportes`.
+- **Días hábiles:**
+  - Corridos son días de 24 h. Hábiles son los días lunes a viernes que pasaron enteros, sin contar
+    el día de inicio ni hoy, con fechas de Argentina.
+  - JS: `contarDias` en `lib/urgencia.js` (misma cuenta, con tests de fechas iguales a los del SQL);
+    la usan agruparLeads, alertas, archivo y DetalleLead.
+  - "hoy"/"ayer" se deciden con días corridos (`item.corridos`).
+- **Motivos de pérdida:**
+  - Configuración → tarjeta "Cierre perdido" (Etiquetas, hasta 20);
+  - `CierreLead` ofrece los motivos como botones más "Otro" (texto); se guarda en `cierres.motivo`;
+  - `etiquetaMotivo` (en `lib/cierre.js`) normaliza;
+  - Estadísticas tiene el gráfico "¿Por qué se pierden?" (`porMotivo`; pide
+    `/api/cierres?tipo=perdido&campos=analisis`);
+  - Reportes suma "Motivo de pérdida" en agrupar (pide todos los cierres de análisis, que ahora
+    traen `motivo`).
+- **Plantillas:**
+  - `/api/plantillas` (CRUD, `plantillasService`);
+  - `lib/plantillas.js`: `completar`, `valoresDe`, `primerNombre` ("Gómez, Lucía" → Lucía),
+    `enlaceWhatsApp`, `enlaceGmail`;
+  - Mi perfil tiene la tarjeta "Plantillas de mensajes" (`components/PlantillasEditor.jsx`, con
+    botones para insertar variables y vista previa; "Compartir con todo el equipo" solo para el líder);
+  - en DetalleLead → Contactar, un selector de plantilla con vista previa y los enlaces con el texto.
+    App le pasa `miNombre` y `equipo`.
+- **Preferencias** (`lib/preferencias.js`, `localStorage` en JSON):
+  - `proximosDias` (1 a 4 de [1,2,3,5,7,10,14,30]; por defecto [1,3,7]);
+  - `horaRecordatorios` (null = misma hora, o "HH:MM");
+  - `pantallaInicial` (leads, alertas o agenda; App la usa como vista inicial);
+  - `agendaSinFinde` (Días junta 5 hábiles y Semana muestra lunes a viernes; los sábados y domingos
+    con recordatorios se muestran igual);
+  - `porSeccion`.
+- Tests: frontend 38, backend 11.
+
+## Anterior: "Sin próximo paso" y secciones recortadas en Mis leads
 
 - **Grupos** (`lib/urgencia.js`, `agruparLeads`), en este orden de prioridad:
   - porVencer;

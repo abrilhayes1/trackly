@@ -121,10 +121,23 @@ export function inicioMes(fecha) {
 }
 
 // mueve el cursor un período para adelante (1) o para atrás (-1)
-export function moverCursor(vista, cursor, sentido) {
+export const esFinDeSemana = (fecha) => [0, 6].includes(partes(fecha).semana)
+
+// sinFinde: en la vista Días, las flechas avanzan o retroceden 5 días hábiles
+export function moverCursor(vista, cursor, sentido, sinFinde = false) {
   if (vista === 'mes') {
     const { anio, mes } = partes(cursor)
     return fechaLocal(new Date(anio, mes - 1 + sentido, 1))
+  }
+  if (vista === 'dias' && sinFinde) {
+    if (sentido > 0) return diasDespues(diasDeVista('dias', cursor, true).at(-1), 1)
+    let fecha = cursor
+    let habiles = 0
+    while (habiles < 5) {
+      fecha = diasDespues(fecha, -1)
+      if (!esFinDeSemana(fecha)) habiles++
+    }
+    return fecha
   }
   return diasDespues(cursor, sentido * VISTAS_AGENDA.find((v) => v.valor === vista).paso)
 }
@@ -136,20 +149,30 @@ export function primerDia(vista, cursor) {
   return cursor
 }
 
-// los días que se ven en pantalla, en orden
-export function diasDeVista(vista, cursor) {
+// los días del período en pantalla, en orden (con sinFinde, la vista Días junta 5 días hábiles y
+// también devuelve el fin de semana que quede en el medio: la Agenda lo oculta si no tiene nada)
+export function diasDeVista(vista, cursor, sinFinde = false) {
+  if (vista === 'dias' && sinFinde) {
+    const lista = []
+    let fecha = cursor
+    while (lista.filter((d) => !esFinDeSemana(d)).length < 5) {
+      lista.push(fecha)
+      fecha = diasDespues(fecha, 1)
+    }
+    return lista
+  }
   const cantidad = vista === 'mes' ? 42 : VISTAS_AGENDA.find((v) => v.valor === vista).paso
   const desde = primerDia(vista, cursor)
   return Array.from({ length: cantidad }, (_, i) => diasDespues(desde, i))
 }
 
 // "21 – 25 oct 2026", "19 – 25 oct 2026" u "octubre 2026"
-export function etiquetaPeriodo(vista, cursor) {
+export function etiquetaPeriodo(vista, cursor, sinFinde = false) {
   if (vista === 'mes') {
     const { anio, mes } = partes(cursor)
     return `${MESES_LARGOS[mes - 1]} ${anio}`
   }
-  const dias = diasDeVista(vista, cursor)
+  const dias = diasDeVista(vista, cursor, sinFinde)
   const a = partes(dias[0])
   const b = partes(dias[dias.length - 1])
   const inicio = a.mes === b.mes ? `${a.dia}` : `${a.dia} ${MESES[a.mes - 1]}`

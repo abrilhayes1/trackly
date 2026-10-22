@@ -5,7 +5,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MAX_POR_PAGINA = 100;
 
 // Listado de cierres. La RLS hace que el asesor vea solo los suyos y el líder todos los del equipo.
-// - ?campos=analisis: todos, solo lead_id, tipo y datos (lo que usan los Reportes).
+// - ?campos=analisis: todos, solo lead_id, tipo, datos y motivo (Reportes y Estadísticas).
 // - ?limite=30&desde=0 (y ?asesor=<id> para el líder): una página para "Casos exitosos" y
 //   "Cerrados perdidos", del más nuevo al más viejo; devuelve { cierres, hayMas }.
 // - sin nada: todos con el lead (como antes).
@@ -13,7 +13,7 @@ async function listar(supabase, { tipo, campos, limite, desde, asesor } = {}) {
   const filtrarTipo = (consulta) => (tipo === 'ganado' || tipo === 'perdido' ? consulta.eq('tipo', tipo) : consulta);
 
   if (campos === 'analisis') {
-    const { data, error } = await filtrarTipo(supabase.from('cierres').select('lead_id, tipo, datos'));
+    const { data, error } = await filtrarTipo(supabase.from('cierres').select('lead_id, tipo, datos, motivo'));
     lanzarSiError(error);
     return data;
   }

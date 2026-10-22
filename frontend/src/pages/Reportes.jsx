@@ -308,7 +308,8 @@ export default function Reportes({ userId, rol, cambios }) {
   useEffect(() => {
     Promise.all([
       leadsParaAnalisis(`${userId}:${cambios}`),
-      apiFetch('/api/cierres?tipo=ganado&campos=analisis'),
+      // ganados (sus datos) y perdidos (su motivo)
+      apiFetch('/api/cierres?campos=analisis'),
       apiFetch('/api/reportes'),
       esLider ? apiFetch('/api/config/equipo') : Promise.resolve({ miembros: [] }),
     ])

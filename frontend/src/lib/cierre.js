@@ -37,3 +37,11 @@ export function detalleCierre(campos, datos) {
 export function nuevoIdCampo() {
   return 'c' + Math.random().toString(36).slice(2, 8)
 }
+
+// motivo de pérdida para agrupar: sin espacios de más y con mayúscula inicial ("precio" = "Precio")
+export function etiquetaMotivo(motivo) {
+  const m = String(motivo || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+  return m ? m.charAt(0).toUpperCase() + m.slice(1) : 'Sin motivo'
+}

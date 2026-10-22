@@ -1,8 +1,4 @@
-const MS_DIA = 1000 * 60 * 60 * 24
-
-function diasEntre(desde, hasta) {
-  return Math.floor((hasta.getTime() - new Date(desde).getTime()) / MS_DIA)
-}
+import { contarDias } from './urgencia'
 
 // Arma las alertas de hoy del usuario.
 // - Solo cuenta leads propios y activos (un lead cerrado no genera alertas, RNF10).
@@ -25,7 +21,7 @@ export function calcularAlertas(leads, config, userId, ahora = new Date()) {
   leads
     .filter((l) => l.asesor_id === userId && l.estado === 'activo')
     .forEach((lead) => {
-      const dias = diasEntre(lead.ultimo_contacto || lead.fecha_ingreso, ahora)
+      const dias = contarDias(lead.ultimo_contacto || lead.fecha_ingreso, ahora, !!config?.dias_habiles)
 
       if (plazo) {
         if (dias >= plazo) {

@@ -77,3 +77,22 @@ describe('recordatorios', () => {
     expect(r[1].hecho).toBe(true)
   })
 })
+
+describe('agenda sin fines de semana', () => {
+  test('la vista Días junta 5 días hábiles (con el fin de semana del medio)', () => {
+    // jueves 22/10/2026
+    expect(diasDeVista('dias', '2026-10-22', true)).toEqual([
+      '2026-10-22',
+      '2026-10-23',
+      '2026-10-24',
+      '2026-10-25',
+      '2026-10-26',
+      '2026-10-27',
+      '2026-10-28',
+    ])
+  })
+  test('las flechas avanzan y retroceden 5 días hábiles', () => {
+    expect(moverCursor('dias', '2026-10-22', 1, true)).toBe('2026-10-29')
+    expect(moverCursor('dias', '2026-10-29', -1, true)).toBe('2026-10-22')
+  })
+})

@@ -18,7 +18,11 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
   const [datos, setDatos] = useState({})
   const [motivo, setMotivo] = useState('')
   // campos del cierre ganado que definió el líder del equipo (RF06)
-  const campos = useConfigEquipo().config?.campos_cierre || []
+  const { config } = useConfigEquipo()
+  const campos = config?.campos_cierre || []
+  // motivos de pérdida que definió el líder; "Otro" deja escribir uno a mano
+  const motivos = config?.motivos_perdida || []
+  const [otro, setOtro] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState(null)
 
@@ -40,6 +44,7 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
     })
     setDatos(iniciales)
     setMotivo(cierre?.motivo || '')
+    setOtro(!!cierre?.motivo && !motivos.includes(cierre.motivo))
     setFormAbierto(true)
   }
 
@@ -138,13 +143,50 @@ export default function CierreLead({ lead, puedeEditar, onGuardado }) {
         ) : (
           <div className="mb-3">
             <Etiqueta>Motivo (opcional)</Etiqueta>
-            <textarea
-              className={`${campo} resize-none`}
-              rows={2}
-              value={motivo}
-              onChange={(e) => setMotivo(e.target.value)}
-              placeholder="Ej: Precio fuera de rango, eligió otra institución..."
-            />
+            {motivos.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {motivos.map((m) => {
+                  const elegido = !otro && motivo === m
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => {
+                        setOtro(false)
+                        setMotivo(elegido ? '' : m)
+                      }}
+                      className={`text-[11px] px-2.5 py-1 rounded-full border ${
+                        elegido ? 'bg-red-bg text-red-text border-red-border' : 'bg-bg-primary text-text-secondary border-border-secondary'
+                      }`}
+                    >
+                      {m}
+                    </button>
+                  )
+                })}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtro(true)
+                    if (motivos.includes(motivo)) setMotivo('')
+                  }}
+                  className={`text-[11px] px-2.5 py-1 rounded-full border ${
+                    otro ? 'bg-red-bg text-red-text border-red-border' : 'bg-bg-primary text-text-secondary border-border-secondary'
+                  }`}
+                >
+                  Otro
+                </button>
+              </div>
+            )}
+            {(otro || motivos.length === 0) && (
+              <textarea
+                className={`${campo} resize-none`}
+                rows={2}
+                value={motivo}
+                onChange={(e) => setMotivo(e.target.value)}
+                placeholder="Ej: Precio fuera de rango, eligió otra institución..."
+                autoFocus={otro}
+              />
+            )}
           </div>
         )}
 

@@ -3,7 +3,7 @@
 const { ErrorHttp } = require('./errores');
 
 const MEDIDAS = ['cantidad', 'contactados', 'ganados', 'perdidos', 'tasa_contacto', 'tasa_conversion', 'suma_campo', 'promedio_campo'];
-const AGRUPAR = ['ninguno', 'origen', 'interes', 'asesor', 'estado', 'semana', 'mes', 'campo_cierre'];
+const AGRUPAR = ['ninguno', 'origen', 'interes', 'asesor', 'estado', 'semana', 'mes', 'campo_cierre', 'motivo_perdida'];
 const VISTAS = ['numero', 'barras', 'columnas', 'tabla'];
 const PERIODOS = [0, 7, 30, 90, 365];
 const ESTADOS = ['activo', 'vencido', 'archivo', 'ganado', 'perdido'];

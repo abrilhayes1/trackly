@@ -39,6 +39,21 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 - Prioridad media, Etapa 2. Caso de uso sugerido: **CU20 — Importar contactos** (actor: Asesor y Líder).
 - Hasta 2.000 contactos por archivo; el teléfono se compara por sus últimos 10 dígitos.
 
+### RF48 — Plantillas de mensajes *(nuevo, sección 4.3 Contacto)*
+> El sistema debe permitir crear plantillas de mensajes para WhatsApp, email o ambos, con un nombre,
+> un asunto (para email) y un texto donde se pueden usar datos que se completan solos: {nombre},
+> {nombre_completo}, {mi_nombre} y {equipo}. Cada usuario tiene sus plantillas; el líder puede
+> compartirlas con todo el equipo. Desde la tarjeta de un contacto se elige una plantilla y se abre
+> WhatsApp o Gmail con el mensaje ya escrito.
+
+- Prioridad media, Etapa 2. Caso de uso sugerido: **CU21 — Usar una plantilla de mensaje** (actor: Asesor y Líder).
+
+### RF49 — Preferencias personales *(nuevo, sección 4.1, dentro de Mi perfil)*
+> Cada usuario puede elegir: la pantalla con la que abre la app (Mis leads, Alertas o Agenda), los
+> botones para programar el próximo contacto (de 1 a 4, entre 1 y 30 días), si esos recordatorios
+> quedan a la misma hora o a una hora fija, cuántos contactos se ven por sección en Mis leads, el modo
+> claro u oscuro y si la Agenda oculta sábados y domingos vacíos. Se guardan en el navegador.
+
 ## Requerimientos que cambian
 
 | Dónde | Antes | Ahora |
@@ -58,6 +73,9 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 | **RF25 / RF27** (Agenda y recordatorios) | La agenda muestra los recordatorios del día | La Agenda junta los recordatorios manuales y los de las tarjetas de los leads, con tres vistas: 5 días, semana y mes (calendario). Al tocar un recordatorio se abre su detalle: los manuales se editan o se marcan como hechos, y los de un lead llevan a su tarjeta. Los recordatorios manuales se pueden crear para cualquier día desde hoy. Los atrasados se muestran en una franja arriba. Cada recordatorio se completa con un ✓: los manuales se marcan como hechos y los de un lead registran el contacto. El día y la hora del recordatorio de un lead se cambian desde la misma ventana. |
 | **RF09 / RF10** (Mis leads) | Leads ordenados por urgencia | Secciones: Por vencer, Sin contactar, **Sin próximo paso** (contactados sin un recordatorio pendiente), Esta semana y Al día (contactados con próximo contacto programado). Cada sección muestra **7 contactos** (se cambia en Mi perfil: 5, 7, 10, 15 o todos) y un botón **"Ver todos"** que abre la lista completa con buscador. Las tarjetas de arriba también abren cada sección. |
 | **RF25** (Recordatorio del lead) | Programar un recordatorio | Igual, más: al tocar **"Registré contacto hoy"** la tarjeta pregunta *"¿Cuándo lo volvés a contactar?"* con botones rápidos (Mañana, En 3 días, En 1 semana, Elegir fecha, No hace falta). Si un contacto queda sin próximo paso, la tarjeta lo avisa con los mismos botones. |
+| **RF06** (Configuración del equipo) | Campos del cierre, plazos, categorías | Igual, más **motivos de pérdida**: la lista que se ofrece al cerrar como perdido (con "Otro" para escribir). Los equipos existentes arrancan con Precio, Eligió otra opción, No respondió, Horarios y Ya no le interesa. |
+| **RF15 / RF16** (Vencimiento) | Plazo en días | El líder elige si el plazo cuenta **días corridos o solo hábiles** (lunes a viernes; los feriados cuentan). Vale para el aviso previo, el vencimiento y el paso a Archivo, y el proceso nocturno usa la misma cuenta que la app. |
+| **RF37** (Estadísticas) | — | Nuevo gráfico **"¿Por qué se pierden?"**: los perdidos del período por motivo. Los reportes personalizados (RF45) también se pueden agrupar por **motivo de pérdida**. |
 | **RF08 / RF04** (Estados) | — | El estado de un lead no se cambia a mano: cambia solo al cerrar, reclamar o reactivar, y cada cambio queda en el historial. |
 
 ## Detalles que conviene mencionar
