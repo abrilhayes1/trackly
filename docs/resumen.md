@@ -81,7 +81,9 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 - **Frontend** (`DetalleLead`): los emails se ven como pastillas con × y "+ email"; si se quita el
   principal, el siguiente pasa a serlo; con más de uno, se elige a cuál mandar el correo. Los errores
   se muestran al lado. Mis leads busca también en los otros emails.
-- Tests: frontend 39, backend 13.
+- Tests: frontend 42, backend 13.
+- Arreglo: `apiFetch` tomaba un `null` en JSON (contacto sin cierre) como respuesta rota y la tarjeta
+  mostraba "El servidor respondió algo inesperado" en Cierre.
 
 ## Anterior: motivos de pérdida, días hábiles, plantillas y preferencias
 

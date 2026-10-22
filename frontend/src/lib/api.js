@@ -33,12 +33,14 @@ export async function apiFetch(path, options = {}) {
   }
 
   // si el servidor se cayó, puede responder una página HTML en vez de JSON
-  const body = await res.json().catch(() => null)
+  // (un null en JSON sí es una respuesta válida: por ejemplo, un contacto que todavía no tiene cierre)
+  const SIN_JSON = Symbol('sin json')
+  const body = await res.json().catch(() => SIN_JSON)
 
   if (!res.ok) {
-    throw new Error(body?.error || POR_ESTADO[res.status] || 'Algo salió mal. Probá de nuevo.')
+    throw new Error((body !== SIN_JSON && body?.error) || POR_ESTADO[res.status] || 'Algo salió mal. Probá de nuevo.')
   }
-  if (body === null) throw new Error('El servidor respondió algo inesperado. Probá de nuevo.')
+  if (body === SIN_JSON) throw new Error('El servidor respondió algo inesperado. Probá de nuevo.')
 
   return body
 }
