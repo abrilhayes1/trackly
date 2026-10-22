@@ -270,7 +270,7 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
         <PlantillasEditor rol={perfil.rol} userId={usuario.id} />
       </Tarjeta>
 
-      <Tarjeta titulo="Preferencias" sub="Se guardan en este navegador">
+      <Tarjeta titulo="Preferencias">
         <div className="text-[11px] font-medium text-text-secondary mb-1.5">Apariencia</div>
         <div className="inline-flex p-0.5 rounded-md bg-bg-tertiary">
           {TEMAS.map((t) => (
