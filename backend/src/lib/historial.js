@@ -82,6 +82,13 @@ function construirEntradasHistorial(antes, cambios) {
     entradas.push('Se actualizó el email.');
   }
 
+  if ('emails_extra' in cambios) {
+    const previos = (antes.emails_extra || []).map((e) => e.toLowerCase());
+    const despues = cambios.emails_extra.map((e) => e.trim().toLowerCase()).filter(Boolean);
+    despues.filter((e) => !previos.includes(e)).forEach((e) => entradas.push(`Se agregó el email ${e}.`));
+    previos.filter((e) => !despues.includes(e)).forEach((e) => entradas.push(`Se quitó el email ${e}.`));
+  }
+
   if ('consulta' in cambios && cambios.consulta !== antes.consulta) {
     entradas.push('Se editó la consulta.');
   }

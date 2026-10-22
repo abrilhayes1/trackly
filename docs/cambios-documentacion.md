@@ -55,6 +55,12 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 > claro u oscuro y qué días de la semana muestra la Agenda (se puede ocultar cualquiera; un día oculto
 > con recordatorios se muestra igual). Se guardan en el navegador.
 
+### RF50 — Contactos sin repetir y varios emails *(nuevo, sección 4.2 Gestión de leads)*
+> En un mismo equipo no puede haber dos contactos con el mismo teléfono ni con un email en común, en
+> ningún estado. El sistema lo controla al crear, editar o importar contactos y avisa con qué contacto
+> coincide. Un contacto puede tener varios emails (uno principal y hasta 10 más): se agregan y quitan
+> desde su tarjeta, y al enviar un correo se elige a cuál.
+
 ## Requerimientos que cambian
 
 | Dónde | Antes | Ahora |

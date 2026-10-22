@@ -64,7 +64,26 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
-## Último trabajo: motivos de pérdida, días hábiles, plantillas y preferencias
+## Último trabajo: contactos sin repetir y varios emails (RF50)
+
+- **SQL** `database/18_contactos_unicos.sql` (probado en Postgres local):
+  - `leads.emails_extra` (text[]) y `emails_de_lead(email, emails_extra)`; los emails existentes
+    quedan en minúscula.
+  - Trigger `leads_contacto_repetido` (security definer, antes de insert o update de teléfono o
+    emails): normaliza, valida (hasta 10 extra) y frena con 23505 un teléfono (`clave_telefono`) o
+    email que ya tenga otro contacto del equipo, en cualquier estado. Solo controla lo que cambió, así
+    que los repetidos viejos no traban otras ediciones. Lock por equipo para cargas simultáneas.
+  - Índices `leads_tenant_telefono_idx` y `leads_emails_idx` (GIN).
+  - `importar_leads` compara también con los otros emails.
+  - La consulta del final lista los repetidos que ya existían.
+- **Backend**: `emails_extra` editable por PATCH (lista de hasta 10), historial "Se agregó/quitó el
+  email …", el buscador encuentra un email completo entre los otros emails.
+- **Frontend** (`DetalleLead`): los emails se ven como pastillas con × y "+ email"; si se quita el
+  principal, el siguiente pasa a serlo; con más de uno, se elige a cuál mandar el correo. Los errores
+  se muestran al lado. Mis leads busca también en los otros emails.
+- Tests: frontend 39, backend 13.
+
+## Anterior: motivos de pérdida, días hábiles, plantillas y preferencias
 
 - **SQL** `database/17_configurables.sql` (probado en Postgres local):
   - `tenant_config.motivos_perdida` (text[]; los equipos existentes reciben 5 sugeridos) y

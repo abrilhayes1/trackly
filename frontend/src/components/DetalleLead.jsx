@@ -40,6 +40,10 @@ export default function DetalleLead({ lead, userId, rol, miNombre, equipo, onCer
   // plantillas de mensajes (las propias y las del equipo) para WhatsApp y email
   const [plantillas, setPlantillas] = useState([])
   const [plantillaId, setPlantillaId] = useState('')
+  // emails: el principal y los otros; se pueden agregar y quitar
+  const [nuevoEmail, setNuevoEmail] = useState(null) // null = sin el campo abierto
+  const [emailDestino, setEmailDestino] = useState('')
+  const [errorEmail, setErrorEmail] = useState(null)
 
   useEffect(() => {
     apiFetch('/api/plantillas')
@@ -80,7 +84,8 @@ export default function DetalleLead({ lead, userId, rol, miNombre, equipo, onCer
     return () => window.removeEventListener('keydown', alTeclear)
   }, [onCerrar])
 
-  async function guardarCambios(cambios) {
+  // alFallar: para mostrar el error al lado de lo que se estaba editando (si no, va abajo de todo)
+  async function guardarCambios(cambios, alFallar = setError) {
     setGuardando(true)
     setError(null)
     setAviso(null)
@@ -93,8 +98,10 @@ export default function DetalleLead({ lead, userId, rol, miNombre, equipo, onCer
       if (advertencia) setAviso(advertencia)
       onCambio(datos)
       await cargarHistorial()
+      return true
     } catch (e) {
-      setError(e.message)
+      alFallar(e.message)
+      return false
     } finally {
       setGuardando(false)
     }
@@ -144,6 +151,26 @@ export default function DetalleLead({ lead, userId, rol, miNombre, equipo, onCer
   const plantilla = plantillas.find((p) => p.id === plantillaId)
   const valores = valoresDe(lead, { miNombre, equipo })
   const whatsapp = numeroWhatsApp(lead.telefono)
+  const emails = [lead.email, ...(lead.emails_extra || [])].filter(Boolean)
+  const destino = emails.includes(emailDestino) ? emailDestino : emails[0]
+
+  async function agregarEmail(e) {
+    e.preventDefault()
+    const email = (nuevoEmail || '').trim().toLowerCase()
+    setErrorEmail(null)
+    if (!email) return setNuevoEmail(null)
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return setErrorEmail('Ese email no es válido.')
+    if (emails.includes(email)) return setNuevoEmail(null)
+    const ok = await guardarCambios(lead.email ? { emails_extra: [...(lead.emails_extra || []), email] } : { email }, setErrorEmail)
+    if (ok) setNuevoEmail(null)
+  }
+
+  // si se quita el principal, el siguiente pasa a ser el principal
+  function quitarEmail(email) {
+    if (!window.confirm(`¿Quitar ${email} de este contacto?`)) return
+    const resto = emails.filter((x) => x !== email)
+    guardarCambios({ email: resto[0] ?? null, emails_extra: resto.slice(1) }, setErrorEmail)
+  }
   const inputClase =
     'text-xs px-2.5 py-1.5 rounded-md border border-border-secondary bg-bg-secondary text-text-primary focus:outline-none focus:border-accent focus:bg-bg-primary disabled:opacity-60 disabled:cursor-not-allowed'
   const botonSecundario =
@@ -215,10 +242,64 @@ export default function DetalleLead({ lead, userId, rol, miNombre, equipo, onCer
           <div className="bg-bg-secondary rounded-md px-3.5 py-2.5 text-xs text-text-secondary leading-relaxed">
             {lead.consulta || 'Sin consulta registrada.'}
           </div>
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="flex flex-wrap items-center gap-1.5 mt-2">
             {lead.telefono && <Pill>{lead.telefono}</Pill>}
-            {lead.email && <Pill>{lead.email}</Pill>}
+            {emails.map((email) => (
+              <Pill key={email}>
+                {email}
+                {puedeEditar && (
+                  <button
+                    onClick={() => quitarEmail(email)}
+                    disabled={guardando}
+                    title="Quitar este email"
+                    className="ml-1 text-text-tertiary hover:text-red-text disabled:opacity-50"
+                  >
+                    ×
+                  </button>
+                )}
+              </Pill>
+            ))}
+            {puedeEditar &&
+              (nuevoEmail === null ? (
+                <button
+                  onClick={() => setNuevoEmail('')}
+                  className="text-[10px] px-2 py-0.5 rounded-full border border-dashed border-border-secondary text-text-secondary hover:text-text-primary"
+                >
+                  + email
+                </button>
+              ) : (
+                <form onSubmit={agregarEmail} className="flex items-center gap-1">
+                  <input
+                    autoFocus
+                    type="email"
+                    value={nuevoEmail}
+                    onChange={(e) => setNuevoEmail(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        e.stopPropagation()
+                        setNuevoEmail(null)
+                      }
+                    }}
+                    placeholder="otro@email.com"
+                    className="text-[11px] px-2 py-0.5 rounded-full border border-border-secondary bg-bg-secondary text-text-primary focus:outline-none focus:border-accent w-44"
+                  />
+                  <button type="submit" disabled={guardando} className="text-[11px] font-medium text-accent disabled:opacity-50">
+                    Agregar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNuevoEmail(null)
+                      setErrorEmail(null)
+                    }}
+                    className="text-[11px] text-text-tertiary"
+                  >
+                    Cancelar
+                  </button>
+                </form>
+              ))}
           </div>
+          {errorEmail && <p className="text-[11px] text-red-text mt-1.5">{errorEmail}</p>}
         </Seccion>
 
         <Seccion titulo="Nivel de interés">
@@ -245,7 +326,7 @@ export default function DetalleLead({ lead, userId, rol, miNombre, equipo, onCer
         </Seccion>
 
         <Seccion titulo="Contactar">
-          {plantillas.length > 0 && (whatsapp || lead.email) && (
+          {plantillas.length > 0 && (whatsapp || destino) && (
             <select value={plantillaId} onChange={(e) => setPlantillaId(e.target.value)} className={`${inputClase} w-full mb-2`}>
               <option value="">Sin plantilla (mensaje en blanco)</option>
               {plantillas.map((p) => (
@@ -264,6 +345,15 @@ export default function DetalleLead({ lead, userId, rol, miNombre, equipo, onCer
               )}
               {completar(plantilla.texto, valores)}
             </div>
+          )}
+          {emails.length > 1 && (
+            <select value={destino} onChange={(e) => setEmailDestino(e.target.value)} className={`${inputClase} w-full mb-2`}>
+              {emails.map((email) => (
+                <option key={email} value={email}>
+                  Correo a {email}
+                </option>
+              ))}
+            </select>
           )}
           <div className="flex gap-1.5">
             {whatsapp ? (
@@ -286,7 +376,7 @@ export default function DetalleLead({ lead, userId, rol, miNombre, equipo, onCer
                 Sin teléfono
               </span>
             )}
-            {lead.email ? (
+            {destino ? (
               plantilla && !sirvePara(plantilla, 'email') ? (
                 <span className="flex-1 text-center text-xs py-2 rounded-md border border-border-tertiary text-text-tertiary">
                   Esta plantilla es solo para WhatsApp
@@ -294,7 +384,7 @@ export default function DetalleLead({ lead, userId, rol, miNombre, equipo, onCer
               ) : (
                 <a
                   href={enlaceGmail(
-                    lead.email,
+                    destino,
                     plantilla ? { asunto: completar(plantilla.asunto || '', valores), texto: completar(plantilla.texto, valores) } : {},
                   )}
                   target="_blank"

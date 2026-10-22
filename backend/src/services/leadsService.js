@@ -5,7 +5,7 @@ const { ETIQUETA_INTERES, construirEntradasHistorial } = require('../lib/histori
 
 const INTERES_VALIDOS = Object.keys(ETIQUETA_INTERES);
 // el estado no se edita directo: cambia solo al cerrar, reclamar o reactivar (cada uno con su historial)
-const CAMPOS_EDITABLES = ['interes', 'destacado', 'ultimo_contacto', 'recordatorio', 'telefono', 'email', 'consulta'];
+const CAMPOS_EDITABLES = ['interes', 'destacado', 'ultimo_contacto', 'recordatorio', 'telefono', 'email', 'emails_extra', 'consulta'];
 
 function fechaValida(valor) {
   return typeof valor === 'string' && !Number.isNaN(new Date(valor).getTime());
@@ -104,6 +104,10 @@ async function buscar(supabase, consulta) {
   }
 
   const filtros = [`nombre.ilike."%${texto}%"`, `email.ilike."%${texto}%"`, `telefono.ilike."%${texto}%"`];
+  // si escribió un email completo, lo buscamos también entre los otros emails de cada contacto
+  if (/^[^\s,(){}]+@[^\s,(){}]+$/.test(texto)) {
+    filtros.push(`emails_extra.cs.{${texto.toLowerCase()}}`);
+  }
 
   // si escribió un teléfono con espacios o guiones, probamos también solo con los números
   const digitos = texto.replace(/\D/g, '');
@@ -175,6 +179,14 @@ async function actualizar(supabase, user, id, body) {
 
   if (cambios.destacado !== undefined && typeof cambios.destacado !== 'boolean') {
     throw new ErrorHttp(400, 'El campo destacado tiene que ser true o false');
+  }
+
+  // otros emails del contacto: una lista de textos (la base los ordena, valida y frena los repetidos)
+  if (
+    cambios.emails_extra !== undefined &&
+    (!Array.isArray(cambios.emails_extra) || cambios.emails_extra.length > 10 || cambios.emails_extra.some((e) => typeof e !== 'string'))
+  ) {
+    throw new ErrorHttp(400, 'Los otros emails tienen que venir en una lista (hasta 10)');
   }
 
   for (const campo of ['ultimo_contacto', 'recordatorio']) {

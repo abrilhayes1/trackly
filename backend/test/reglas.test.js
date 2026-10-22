@@ -104,3 +104,15 @@ test('plantillas: valida nombre, texto y canal antes de guardar', async () => {
   const conCanalRaro = await plantillas.crear(supabase, { id: 'u1' }, { nombre: 'x', texto: 'y', canal: 'sms' });
   assert.equal(conCanalRaro.canal, 'ambos');
 });
+
+test('historial: registra los emails que se agregan y se quitan', () => {
+  const { construirEntradasHistorial } = require('../src/lib/historial');
+  const entradas = construirEntradasHistorial({ emails_extra: ['a@x.com', 'b@x.com'] }, { emails_extra: ['b@x.com', ' C@x.com '] });
+  assert.deepEqual(entradas, ['Se agregó el email c@x.com.', 'Se quitó el email a@x.com.']);
+});
+
+test('los contactos repetidos llegan con el mensaje de la base y código 409', () => {
+  const error = traducirErrorDeBase({ code: '23505', message: 'Ya hay un contacto con el email ana@x.com: Ana López' });
+  assert.equal(error.status, 409);
+  assert.equal(error.message, 'Ya hay un contacto con el email ana@x.com: Ana López');
+});

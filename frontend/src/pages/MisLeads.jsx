@@ -30,7 +30,8 @@ const tarjetas = [
 ]
 
 // texto para buscar dentro de una sección
-const textoDe = (l) => [l.nombre, l.telefono, l.email, l.consulta, l.origen].filter(Boolean).join(' ').toLowerCase()
+const textoDe = (l) =>
+  [l.nombre, l.telefono, l.email, ...(l.emails_extra || []), l.consulta, l.origen].filter(Boolean).join(' ').toLowerCase()
 
 // título de una sección con su cantidad
 function Titulo({ titulo, badge, cantidad, ayuda }) {
