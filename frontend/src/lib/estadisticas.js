@@ -98,3 +98,33 @@ export function calcularEstadisticas(leads, { dias, asesorId, ahora, cierres = [
 export function porcentaje(x) {
   return x === null ? '—' : `${Math.round(x * 100)}%`
 }
+
+// Comparación del equipo: una fila por persona con los números del resumen, para ver a los asesores
+// lado a lado. Se cuentan los ingresados en el período, igual que en el resumen.
+// campoImporte (opcional): el id del campo numérico del cierre ganado que se suma (por ejemplo, el importe).
+export function compararAsesores(leads, { dias, ahora, cierres = [], miembros, campoImporte }) {
+  const desde = dias ? ahora - dias * MS_DIA : 0
+  const datosDe = new Map(cierres.filter((c) => c.tipo === 'ganado').map((c) => [c.lead_id, c.datos || {}]))
+  return miembros
+    .map((m) => {
+      const base = leads.filter((l) => l.asesor_id === m.id && new Date(l.fecha_ingreso).getTime() >= desde)
+      const ganados = base.filter((l) => l.estado === 'ganado')
+      const perdidos = base.filter((l) => l.estado === 'perdido').length
+      const contactados = base.filter(fueContactado).length
+      return {
+        id: m.id,
+        nombre: m.nombre,
+        avatar_url: m.avatar_url,
+        ingresados: base.length,
+        contactados,
+        tasaContacto: base.length ? contactados / base.length : null,
+        ganados: ganados.length,
+        perdidos,
+        tasaConversion: ganados.length + perdidos ? ganados.length / (ganados.length + perdidos) : null,
+        // los que dejó vencer (siguen vencidos o ya pasaron a Archivo)
+        vencidos: base.filter((l) => l.estado === 'vencido' || l.estado === 'archivo').length,
+        importe: campoImporte ? ganados.reduce((s, l) => s + (Number(datosDe.get(l.id)?.[campoImporte]) || 0), 0) : null,
+      }
+    })
+    .sort((a, b) => b.ganados - a.ganados || (b.tasaConversion ?? -1) - (a.tasaConversion ?? -1) || a.nombre.localeCompare(b.nombre))
+}

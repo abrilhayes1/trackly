@@ -8,8 +8,8 @@ import Reportes from './Reportes'
 import { apiFetch } from '../lib/api'
 import { leadsParaAnalisis } from '../lib/analisis'
 import Avatar from '../components/Avatar'
-import { useTerminos } from '../lib/configEquipo'
-import { calcularEstadisticas, PERIODOS, porcentaje } from '../lib/estadisticas'
+import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
+import { calcularEstadisticas, compararAsesores, PERIODOS, porcentaje } from '../lib/estadisticas'
 
 function Indicador({ label, valor, detalle }) {
   return (
@@ -52,8 +52,8 @@ export default function Estadisticas({ userId, rol, cambios }) {
     Promise.all([
       leadsParaAnalisis(`${userId}:${cambios}`),
       esLider ? apiFetch('/api/config/equipo') : Promise.resolve({ miembros: [] }),
-      // los perdidos con su motivo, para "¿Por qué se pierden?"
-      apiFetch('/api/cierres?tipo=perdido&campos=analisis').catch(() => []),
+      // los cierres: el motivo de los perdidos ("¿Por qué se pierden?") y los datos de los ganados (comparación)
+      apiFetch('/api/cierres?campos=analisis').catch(() => []),
     ])
       .then(([l, equipo, c]) => {
         setLeads(l)
@@ -70,6 +70,16 @@ export default function Estadisticas({ userId, rol, cambios }) {
   const asesorId = esLider ? asesor : userId
   const e = useMemo(() => calcularEstadisticas(leads, { dias, asesorId, ahora, cierres }), [leads, dias, asesorId, ahora, cierres])
   const periodo = PERIODOS.find((p) => p.valor === dias).etiqueta.toLowerCase()
+
+  // comparación entre asesores (solo el líder, con todo el equipo): si los cierres ganados tienen un
+  // campo numérico (por ejemplo el importe), también se suma
+  const { config } = useConfigEquipo()
+  const campoNumero = (config?.campos_cierre || []).find((c) => c.tipo === 'numero')
+  const comparar = esLider && asesor === '' && miembros.length > 1
+  const filas = useMemo(
+    () => (comparar ? compararAsesores(leads, { dias, ahora, cierres, miembros, campoImporte: campoNumero?.id }) : []),
+    [comparar, leads, dias, ahora, cierres, miembros, campoNumero?.id],
+  )
 
   return (
     <div className="p-5 max-w-[1040px]">
@@ -152,6 +162,73 @@ export default function Estadisticas({ userId, rol, cambios }) {
                   <Barras datos={e.porInteres} tooltip={tooltip} />
                 </Tarjeta>
               </div>
+
+              {comparar && (
+                <>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <Tarjeta titulo="Ganados por asesor" datos={filas.map((f) => ({ etiqueta: f.nombre, valor: f.ganados }))}>
+                      <Barras datos={filas.map((f) => ({ etiqueta: f.nombre, valor: f.ganados }))} tooltip={tooltip} />
+                    </Tarjeta>
+                    <Tarjeta
+                      titulo="Tasa de conversión por asesor"
+                      sub="Ganados sobre cerrados"
+                      datos={filas.map((f) => ({ etiqueta: f.nombre, valor: f.tasaConversion ?? 0 }))}
+                      columna="Conversión"
+                      formato={(x) => `${Math.round(x * 100)}%`}
+                    >
+                      <Barras
+                        datos={filas.map((f) => ({ etiqueta: f.nombre, valor: f.tasaConversion ?? 0 }))}
+                        tooltip={tooltip}
+                        formato={(x) => `${Math.round(x * 100)}%`}
+                      />
+                    </Tarjeta>
+                  </div>
+                  <section className="bg-bg-primary border border-border-tertiary rounded-(--radius-lg) px-[1.1rem] py-4 mb-3 overflow-x-auto">
+                    <h2 className="text-[13px] font-semibold text-text-primary mb-3">Comparación del equipo</h2>
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="text-[10px] uppercase tracking-[0.04em] text-text-tertiary">
+                          {['Asesor', 'Ingresados', 'Contactados', 'Ganados', 'Perdidos', 'Conversión', 'Se vencieron']
+                            .concat(campoNumero ? [campoNumero.nombre] : [])
+                            .map((t, i) => (
+                              <th key={t} className={`font-medium pb-2 border-b border-border-tertiary ${i ? 'text-right' : 'text-left'}`}>
+                                {t}
+                              </th>
+                            ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filas.map((f) => (
+                          <tr
+                            key={f.id}
+                            onClick={() => setAsesor(f.id)}
+                            title={`Ver las estadísticas de ${f.nombre}`}
+                            className="border-b border-border-tertiary last:border-0 cursor-pointer hover:bg-bg-secondary"
+                          >
+                            <td className="py-2">
+                              <span className="flex items-center gap-2 text-text-primary">
+                                <Avatar nombre={f.nombre} foto={f.avatar_url} tamano="w-[22px] h-[22px] text-[8px]" />
+                                {f.nombre}
+                              </span>
+                            </td>
+                            <td className="py-2 text-right tabular-nums text-text-primary">{f.ingresados}</td>
+                            <td className="py-2 text-right tabular-nums text-text-primary">
+                              {f.contactados} <span className="text-text-tertiary">({porcentaje(f.tasaContacto)})</span>
+                            </td>
+                            <td className="py-2 text-right tabular-nums text-text-primary">{f.ganados}</td>
+                            <td className="py-2 text-right tabular-nums text-text-primary">{f.perdidos}</td>
+                            <td className="py-2 text-right tabular-nums text-text-primary">{porcentaje(f.tasaConversion)}</td>
+                            <td className="py-2 text-right tabular-nums text-text-primary">{f.vencidos}</td>
+                            {campoNumero && (
+                              <td className="py-2 text-right tabular-nums text-text-primary">{f.importe.toLocaleString('es-AR')}</td>
+                            )}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </section>
+                </>
+              )}
 
               <div className="mb-3">
                 <Tarjeta

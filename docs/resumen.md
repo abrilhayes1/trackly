@@ -64,6 +64,16 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
+## Estadísticas: comparación entre asesores
+
+- Solo el líder, con "Todo el equipo" elegido: "Ganados por asesor", "Tasa de conversión por asesor" y
+  la tabla "Comparación del equipo" (ingresados, contactados con %, ganados, perdidos, conversión,
+  se vencieron = vencidos + archivados, y la suma del primer campo numérico del cierre, p. ej. el
+  importe). Tocar una fila filtra las estadísticas por esa persona. Mismo período que el resto.
+- `compararAsesores()` en `lib/estadisticas.js` (con tests). Estadísticas ahora pide todos los
+  cierres (`/api/cierres?campos=analisis`), no solo los perdidos.
+- Tests: frontend 44, backend 13.
+
 ## Panel del equipo: indicadores que filtran
 
 - En el detalle de un asesor, Asignados / Contactados / Por vencer / Vencidos se tocan y filtran su

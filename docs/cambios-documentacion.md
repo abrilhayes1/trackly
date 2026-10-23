@@ -83,6 +83,8 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 | **RF06** (Configuración del equipo) | Campos del cierre, plazos, categorías | Igual, más **motivos de pérdida**: la lista que se ofrece al cerrar como perdido (con "Otro" para escribir). Los equipos existentes arrancan con Precio, Eligió otra opción, No respondió, Horarios y Ya no le interesa. |
 | **RF15 / RF16** (Vencimiento) | Plazo en días | El líder elige si el plazo cuenta **días corridos o solo hábiles** (lunes a viernes; los feriados cuentan). Vale para el aviso previo, el vencimiento y el paso a Archivo, y el proceso nocturno usa la misma cuenta que la app. |
 | **RF37** (Estadísticas) | — | Nuevo gráfico **"¿Por qué se pierden?"**: los perdidos del período por motivo. Los reportes personalizados (RF45) también se pueden agrupar por **motivo de pérdida**. |
+| **RF37** (Estadísticas) | — | Para el líder, **comparación entre asesores**: ganados y tasa de conversión por asesor, y una tabla con ingresados, contactados, ganados, perdidos, conversión, vencidos e importe de cada persona en el período. |
+| **RF38** (Panel del equipo) | Indicadores de solo lectura | Los indicadores se tocan y muestran la lista correspondiente (por ejemplo, los vencidos de un asesor). |
 | **RF08 / RF04** (Estados) | — | El estado de un lead no se cambia a mano: cambia solo al cerrar, reclamar o reactivar, y cada cambio queda en el historial. |
 
 ## Detalles que conviene mencionar
