@@ -21,13 +21,34 @@ function Pill({ clases, children }) {
   return <span className={`text-[10px] px-[7px] py-0.5 rounded-full border whitespace-nowrap ${clases}`}>{children}</span>
 }
 
-function Indicador({ label, valor, color = 'text-text-primary' }) {
-  return (
-    <div className="bg-bg-secondary rounded-md px-4 py-3">
+// con onClick se puede tocar para ver esos contactos (activo = es el filtro que se está mostrando)
+function Indicador({ label, valor, color = 'text-text-primary', activo = false, onClick }) {
+  const contenido = (
+    <>
       <div className="text-[11px] text-text-secondary mb-1">{label}</div>
       <div className={`text-[22px] font-semibold ${color}`}>{valor}</div>
-    </div>
+    </>
   )
+  if (!onClick) return <div className="bg-bg-secondary rounded-md px-4 py-3">{contenido}</div>
+  return (
+    <button
+      onClick={onClick}
+      aria-pressed={activo}
+      className={`text-left bg-bg-secondary rounded-md px-4 py-3 border transition-colors ${
+        activo ? 'border-accent' : 'border-transparent hover:border-border-secondary'
+      }`}
+    >
+      {contenido}
+    </button>
+  )
+}
+
+// qué muestra cada indicador del detalle de un asesor
+const FILTROS_ASESOR = {
+  asignados: { label: 'Asignados', vacio: 'No tiene activos asignados.' },
+  contactados: { label: 'Contactados', vacio: 'Todavía no contactó a ninguno.' },
+  porVencer: { label: 'Por vencer', vacio: 'No tiene ninguno por vencer.' },
+  vencidos: { label: 'Vencidos', vacio: 'No tiene vencidos.' },
 }
 
 function PillInteres({ interes }) {
@@ -85,6 +106,9 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
   const error = errorEquipo || errorLeads
   const [pestana, setPestana] = useState('asesores')
   const [asesorAbierto, setAsesorAbierto] = useState(null)
+  // filtros de los indicadores: en el detalle de un asesor y en la pestaña con todos los del equipo
+  const [filtroAsesor, setFiltroAsesor] = useState(null)
+  const [filtroEquipo, setFiltroEquipo] = useState(null) // null | 'activos' | 'vencidos'
   const [reasignando, setReasignando] = useState(null)
   const [aviso, setAviso] = useState(null)
 
@@ -150,6 +174,14 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
     return <div className="p-5 text-sm text-text-secondary">Esta vista es solo para el líder del equipo.</div>
   }
 
+  // cambiar de pestaña (desde las pestañas o tocando un indicador)
+  function irA(nueva, filtro = null) {
+    setAviso(null)
+    setPestana(nueva)
+    setFiltroEquipo(filtro)
+  }
+  const listaEquipo = delEquipo.filter((l) => !filtroEquipo || l.estado === (filtroEquipo === 'activos' ? 'activo' : 'vencido'))
+
   const avisoHtml = aviso && (
     <p
       className={`text-xs border rounded-md px-3 py-2 mb-3 ${
@@ -164,15 +196,31 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
   if (asesorAbierto) {
     const m = miembros.find((x) => x.id === asesorAbierto)
     const r = resumen(asesorAbierto)
+    const cumple = {
+      asignados: (l) => l.estado === 'activo',
+      contactados: (l) => l.estado === 'activo' && !!l.ultimo_contacto,
+      porVencer: (l) => l.estado === 'activo' && grupoDe.get(l.id)?.clave === 'porVencer',
+      vencidos: (l) => l.estado === 'vencido',
+    }
     const suyos = delEquipo
-      .filter((l) => l.asesor_id === asesorAbierto)
+      .filter((l) => l.asesor_id === asesorAbierto && (!filtroAsesor || cumple[filtroAsesor](l)))
       .sort((a, b) => (grupoDe.get(b.id)?.dias ?? 0) - (grupoDe.get(a.id)?.dias ?? 0))
+    const indicador = (clave, valor, color) => (
+      <Indicador
+        label={FILTROS_ASESOR[clave].label}
+        valor={valor}
+        color={color}
+        activo={filtroAsesor === clave}
+        onClick={() => setFiltroAsesor(filtroAsesor === clave ? null : clave)}
+      />
+    )
     return (
       <div className="p-5">
         <button
           onClick={() => {
             setAviso(null)
             setAsesorAbierto(null)
+            setFiltroAsesor(null)
           }}
           className="text-xs px-3 py-1.5 rounded-md border border-border-secondary text-text-secondary hover:bg-bg-secondary mb-4"
         >
@@ -186,16 +234,28 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
           </div>
         </div>
         <div className="grid grid-cols-4 gap-2 mb-5">
-          <Indicador label="Asignados" valor={r.asignados} />
-          <Indicador label="Contactados" valor={r.contactados} color="text-urgent-blue" />
-          <Indicador label="Por vencer" valor={r.porVencer} color="text-urgent-amber" />
-          <Indicador label="Vencidos" valor={r.vencidos} color="text-urgent-red" />
+          {indicador('asignados', r.asignados)}
+          {indicador('contactados', r.contactados, 'text-urgent-blue')}
+          {indicador('porVencer', r.porVencer, 'text-urgent-amber')}
+          {indicador('vencidos', r.vencidos, 'text-urgent-red')}
         </div>
         {avisoHtml}
-        <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary mb-1.5">
-          {Varios} de {m?.nombre?.split(' ')[0]}
+        <div className="flex items-center gap-2 mb-1.5">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-secondary">
+            {Varios} de {m?.nombre?.split(' ')[0]}
+            {filtroAsesor && ` · ${FILTROS_ASESOR[filtroAsesor].label}`}
+          </div>
+          {filtroAsesor && (
+            <button onClick={() => setFiltroAsesor(null)} className="text-[11px] text-accent hover:underline">
+              Ver todos
+            </button>
+          )}
         </div>
-        {suyos.length === 0 && <p className="text-center py-8 text-xs text-text-tertiary">No tiene {varios} asignados.</p>}
+        {suyos.length === 0 && (
+          <p className="text-center py-8 text-xs text-text-tertiary">
+            {filtroAsesor ? FILTROS_ASESOR[filtroAsesor].vacio : `No tiene ${varios} asignados.`}
+          </p>
+        )}
         {suyos.map((l) => (
           <div
             key={l.id}
@@ -229,39 +289,42 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
       {!cargando && !error && (
         <>
           <div className="grid grid-cols-4 gap-2 mb-5">
-            <Indicador label="Miembros del equipo" valor={miembros.length} />
-            <Indicador label={`${Varios} activos`} valor={activos.length} />
-            <Indicador label="Sin asignar" valor={sinAsignar.length} color="text-urgent-blue" />
-            <Indicador label="Vencidos sin gestión" valor={vencidos.length} color="text-urgent-red" />
+            <Indicador
+              label="Miembros del equipo"
+              valor={miembros.length}
+              activo={pestana === 'asesores'}
+              onClick={() => irA('asesores')}
+            />
+            <Indicador
+              label={`${Varios} activos`}
+              valor={activos.length}
+              activo={pestana === 'leads' && filtroEquipo === 'activos'}
+              onClick={() => irA('leads', 'activos')}
+            />
+            <Indicador
+              label="Sin asignar"
+              valor={sinAsignar.length}
+              color="text-urgent-blue"
+              activo={pestana === 'sinAsignar'}
+              onClick={() => irA('sinAsignar')}
+            />
+            <Indicador
+              label="Vencidos sin gestión"
+              valor={vencidos.length}
+              color="text-urgent-red"
+              activo={pestana === 'leads' && filtroEquipo === 'vencidos'}
+              onClick={() => irA('leads', 'vencidos')}
+            />
           </div>
 
           <div className="flex gap-[5px] border-b border-border-tertiary mb-4">
-            <Pestana
-              activa={pestana === 'asesores'}
-              onClick={() => {
-                setAviso(null)
-                setPestana('asesores')
-              }}
-            >
+            <Pestana activa={pestana === 'asesores'} onClick={() => irA('asesores')}>
               Asesores
             </Pestana>
-            <Pestana
-              activa={pestana === 'leads'}
-              onClick={() => {
-                setAviso(null)
-                setPestana('leads')
-              }}
-            >
+            <Pestana activa={pestana === 'leads'} onClick={() => irA('leads')}>
               {Varios} del equipo
             </Pestana>
-            <Pestana
-              activa={pestana === 'sinAsignar'}
-              onClick={() => {
-                setAviso(null)
-                setPestana('sinAsignar')
-              }}
-              cantidad={sinAsignar.length}
-            >
+            <Pestana activa={pestana === 'sinAsignar'} onClick={() => irA('sinAsignar')} cantidad={sinAsignar.length}>
               Sin asignar
             </Pestana>
           </div>
@@ -316,7 +379,20 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
 
           {pestana === 'leads' && (
             <>
-              <p className="text-xs text-text-secondary mb-3">Los {varios} activos y vencidos del equipo, con su asesor</p>
+              <div className="flex items-center gap-2 mb-3">
+                <p className="text-xs text-text-secondary">
+                  {filtroEquipo === 'activos'
+                    ? `Los ${varios} activos del equipo, con su asesor`
+                    : filtroEquipo === 'vencidos'
+                      ? `Los ${varios} vencidos del equipo: se reclaman en Archivo`
+                      : `Los ${varios} activos y vencidos del equipo, con su asesor`}
+                </p>
+                {filtroEquipo && (
+                  <button onClick={() => setFiltroEquipo(null)} className="text-[11px] text-accent hover:underline">
+                    Ver todos
+                  </button>
+                )}
+              </div>
               <table className="w-full text-xs border-collapse">
                 <thead>
                   <tr className="text-left text-[11px] uppercase tracking-[0.04em] text-text-tertiary">
@@ -328,7 +404,7 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {delEquipo.map((l) => (
+                  {listaEquipo.map((l) => (
                     <tr key={l.id} onClick={() => onAbrirLead(l)} className="cursor-pointer hover:bg-bg-secondary">
                       <td className="px-2.5 py-2 border-b border-border-tertiary text-text-primary">
                         {l.destacado && <span className="text-amber-border mr-1">★</span>}
@@ -371,8 +447,14 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
                   ))}
                 </tbody>
               </table>
-              {delEquipo.length === 0 && (
-                <p className="text-center py-8 text-xs text-text-tertiary">Todavía no hay {varios} en el equipo.</p>
+              {listaEquipo.length === 0 && (
+                <p className="text-center py-8 text-xs text-text-tertiary">
+                  {filtroEquipo === 'vencidos'
+                    ? 'No hay vencidos sin gestión.'
+                    : filtroEquipo === 'activos'
+                      ? `No hay ${varios} activos.`
+                      : `Todavía no hay ${varios} en el equipo.`}
+                </p>
               )}
             </>
           )}

@@ -64,6 +64,12 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
+## Panel del equipo: indicadores que filtran
+
+- En el detalle de un asesor, Asignados / Contactados / Por vencer / Vencidos se tocan y filtran su
+  lista (tocar de nuevo o "Ver todos" lo saca). En el panel general: Miembros → pestaña Asesores,
+  Activos y Vencidos sin gestión → pestaña con los del equipo filtrada, Sin asignar → su pestaña.
+
 ## Equipo de prueba
 
 - `database/seed_equipo_demo.sql`: crea "Instituto Horizonte (demo)" con 4 usuarios de email y contraseña
