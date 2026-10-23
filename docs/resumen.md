@@ -64,6 +64,16 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
+## Equipo de prueba
+
+- `database/seed_equipo_demo.sql`: crea "Instituto Horizonte (demo)" con 4 usuarios de email y contraseña
+  (`lider@`, `martin@`, `lucia@`, `diego@demo.trackly`, contraseña `Demo2026!`), configuración de
+  educación (vencimiento 14/3/30, charlas, 4 campos de cierre), 42 contactos en todos los estados
+  (incluye recordatorios atrasados, por vencer, sin próximo paso, sin asignar, un segundo email),
+  historial, cierres, 3 charlas con invitados y asistencia, recordatorios de agenda, plantillas y una
+  invitación pendiente. No repite si ya está. Probado en Postgres local con un esquema simulado.
+- `database/seed_equipo_demo_borrar.sql`: borra ese equipo, sus datos y sus usuarios.
+
 ## Último trabajo: contactos sin repetir y varios emails (RF50)
 
 - **SQL** `database/18_contactos_unicos.sql` (probado en Postgres local):

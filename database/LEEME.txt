@@ -19,6 +19,10 @@ Ejecutar en este orden (se pueden volver a correr sin duplicar nada, salvo 2_cie
   16_importar_leads.sql          importar contactos desde una planilla (importar_leads) sin duplicar teléfonos ni emails
   17_configurables.sql           motivos de pérdida, vencimiento por días hábiles y tabla plantillas (mensajes)
   18_contactos_unicos.sql        varios emails por contacto y sin contactos repetidos (mismo teléfono o email)
+
+Opcional, para probar:
+  seed_equipo_demo.sql           equipo de prueba: líder + 3 asesores (contraseña Demo2026!) y ~40 contactos en todos los estados
+  seed_equipo_demo_borrar.sql    borra ese equipo de prueba y sus usuarios
   seed_leads_ejemplo.sql         OPCIONAL: leads de ejemplo en tu equipo (cambiá el email adentro)
   chequeo_cierres.sql            solo lectura: tiene que dar 1, 1, 1, 3, 2
 
