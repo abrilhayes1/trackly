@@ -64,6 +64,11 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
+## Ojito para ver la contraseña
+
+- `components/CampoContrasena.jsx`: campo de contraseña con botón para mostrar u ocultar lo escrito.
+  Se usa en el login y en el cambio de contraseña (Mi perfil y recuperar contraseña).
+
 ## Estadísticas: comparación entre asesores
 
 - Solo el líder, con "Todo el equipo" elegido: "Ganados por asesor", "Tasa de conversión por asesor" y

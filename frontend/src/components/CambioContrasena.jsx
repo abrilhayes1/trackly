@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import CampoContrasena from './CampoContrasena'
 
 const campo =
   'w-full text-sm px-3 py-2 rounded-md border border-border-secondary bg-bg-secondary text-text-primary focus:outline-none focus:border-accent focus:bg-bg-primary'
@@ -42,17 +43,11 @@ export default function CambioContrasena({ onListo, textoBoton = 'Cambiar contra
       <div className="grid grid-cols-2 gap-2 mb-3">
         <div>
           <label className="block text-[11px] font-medium text-text-secondary mb-1">Contraseña nueva</label>
-          <input type="password" autoComplete="new-password" className={campo} value={nueva} onChange={(e) => setNueva(e.target.value)} />
+          <CampoContrasena autoComplete="new-password" className={campo} value={nueva} onChange={(e) => setNueva(e.target.value)} />
         </div>
         <div>
           <label className="block text-[11px] font-medium text-text-secondary mb-1">Repetila</label>
-          <input
-            type="password"
-            autoComplete="new-password"
-            className={campo}
-            value={repetida}
-            onChange={(e) => setRepetida(e.target.value)}
-          />
+          <CampoContrasena autoComplete="new-password" className={campo} value={repetida} onChange={(e) => setRepetida(e.target.value)} />
         </div>
       </div>
       {error && <p className="text-xs text-red-text bg-red-bg border border-red-border rounded-md px-3 py-2 mb-3">{error}</p>}

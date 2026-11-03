@@ -15,6 +15,7 @@ const Charlas = lazy(() => import('./pages/Charlas'))
 const Estadisticas = lazy(() => import('./pages/Estadisticas'))
 const Perfil = lazy(() => import('./pages/Perfil'))
 import CambioContrasena from './components/CambioContrasena'
+import CampoContrasena from './components/CampoContrasena'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import ResultadosBusqueda from './components/ResultadosBusqueda'
@@ -455,8 +456,8 @@ function App() {
                 </button>
               )}
             </div>
-            <input
-              type="password"
+            <CampoContrasena
+              autoComplete={modoLogin === 'crear' ? 'new-password' : 'current-password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full text-sm px-3 py-2 rounded-md border border-border-secondary bg-bg-secondary text-text-primary focus:outline-none focus:border-accent focus:bg-bg-primary"
