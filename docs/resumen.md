@@ -64,6 +64,26 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
+## App mobile (RF41 a RF44): etapa 1
+
+- Carpeta `mobile/`: Expo SDK 58 con Expo Router (`src/app`), JavaScript. Ver `mobile/LEEME.md`.
+- Mismo diseño que la web: colores de `index.css` en `src/lib/tema.js` (claro y oscuro, sigue al
+  celular), letra **Inter** (`@expo-google-fonts/inter`). Pautas de diseño de Emil Kowalski en
+  `docs/diseno/emil-design-eng.md`: todo lo que se toca se achica a 0,97 al apretarlo (100 ms de ida,
+  160 ms de vuelta, ease-out, `components/Presionable.js`).
+- Reutiliza la lógica de la web desde `frontend/src/lib` (urgencia, alertas, agenda, interés, formato,
+  plantillas) por `metro.config.js` (`watchFolders`) y `src/lib/compartido.js`.
+- Hecho: login (email y contraseña, ojito, recuperar contraseña por la web), pestañas Mis leads /
+  Alertas (con contador) / Perfil, Mis leads (contadores, recordatorios de hoy, secciones de 7 con
+  "Ver los N", buscador del servidor), Alertas (vencen hoy con Llamar y WhatsApp, por vencer,
+  recordatorios con ✓), tarjeta del lead (Llamar / WhatsApp / Email, consulta, interés editable,
+  destacado, último contacto, recordatorio, historial), Perfil mínimo y cerrar sesión.
+- Falta: "Actualizar estado" (registrar contacto, ganado y perdido con los campos del equipo),
+  agregar nota, "+" de lead nuevo (Mis leads) y "+ Recordatorio" (Alertas), Perfil completo
+  (preferencias, tema, contraseña), notificaciones (RF43), login con Google y el APK.
+- `.env` de la app: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_API_URL`.
+- El chequeo de GitHub tiene un job "Mobile": formato y compilación (versión web).
+
 ## Ojito para ver la contraseña
 
 - `components/CampoContrasena.jsx`: campo de contraseña con botón para mostrar u ocultar lo escrito.
