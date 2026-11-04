@@ -37,9 +37,10 @@ export default function Pestanas() {
         }}
       />
       <Tabs.Screen
-        name="perfil"
-        options={{ title: 'Perfil', tabBarIcon: ({ color }) => <Icono nombre="persona" color={color} tamano={22} /> }}
+        name="agenda"
+        options={{ title: 'Agenda', tabBarIcon: ({ color }) => <Icono nombre="calendario" color={color} tamano={22} /> }}
       />
+      <Tabs.Screen name="mas" options={{ title: 'Más', tabBarIcon: ({ color }) => <Icono nombre="menu" color={color} tamano={22} /> }} />
     </Tabs>
   )
 }

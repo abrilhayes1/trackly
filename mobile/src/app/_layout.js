@@ -36,6 +36,9 @@ function Navegacion() {
       <Stack.Protected guard={!!sesion}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="lead/[id]" />
+        <Stack.Screen name="perfil" />
+        <Stack.Screen name="archivo" />
+        <Stack.Screen name="cerrados/[tipo]" />
       </Stack.Protected>
     </Stack>
   )

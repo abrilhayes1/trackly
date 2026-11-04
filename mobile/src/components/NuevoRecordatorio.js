@@ -1,5 +1,5 @@
 // Recordatorio de la agenda (como en la Agenda de la web): con quién, día, hora y una nota
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { View } from 'react-native'
 import { useSesion } from '../lib/sesion'
 import { apiFetch } from '../lib/api'
@@ -8,14 +8,19 @@ import Hoja from './Hoja'
 import ElegirFechaHora, { HORA_VALIDA } from './ElegirFechaHora'
 import { Aviso, Boton, Campo, Etiqueta } from './Formulario'
 
-export default function NuevoRecordatorio({ visible, onCerrar }) {
+export default function NuevoRecordatorio({ visible, onCerrar, fechaInicial, onGuardado }) {
   const { recargar } = useSesion()
   const [contacto, setContacto] = useState('')
   const [nota, setNota] = useState('')
-  const [fecha, setFecha] = useState(fechaLocal())
+  const [fecha, setFecha] = useState(fechaInicial || fechaLocal())
   const [hora, setHora] = useState('')
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState(null)
+
+  // cada vez que se abre, arranca en el día elegido
+  useEffect(() => {
+    if (visible) setFecha(fechaInicial || fechaLocal())
+  }, [visible, fechaInicial])
 
   async function guardar(cerrar) {
     setError(null)
@@ -28,6 +33,7 @@ export default function NuevoRecordatorio({ visible, onCerrar }) {
         body: JSON.stringify({ contacto: contacto.trim(), nota: nota.trim(), fecha, hora: hora.padStart(5, '0') }),
       })
       await recargar()
+      onGuardado?.()
       setContacto('')
       setNota('')
       setHora('')
