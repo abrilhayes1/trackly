@@ -85,6 +85,7 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 | **RF37** (Estadísticas) | — | Nuevo gráfico **"¿Por qué se pierden?"**: los perdidos del período por motivo. Los reportes personalizados (RF45) también se pueden agrupar por **motivo de pérdida**. |
 | **RF37** (Estadísticas) | — | Para el líder, **comparación entre asesores**: ganados y tasa de conversión por asesor, y una tabla con ingresados, contactados, ganados, perdidos, conversión, vencidos e importe de cada persona en el período. |
 | **RF38** (Panel del equipo) | Indicadores de solo lectura | Los indicadores se tocan y muestran la lista correspondiente (por ejemplo, los vencidos de un asesor). |
+| **1.5 / 4.11** (App mobile) | Alcance reducido: login, panel de urgentes, notificaciones, tarjeta y actualización de estado | La app mobile tiene **toda la funcionalidad de la web menos Estadísticas y Reportes** (que quedan en la web): Mis leads, Alertas, Agenda, tarjeta completa con cierre, Archivo, casos cerrados, charlas, panel del equipo, configuración, plantillas y perfil. |
 | **RF08 / RF04** (Estados) | — | El estado de un lead no se cambia a mano: cambia solo al cerrar, reclamar o reactivar, y cada cambio queda en el historial. |
 
 ## Detalles que conviene mencionar

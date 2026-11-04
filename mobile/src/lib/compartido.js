@@ -19,3 +19,5 @@ export { detalleCierre, formatearNumero } from '../../../frontend/src/lib/cierre
 export { nombreEventos } from '../../../frontend/src/lib/charlas'
 export { VARIABLES, CANALES } from '../../../frontend/src/lib/plantillas'
 export { fechaCharla } from '../../../frontend/src/lib/charlas'
+export { RUBROS, CONTACTOS, PLAZOS, EMAIL_VALIDO, errorVencimiento } from '../../../frontend/src/lib/configEquipo'
+export { TIPOS_CAMPO, nuevoIdCampo } from '../../../frontend/src/lib/cierre'

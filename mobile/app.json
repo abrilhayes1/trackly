@@ -31,6 +31,12 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Trackly usa tus fotos para tu foto de perfil."
+        }
       ]
     ],
     "experiments": {

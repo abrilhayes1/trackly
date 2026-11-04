@@ -7,14 +7,14 @@ import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { CLARO, OSCURO, TemaContext } from '../lib/tema'
+import { CLARO, OSCURO, TemaContext, useTema } from '../lib/tema'
 import { SesionProvider, useSesion } from '../lib/sesion'
 
 SplashScreen.preventAutoHideAsync()
 
 function Navegacion() {
   const { sesion } = useSesion()
-  const tema = useColorScheme() === 'dark' ? OSCURO : CLARO
+  const { c: tema } = useTema()
   const listo = sesion !== undefined
 
   useEffect(() => {
@@ -44,23 +44,35 @@ function Navegacion() {
         <Stack.Screen name="charla/[id]" />
         <Stack.Screen name="panel" />
         <Stack.Screen name="panel/[id]" />
+        <Stack.Screen name="configuracion" />
       </Stack.Protected>
     </Stack>
   )
 }
 
+// tema: el que eligió en Perfil, o el del celular
+function ConTema({ children }) {
+  const sistema = useColorScheme() === 'dark'
+  const { preferencias } = useSesion()
+  const oscuro = preferencias.tema === 'sistema' ? sistema : preferencias.tema === 'oscuro'
+  return (
+    <TemaContext.Provider value={{ c: oscuro ? OSCURO : CLARO, oscuro }}>
+      <StatusBar style={oscuro ? 'light' : 'dark'} />
+      {children}
+    </TemaContext.Provider>
+  )
+}
+
 export default function Raiz() {
-  const oscuro = useColorScheme() === 'dark'
   const [letras] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold })
   if (!letras) return null
   return (
     <SafeAreaProvider>
-      <TemaContext.Provider value={{ c: oscuro ? OSCURO : CLARO, oscuro }}>
-        <SesionProvider>
-          <StatusBar style={oscuro ? 'light' : 'dark'} />
+      <SesionProvider>
+        <ConTema>
           <Navegacion />
-        </SesionProvider>
-      </TemaContext.Provider>
+        </ConTema>
+      </SesionProvider>
     </SafeAreaProvider>
   )
 }

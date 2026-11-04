@@ -148,6 +148,13 @@ export default function MisLeads() {
               </View>
             )}
             {cargando && !perfil && <ActivityIndicator color={c.acento} style={{ marginTop: 40 }} />}
+            {/* cuenta sin equipo: el equipo se crea (o se acepta la invitación) desde la web */}
+            {!cargando && !error && perfil === null && (
+              <Texto tamano={15} color={c.texto2} style={{ textAlign: 'center', marginTop: 40, lineHeight: 22 }}>
+                Tu cuenta todavía no tiene equipo. Crealo desde la web (trackly-six-delta.vercel.app) o pedile al líder que te invite con
+                este email.
+              </Texto>
+            )}
 
             {perfil && (
               <>

@@ -515,18 +515,24 @@ export default function TarjetaLead() {
           }}
         >
           {puedeTomar ? (
-            <Boton texto={lead.estado === 'vencido' ? 'Reclamar lead' : 'Reactivar lead'} onPress={tomar} disabled={guardando} />
+            <Boton
+              texto={lead.estado === 'vencido' ? 'Reclamar lead' : 'Reactivar lead'}
+              onPress={tomar}
+              disabled={guardando}
+              style={{ flex: 1 }}
+            />
           ) : (
             <>
               <Boton
                 texto="Agregar nota"
+                style={{ flex: 1 }}
                 tipo="secundario"
                 onPress={() => {
                   setError(null)
                   setHoja('nota')
                 }}
               />
-              {lead.estado === 'activo' && <Boton texto="Actualizar estado" onPress={() => setHoja('estado')} />}
+              {lead.estado === 'activo' && <Boton texto="Actualizar estado" onPress={() => setHoja('estado')} style={{ flex: 1 }} />}
             </>
           )}
         </View>
@@ -574,9 +580,20 @@ export default function TarjetaLead() {
         pie={(cerrar) => (
           <View style={{ flexDirection: 'row', gap: 10 }}>
             {lead.recordatorio && (
-              <Boton texto="Quitar" tipo="secundario" disabled={guardando} onPress={() => guardar({ recordatorio: null }, cerrar)} />
+              <Boton
+                texto="Quitar"
+                tipo="secundario"
+                disabled={guardando}
+                onPress={() => guardar({ recordatorio: null }, cerrar)}
+                style={{ flex: 1 }}
+              />
             )}
-            <Boton texto={guardando ? 'Guardando...' : 'Guardar'} disabled={guardando} onPress={() => guardarRecordatorio(cerrar)} />
+            <Boton
+              texto={guardando ? 'Guardando...' : 'Guardar'}
+              disabled={guardando}
+              onPress={() => guardarRecordatorio(cerrar)}
+              style={{ flex: 1 }}
+            />
           </View>
         )}
       >

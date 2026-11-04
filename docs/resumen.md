@@ -99,9 +99,15 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   "+ Recordatorio" en Alertas. Hoja (`components/Hoja.js`): fundido del fondo, entrada con curva de
   cajón, se cierra tocando afuera o deslizando hacia abajo (también con un movimiento rápido).
   Preferencias del celular en AsyncStorage (`lib/preferencias.js`).
-- Pedido nuevo: **toda la app menos Estadísticas** en mobile. Falta: Agenda, Archivo, Casos exitosos,
-  Cerrados perdidos, Charlas, Panel del equipo, Configuración, Perfil completo, notificaciones
-  (RF43), login con Google y el APK.
+- Etapa 3 (hecha): **toda la app menos Estadísticas y Reportes**. Pestañas: Mis leads, Alertas,
+  Agenda (semana con flechas, recordatorios del día, ✓, "+") y Más. "Más" abre: Mi perfil (foto con
+  expo-image-picker achicada a 512 px, nombre, mis números, contraseña, preferencias del celular y
+  tema claro/oscuro/como el celular), Archivo, Casos exitosos y Cerrados perdidos (de a 30, filtro
+  por asesor para el líder), Charlas (lista, crear/editar/borrar, detalle con invitados, invitar y
+  asistencia; también en la tarjeta del lead), Panel del equipo (indicadores que filtran, asesores,
+  leads del equipo, sin asignar, reasignar) y Configuración (todo lo de la web, incluidos campos de
+  cierre, motivos, miembros e invitaciones), y Plantillas de mensajes.
+- Falta: importar desde Excel en el celular, notificaciones (RF43), login con Google y el APK.
 - `.env` de la app: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_API_URL`.
 - El chequeo de GitHub tiene un job "Mobile": formato y compilación (versión web).
 

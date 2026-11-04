@@ -32,6 +32,8 @@ export function Campo({ style, multiline, ...props }) {
           paddingHorizontal: 14,
           paddingVertical: multiline ? 12 : 0,
           minHeight: multiline ? 88 : 48,
+          // en una fila junto a un botón, que pueda achicarse en vez de salirse de la pantalla
+          minWidth: 0,
           textAlignVertical: multiline ? 'top' : 'center',
         },
         style,
