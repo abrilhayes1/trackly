@@ -17,3 +17,5 @@ export { etiquetaProximo, fechaProximoContacto } from '../../../frontend/src/lib
 export { valoresDe, completar, sirvePara, primerNombre } from '../../../frontend/src/lib/plantillas'
 export { detalleCierre, formatearNumero } from '../../../frontend/src/lib/cierre'
 export { nombreEventos } from '../../../frontend/src/lib/charlas'
+export { VARIABLES, CANALES } from '../../../frontend/src/lib/plantillas'
+export { fechaCharla } from '../../../frontend/src/lib/charlas'

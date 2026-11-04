@@ -1,4 +1,4 @@
-// Elegir día (los próximos 14, en chips) y hora (HH:MM). Igual en Android, iPhone y la versión web.
+// Elegir día (los próximos días, en chips; 14 si no se indica otra cantidad) y hora (HH:MM). Igual en Android, iPhone y la versión web.
 import { ScrollView, View } from 'react-native'
 import { useTema } from '../lib/tema'
 import { fechaLocal } from '../lib/compartido'
@@ -15,10 +15,10 @@ export function etiquetaDia(i, d) {
 }
 
 // fecha: "AAAA-MM-DD"; hora: "HH:MM"
-export default function ElegirFechaHora({ fecha, hora, onFecha, onHora }) {
+export default function ElegirFechaHora({ fecha, hora, onFecha, onHora, cantidad = 14 }) {
   const { c } = useTema()
   const hoy = new Date()
-  const dias = Array.from({ length: 14 }, (_, i) => new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + i))
+  const dias = Array.from({ length: cantidad }, (_, i) => new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + i))
   return (
     <View>
       <Etiqueta>Día</Etiqueta>

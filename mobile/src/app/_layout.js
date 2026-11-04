@@ -39,6 +39,11 @@ function Navegacion() {
         <Stack.Screen name="perfil" />
         <Stack.Screen name="archivo" />
         <Stack.Screen name="cerrados/[tipo]" />
+        <Stack.Screen name="plantillas" />
+        <Stack.Screen name="charlas" />
+        <Stack.Screen name="charla/[id]" />
+        <Stack.Screen name="panel" />
+        <Stack.Screen name="panel/[id]" />
       </Stack.Protected>
     </Stack>
   )

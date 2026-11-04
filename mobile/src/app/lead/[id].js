@@ -18,6 +18,7 @@ import {
   etiquetaProximo,
   fechaLocal,
   fechaProximoContacto,
+  nombreEventos,
   sirvePara,
   tieneProximoPaso,
   valoresDe,
@@ -31,6 +32,7 @@ import Pill from '../../components/Pill'
 import BotonesContacto from '../../components/BotonesContacto'
 import Hoja from '../../components/Hoja'
 import ActualizarEstado from '../../components/ActualizarEstado'
+import CharlasLead from '../../components/CharlasLead'
 import ElegirFechaHora, { HORA_VALIDA } from '../../components/ElegirFechaHora'
 import { Aviso, Boton, Campo, Chip } from '../../components/Formulario'
 
@@ -449,6 +451,12 @@ export default function TarjetaLead() {
               </Presionable>
             </View>
           </View>
+        )}
+
+        {config?.eventos_habilitado && (
+          <Bloque titulo={nombreEventos(config?.termino_evento)}>
+            <CharlasLead lead={lead} puedeEditar={puedeEditar} onCambio={cargarHistorial} />
+          </Bloque>
         )}
 
         {(lead.estado === 'ganado' || lead.estado === 'perdido') && cierre && (
