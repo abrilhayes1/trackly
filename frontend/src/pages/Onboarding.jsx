@@ -200,7 +200,7 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
         {/* progreso */}
         <div className="h-[3px] bg-border-tertiary">
           <div
-            className="h-full bg-accent rounded-full transition-all duration-400"
+            className="h-full bg-accent rounded-full transition-[width] duration-250 ease-(--ease-out)"
             style={{ width: `${listo ? 100 : (paso / PASOS.length) * 100}%` }}
           />
         </div>

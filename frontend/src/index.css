@@ -1,7 +1,11 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* curva para lo que aparece o responde a un toque: arranca rápido y frena suave (pautas de diseño,
+     docs/diseno/emil-design-eng.md) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #f7f6f2;
@@ -62,6 +66,49 @@
 
 body {
   background: var(--color-bg-app);
+}
+
+/* Movimiento (pautas de docs/diseno/emil-design-eng.md). Va fuera de las capas de Tailwind para que
+   valga en todos los botones aunque tengan sus propias clases de transición. */
+
+/* los botones se achican un poco al apretarlos: confirma que la app registró el clic */
+button:not(:disabled) {
+  transition-property: color, background-color, border-color, opacity, box-shadow, transform, translate, scale;
+  transition-duration: 160ms;
+  transition-timing-function: var(--ease-out);
+}
+button:not(:disabled):active {
+  scale: 0.97;
+}
+
+/* ventanas (nuevo lead, tarjeta del lead, recordatorio, importar): el fondo aparece con un fundido y
+   la ventana crece apenas desde 0,96; se cierran al instante */
+.ventana-fondo {
+  transition: opacity 200ms var(--ease-out);
+  @starting-style {
+    opacity: 0;
+  }
+}
+.ventana {
+  transition:
+    opacity 200ms var(--ease-out),
+    scale 200ms var(--ease-out);
+  @starting-style {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+/* quien pidió menos movimiento en su sistema: sin escalas, solo fundidos */
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled):active {
+    scale: none;
+  }
+  .ventana {
+    @starting-style {
+      scale: none;
+    }
+  }
 }
 
 /* Modo oscuro: los mismos nombres de color con otros valores. Lo activa el botón de la barra

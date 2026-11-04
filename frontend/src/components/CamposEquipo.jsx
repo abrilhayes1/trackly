@@ -49,7 +49,9 @@ export function Interruptor({ prendido, onCambiar, label, sub }) {
         {sub && <span className="block text-[11px] text-text-secondary mt-0.5">{sub}</span>}
       </span>
       <span className={`relative w-9 h-5 rounded-full shrink-0 transition-colors ${prendido ? 'bg-accent' : 'bg-border-secondary'}`}>
-        <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${prendido ? 'left-[18px]' : 'left-0.5'}`} />
+        <span
+          className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-200 ease-(--ease-out) ${prendido ? 'translate-x-4' : 'translate-x-0'}`}
+        />
       </span>
     </button>
   )

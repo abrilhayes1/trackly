@@ -108,14 +108,14 @@ export default function RecordatorioModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="ventana-fondo fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'var(--color-overlay)' }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onCerrar()
       }}
     >
       <div
-        className="bg-bg-primary rounded-2xl w-full max-w-105 max-h-[90vh] overflow-auto"
+        className="ventana bg-bg-primary rounded-2xl w-full max-w-105 max-h-[90vh] overflow-auto"
         style={{ boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2)' }}
       >
         <div className="flex items-start gap-3 px-5 py-4 border-b border-border-tertiary">

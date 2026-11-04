@@ -64,6 +64,19 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
+## Web: pautas de diseño (movimiento y letra)
+
+- Letra **Inter** también en la web (`@fontsource-variable/inter`, importada en `main.jsx`), igual
+  que la app mobile.
+- `index.css`: curva `--ease-out` (cubic-bezier(0.23, 1, 0.32, 1)); todos los botones se achican a
+  0,97 al apretarlos (160 ms); las ventanas (`.ventana-fondo` y `.ventana`, en nuevo lead, tarjeta,
+  recordatorio e importar) entran con fundido y desde 0,96 en 200 ms con `@starting-style`, y se
+  cierran al instante; con `prefers-reduced-motion` no hay escalas, solo fundidos. Estas reglas van
+  fuera de las capas de Tailwind para que ganen a las clases de cada botón.
+- Interruptor de Configuración con `translate` en vez de `left`; barras de progreso (importar,
+  onboarding) animan solo el ancho, 250 ms.
+- Las listas no se animan (se ven decenas de veces por día).
+
 ## App mobile (RF41 a RF44): etapa 1
 
 - Carpeta `mobile/`: Expo SDK 58 con Expo Router (`src/app`), JavaScript. Ver `mobile/LEEME.md`.

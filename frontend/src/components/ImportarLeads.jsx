@@ -191,12 +191,12 @@ export default function ImportarLeads({ rol, userId, onCerrar, onImportado }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="ventana-fondo fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ background: 'var(--color-overlay)' }}
       onClick={(e) => e.target === e.currentTarget && paso !== 'importando' && onCerrar()}
     >
       <div
-        className="bg-bg-primary rounded-2xl w-full max-w-[880px] max-h-[92vh] flex flex-col"
+        className="ventana bg-bg-primary rounded-2xl w-full max-w-[880px] max-h-[92vh] flex flex-col"
         style={{ boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2)' }}
       >
         <div className="flex items-start gap-3 px-6 py-4 border-b border-border-tertiary">
@@ -426,7 +426,10 @@ export default function ImportarLeads({ rol, userId, onCerrar, onImportado }) {
                 Importando {avance.toLocaleString('es-AR')} de {cuenta.ok.toLocaleString('es-AR')}...
               </div>
               <div className="h-2 rounded-full bg-bg-tertiary overflow-hidden max-w-md mx-auto">
-                <div className="h-full bg-accent transition-all" style={{ width: `${cuenta.ok ? (avance / cuenta.ok) * 100 : 0}%` }} />
+                <div
+                  className="h-full bg-accent transition-[width] duration-250 ease-(--ease-out)"
+                  style={{ width: `${cuenta.ok ? (avance / cuenta.ok) * 100 : 0}%` }}
+                />
               </div>
               <p className="text-xs text-text-tertiary mt-3">No cierres esta ventana hasta que termine.</p>
             </div>

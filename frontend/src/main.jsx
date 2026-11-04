@@ -1,5 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+// la misma letra que la app mobile (Inter), servida con la app
+import '@fontsource-variable/inter'
 import './index.css'
 
 const raiz = createRoot(document.getElementById('root'))
