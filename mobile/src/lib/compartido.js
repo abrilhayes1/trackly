@@ -6,3 +6,6 @@ export { fechaLocal, hhmm, estadoRecordatorio, recordatoriosDeLeads, ordenarReco
 export { etiquetaInteres } from '../../../frontend/src/lib/interes'
 export { numeroWhatsApp, iniciales } from '../../../frontend/src/lib/formato'
 export { enlaceWhatsApp } from '../../../frontend/src/lib/plantillas'
+export { etiquetaProximo, fechaProximoContacto } from '../../../frontend/src/lib/urgencia'
+export { valoresDe, completar, sirvePara, primerNombre } from '../../../frontend/src/lib/plantillas'
+export { detalleCierre, formatearNumero } from '../../../frontend/src/lib/cierre'

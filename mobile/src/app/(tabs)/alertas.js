@@ -16,6 +16,7 @@ import Icono from '../../components/Icono'
 import FilaLead from '../../components/FilaLead'
 import BotonesContacto from '../../components/BotonesContacto'
 import { PillInteres } from '../../components/Pill'
+import NuevoRecordatorio from '../../components/NuevoRecordatorio'
 
 function Titulo({ texto, cantidad, fondo, color }) {
   const { c } = useTema()
@@ -39,6 +40,7 @@ export default function Alertas() {
   const { leads, agenda, config, userId, cargando, recargar, recordarLead } = useSesion()
   const [marcando, setMarcando] = useState(null)
   const [error, setError] = useState(null)
+  const [nuevo, setNuevo] = useState(false)
   const { vencenHoy, porVencer, recordatorios } = lodeHoy({ leads, agenda, config, userId })
 
   const abrir = (lead) => {
@@ -73,9 +75,28 @@ export default function Alertas() {
       contentContainerStyle={{ padding: 20, paddingTop: arriba + 16, paddingBottom: 32 }}
       refreshControl={<RefreshControl refreshing={cargando} onRefresh={recargar} tintColor={c.acento} colors={[c.acento]} />}
     >
-      <Texto peso="negrita" tamano={26} style={{ letterSpacing: -0.5 }}>
-        Alertas de hoy
-      </Texto>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Texto peso="negrita" tamano={26} style={{ letterSpacing: -0.5 }}>
+          Alertas de hoy
+        </Texto>
+        <Presionable
+          onPress={() => setNuevo(true)}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 4,
+            backgroundColor: c.violetaFondo,
+            borderRadius: 999,
+            paddingHorizontal: 12,
+            paddingVertical: 8,
+          }}
+        >
+          <Icono nombre="mas" tamano={15} color={c.violetaTexto} grosor={2.4} />
+          <Texto peso="semi" tamano={14} color={c.violetaTexto}>
+            Recordatorio
+          </Texto>
+        </Presionable>
+      </View>
       <Texto tamano={14} color={c.texto2} style={{ marginTop: 4 }}>
         {resumen || 'Nada urgente por hoy'}
       </Texto>
@@ -190,6 +211,7 @@ export default function Alertas() {
           })}
         </>
       )}
+      <NuevoRecordatorio visible={nuevo} onCerrar={() => setNuevo(false)} />
     </ScrollView>
   )
 }

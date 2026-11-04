@@ -6,7 +6,8 @@ import Texto from './Texto'
 import Presionable from './Presionable'
 import Icono from './Icono'
 
-export default function BotonesContacto({ lead, conEmail = false, alto = 44 }) {
+// mensaje: { texto, asunto } de una plantilla (opcional); email: a cuál mandar si tiene varios
+export default function BotonesContacto({ lead, conEmail = false, alto = 44, mensaje, email }) {
   const { c, oscuro } = useTema()
   const wa = numeroWhatsApp(lead.telefono)
   const boton = { flex: 1, height: alto, borderRadius: 12, alignItems: 'center', justifyContent: 'center', gap: 4 }
@@ -32,15 +33,21 @@ export default function BotonesContacto({ lead, conEmail = false, alto = 44 }) {
       </Presionable>
       <Presionable
         disabled={!wa}
-        onPress={() => Linking.openURL(enlaceWhatsApp(wa, ''))}
+        onPress={() => Linking.openURL(enlaceWhatsApp(wa, mensaje?.texto || ''))}
         style={[boton, { backgroundColor: c.verdeFondo, borderColor: c.verdeBorde, borderWidth: 1 }]}
       >
         {contenido('whatsapp', 'WhatsApp', c.verdeTexto)}
       </Presionable>
       {conEmail && (
         <Presionable
-          disabled={!lead.email}
-          onPress={() => Linking.openURL(`mailto:${lead.email}`)}
+          disabled={!(email || lead.email)}
+          onPress={() => {
+            const partes = [
+              mensaje?.asunto && `subject=${encodeURIComponent(mensaje.asunto)}`,
+              mensaje?.texto && `body=${encodeURIComponent(mensaje.texto)}`,
+            ]
+            Linking.openURL(`mailto:${email || lead.email}${partes.some(Boolean) ? `?${partes.filter(Boolean).join('&')}` : ''}`)
+          }}
           style={[boton, { backgroundColor: c.fondo, borderColor: c.borde2, borderWidth: 1 }]}
         >
           {contenido('email', 'Email', c.texto)}

@@ -91,9 +91,17 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   "Ver los N", buscador del servidor), Alertas (vencen hoy con Llamar y WhatsApp, por vencer,
   recordatorios con ✓), tarjeta del lead (Llamar / WhatsApp / Email, consulta, interés editable,
   destacado, último contacto, recordatorio, historial), Perfil mínimo y cerrar sesión.
-- Falta: "Actualizar estado" (registrar contacto, ganado y perdido con los campos del equipo),
-  agregar nota, "+" de lead nuevo (Mis leads) y "+ Recordatorio" (Alertas), Perfil completo
-  (preferencias, tema, contraseña), notificaciones (RF43), login con Google y el APK.
+- Etapa 2 (hecha): tarjeta completa: "Actualizar estado" en hoja que sube desde abajo (registrar
+  contacto con próximo contacto; ganado con los campos del equipo; perdido con motivo), "Agregar
+  nota", plantillas para WhatsApp y email, elegir a qué email escribir, agregar y quitar emails,
+  programar o quitar el recordatorio, aviso "Sin próximo contacto programado", ver el cierre,
+  reclamar un vencido y reactivar un archivado. Botón "+" de lead nuevo en Mis leads y
+  "+ Recordatorio" en Alertas. Hoja (`components/Hoja.js`): fundido del fondo, entrada con curva de
+  cajón, se cierra tocando afuera o deslizando hacia abajo (también con un movimiento rápido).
+  Preferencias del celular en AsyncStorage (`lib/preferencias.js`).
+- Pedido nuevo: **toda la app menos Estadísticas** en mobile. Falta: Agenda, Archivo, Casos exitosos,
+  Cerrados perdidos, Charlas, Panel del equipo, Configuración, Perfil completo, notificaciones
+  (RF43), login con Google y el APK.
 - `.env` de la app: `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_API_URL`.
 - El chequeo de GitHub tiene un job "Mobile": formato y compilación (versión web).
 

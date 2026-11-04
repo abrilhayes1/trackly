@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import { supabase } from './supabase'
 import { apiFetch } from './api'
 import { fechaLocal } from './compartido'
+import { PREFERENCIAS_INICIALES, guardarPreferencias, leerPreferencias } from './preferencias'
 
 const SesionContext = createContext(null)
 export const useSesion = () => useContext(SesionContext)
@@ -18,6 +19,11 @@ export function SesionProvider({ children }) {
   const [error, setError] = useState(null)
   // leads abiertos desde el buscador que no están en la lista de trabajo (por ejemplo, ya cerrados)
   const [otros, setOtros] = useState({})
+  const [preferencias, setPreferencias] = useState(PREFERENCIAS_INICIALES)
+
+  useEffect(() => {
+    leerPreferencias().then(setPreferencias)
+  }, [])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSesion(data.session ?? null))
@@ -74,6 +80,13 @@ export function SesionProvider({ children }) {
     buscarLead: (id) => leads.find((l) => l.id === id) || otros[id],
     recordarLead: (lead) => setOtros((actuales) => ({ ...actuales, [lead.id]: lead })),
     cerrarSesion: () => supabase.auth.signOut(),
+    preferencias,
+    cambiarPreferencias: (cambios) => {
+      const nuevas = { ...preferencias, ...cambios }
+      setPreferencias(nuevas)
+      guardarPreferencias(nuevas)
+    },
+    agregarLead: (lead) => setLeads((actuales) => [lead, ...actuales]),
   }
   return <SesionContext.Provider value={valor}>{children}</SesionContext.Provider>
 }
