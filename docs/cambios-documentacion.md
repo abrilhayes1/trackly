@@ -61,6 +61,16 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 > coincide. Un contacto puede tener varios emails (uno principal y hasta 10 más): se agregan y quitan
 > desde su tarjeta, y al enviar un correo se elige a cuál.
 
+### RF51 — Página de bienvenida *(nuevo, sección 4.1 Acceso y equipo)*
+> El sistema debe mostrar, a quien todavía no ingresó, una página de bienvenida que explique qué hace
+> Trackly: cómo prioriza los contactos, cómo avisa antes de que venzan, el contacto por WhatsApp con
+> plantillas, el panel del líder, la adaptación a cada rubro, la app mobile y las estadísticas, con
+> demostraciones animadas de la propia interfaz y tres datos de la encuesta (Anexo A). Desde ahí se
+> crea una cuenta o se ingresa. Quien ya ingresó alguna vez desde ese navegador va directo al login.
+
+- Prioridad baja, Etapa 2. Se adapta al celular y al modo oscuro, y respeta la opción del sistema
+  de "reducir movimiento".
+
 ## Requerimientos que cambian
 
 | Dónde | Antes | Ahora |
@@ -68,8 +78,9 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 | **RNF04** (Rendimiento) | Cargar en menos de 2 s con hasta 5.000 leads | Mismo objetivo; se explica cómo se cumple: la app descarga **una sola lista de trabajo** (leads activos y vencidos) y la comparten todas las pantallas. Se vuelve a pedir solo cuando algo cambia o si pasó más de un minuto. Los ganados y perdidos no se descargan para los contadores: se cuentan en la base. Estadísticas y Reportes piden el historial con solo las columnas que usan, y solo al abrirse. En la base, las reglas de seguridad (RLS) se calculan una vez por consulta y no por fila, y hay índices en las tablas más consultadas (en una prueba con 10.000 leads, la consulta pasó de 21 ms a 1 ms). El backend valida la sesión con la clave pública del proyecto, sin consultar a Supabase en cada pedido, y los contadores de charlas se cuentan en la base. Casos exitosos y Cerrados perdidos se cargan de a 30 ("Ver más"), y cada pantalla se descarga recién la primera vez que se abre. |
 | **RNF01** (Seguridad) | Datos aislados con RLS; sesiones con Supabase Auth | Igual, más **cierre de sesión por inactividad**: después de 8 horas sin usar la app (también si se cerró el navegador) hay que volver a ingresar. Supabase deja la sesión abierta sin límite y su límite por tiempo es de los planes pagos, por eso lo controla la app. |
 | **RNF03** (Seguridad) | Permisos en backend y base; HTTPS | Igual, más **encabezados de seguridad** en todas las respuestas (sin iframes, sin adivinar tipos de archivo, HTTPS obligatorio) y **límite de pedidos**: 1.000 por minuto por IP en la API y 10 fotos por minuto. Los errores técnicos de la base no llegan al usuario: se muestran mensajes claros en castellano. |
-| **RNF12** (Mantenibilidad) | Monorepo, componentes reutilizables y Git | Igual, más **tests automáticos** (10 del backend con el test runner de Node y 16 del frontend con Vitest: urgencia, alertas, contadores, agenda, reportes, estadísticas, validaciones, sesión, límite de pedidos), **formato unificado** con Prettier y un **chequeo automático en GitHub Actions** que en cada push corre tests, lint, formato y build. |
+| **RNF12** (Mantenibilidad) | Monorepo, componentes reutilizables y Git | Igual, más **tests automáticos** (13 del backend con el test runner de Node y 44 del frontend con Vitest: urgencia, alertas, contadores, agenda, reportes, estadísticas, comparación entre asesores, validaciones, sesión, límite de pedidos, historial y mensajes de error), **formato unificado** con Prettier y un **chequeo automático en GitHub Actions** que en cada push corre tests, lint, formato y build de la web y el backend, y compila la app mobile. La app mobile **reutiliza la lógica de la web** (urgencia, alertas, agenda, plantillas): el mismo código decide qué está por vencer en la compu y en el celular. |
 | **RNF11** (Responsividad) | La web se adapta de 360 a 1920 px | La web es de escritorio: funciona desde 1024 px (si la ventana es más angosta, aparece una barra para desplazarse). El celular se cubre con la app mobile (RF41 a RF44). |
+| **RNF07** (Usabilidad) | Interfaz clara y consistente | Igual, más un **sistema de diseño común** a la web y la app: los mismos colores (claro y oscuro), la misma letra (**Inter**) y las mismas etiquetas. El movimiento sigue pautas de diseño de interfaces (Emil Kowalski e Impeccable): los botones responden al tocarlos, las ventanas aparecen con una transición corta, las animaciones duran menos de 300 ms y, si la persona pidió "reducir movimiento" en su sistema, no hay escalas ni desplazamientos. |
 | **RF37** (Estadísticas) | Dashboard con leads por origen, interés, evolución semanal y tasa de contacto | Igual, más los indicadores de ganados y **tasa de conversión** (ganados sobre cerrados), y filtros por período (30 días, 90 días o todo) y por asesor (líder). |
 | **RF17 / RF18 / RF36** (Vencido, reclamo y archivo) | — | La vista **Archivo** tiene dos pestañas: *Vencidos* (se reclaman, con confirmación) y *Archivados* (se reactivan). |
 | **RF05** (Onboarding) | 5 pasos | Mismos 5 pasos. El paso 1 pide además el nombre de la persona y el paso 2 pide también el aviso previo y los días hasta pasar a Archivo. |
@@ -109,10 +120,15 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 | Frontend web | React + Vite + Tailwind CSS | Igual, **publicado en Vercel** |
 | Backend | Node.js + Express en Railway | Igual (Railway) |
 | Base de datos | Supabase | Igual; además **pg_cron** para el proceso nocturno de vencimiento (CU16) y **Supabase Storage** para las fotos de perfil (la app las achica a unos 30 KB y las sube a través del backend, como pide RNF02) |
+| App mobile | React Native + Expo | Igual: **Expo SDK 58 con Expo Router**, para Android (y iPhone con Expo Go). Usa el mismo backend y la misma base que la web |
+| Diseño y animación | — | Letra **Inter** en web y app; **Motion** (ex Framer Motion) para las animaciones de la página de bienvenida; animaciones nativas de React Native en la app |
 | Integraciones | WhatsApp, Gmail API, Outlook, Google auth | WhatsApp (wa.me) y Gmail (enlace para redactar); Google OAuth funcionando. Outlook y Gmail API quedan como mejora. |
 
 ## Pendientes que siguen en la documentación
 
 - **RF28** — Email diario a las 8:00 (necesita SMTP).
 - **RF02** — Envío del email de invitación (necesita SMTP).
-- **RF41 a RF44** — App mobile (React Native + Expo, APK para Android).
+- **RF43** — Notificaciones de la app mobile (resumen de las 8:00, "vence hoy" y recordatorio 15 minutos antes).
+- **RF41** — Ingreso con Google en la app mobile (con email y contraseña ya funciona).
+- **APK** de la app mobile para instalarla en Android.
+- **Importar desde Excel** en la app mobile (en la web ya funciona).
