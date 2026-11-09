@@ -64,6 +64,22 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
+## Landing (página de bienvenida) con Motion
+
+- `pages/Landing.jsx` + `components/landing/` (Demos.jsx, Piezas.jsx). Se ve antes del login para
+  quien nunca entró desde ese navegador (marca `trackly-ya-ingreso` en localStorage al iniciar
+  sesión; `?ingresar` en la dirección también la saltea). "Ingresar" y "Crear cuenta gratis" llevan
+  al login (el email de la portada queda cargado en "Crear cuenta"); el login tiene "← Conocé Trackly".
+- Se carga aparte (lazy): Motion (`motion`, 14.x) solo se descarga en la landing.
+- Secciones: portada (título con la palabra que cambia: lead → paciente → candidato → alumno, email
+  y botón), escena principal (Mis leads con un lead que pasa de "Por vencer" a "Al día", la tarjeta,
+  la alerta y cursores de compañeros), 3 cifras de la encuesta de la tesis (Anexo A), 6 funciones en
+  zigzag con su demostración animada, estadísticas, el recorrido de un lead y el cierre.
+- Pautas: un movimiento principal, demostraciones que solo corren mientras se ven, todo quieto con
+  "reducir movimiento" (`MotionConfig reducedMotion="user"`), sin etiquetas sobre los títulos, sin
+  textos con degradé; se adapta al celular y al modo oscuro.
+- `index.css`: color del texto seleccionado, del cursor de escritura y del contorno de foco.
+
 ## Web: pautas de diseño (movimiento y letra)
 
 - Letra **Inter** también en la web (`@fontsource-variable/inter`, importada en `main.jsx`), igual

@@ -14,6 +14,17 @@ const PanelLider = lazy(() => import('./pages/PanelLider'))
 const Charlas = lazy(() => import('./pages/Charlas'))
 const Estadisticas = lazy(() => import('./pages/Estadisticas'))
 const Perfil = lazy(() => import('./pages/Perfil'))
+const Landing = lazy(() => import('./pages/Landing'))
+
+// quien ya entró alguna vez desde este navegador va directo al login; el resto ve antes la landing
+const YA_INGRESO = 'trackly-ya-ingreso'
+function yaIngreso() {
+  try {
+    return localStorage.getItem(YA_INGRESO) === '1' || new URLSearchParams(window.location.search).has('ingresar')
+  } catch {
+    return false
+  }
+}
 import CambioContrasena from './components/CambioContrasena'
 import CampoContrasena from './components/CampoContrasena'
 import Sidebar from './components/Sidebar'
@@ -47,6 +58,7 @@ function App() {
   // volvió del email de "olvidé mi contraseña": antes de entrar elige una nueva
   const [recuperando, setRecuperando] = useState(false)
   const [mensajeLogin, setMensajeLogin] = useState(null)
+  const [verLogin, setVerLogin] = useState(yaIngreso)
   // la pantalla con la que abre la app la elige cada uno en Mi perfil
   const [vista, setVista] = useState(pantallaInicial)
   const [busqueda, setBusqueda] = useState('')
@@ -91,7 +103,14 @@ function App() {
       // una sesión vencida guardada no se usa (getSession la cierra)
       if (session && sesionVencida()) return
       // ingreso nuevo: arranca a contar desde ahora; al salir se borra la marca
-      if (evento === 'SIGNED_IN') marcarActividad()
+      if (evento === 'SIGNED_IN') {
+        marcarActividad()
+        try {
+          localStorage.setItem(YA_INGRESO, '1')
+        } catch {
+          // sin almacenamiento, la próxima vez se ve la landing: no pasa nada
+        }
+      }
       if (evento === 'SIGNED_OUT') {
         olvidarActividad()
         setPerfil(undefined)
@@ -407,11 +426,39 @@ function App() {
     )
   }
 
+  if (!verLogin) {
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-bg-secondary" />}>
+        <Landing
+          onIngresar={() => {
+            setModoLogin('ingresar')
+            setVerLogin(true)
+          }}
+          onCrearCuenta={(correo) => {
+            if (correo) setEmail(correo)
+            setModoLogin('crear')
+            setVerLogin(true)
+          }}
+        />
+      </Suspense>
+    )
+  }
+
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4"
+      className="min-h-screen flex flex-col items-center justify-center p-4"
       style={{ background: 'linear-gradient(135deg, var(--color-purple-bg) 0%, var(--color-bg-secondary) 60%)' }}
     >
+      <button
+        type="button"
+        onClick={() => {
+          setMensajeLogin(null)
+          setVerLogin(false)
+        }}
+        className="self-start sm:absolute sm:top-5 sm:left-5 text-[13px] text-text-secondary hover:text-text-primary px-2 py-1"
+      >
+        ← Conocé Trackly
+      </button>
       <form
         onSubmit={iniciarSesion}
         className="bg-bg-primary border border-border-tertiary rounded-2xl w-full max-w-sm px-8 py-10"

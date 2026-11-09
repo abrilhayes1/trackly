@@ -68,6 +68,20 @@ body {
   background: var(--color-bg-app);
 }
 
+/* Lo que dibuja el navegador también lleva los colores de Trackly: texto seleccionado, cursor de
+   escritura y el contorno al moverse con el teclado */
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+input,
+textarea {
+  caret-color: var(--color-accent);
+}
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 /* Movimiento (pautas de docs/diseno/emil-design-eng.md). Va fuera de las capas de Tailwind para que
    valga en todos los botones aunque tengan sus propias clases de transición. */
 
