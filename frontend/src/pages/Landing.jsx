@@ -1,9 +1,10 @@
 // Landing (la página de bienvenida antes de entrar): qué hace Trackly, con la interfaz real en
-// miniatura y animaciones de Motion. El movimiento principal es la escena de arriba (un lead que se
+// miniatura y animaciones de Motion. Pide crear la cuenta solo arriba y al final. El movimiento
+// principal es la escena de arriba (un lead que se
 // atiende y pasa a "Al día"); cada función tiene su propia demostración. Con "reducir movimiento"
 // del sistema, todo queda quieto (MotionConfig reducedMotion="user").
-import { useEffect, useState } from 'react'
-import { AnimatePresence, MotionConfig, motion, useReducedMotion, useScroll, useMotionValueEvent } from 'motion/react'
+import { useState } from 'react'
+import { MotionConfig, useScroll, useMotionValueEvent } from 'motion/react'
 import {
   DemoCelular,
   DemoContacta,
@@ -16,9 +17,6 @@ import {
   NumeroQueSube,
   Recorrido,
 } from '../components/landing/Demos'
-import { Icono } from '../components/landing/Piezas'
-
-const PALABRAS = ['lead', 'paciente', 'candidato', 'alumno']
 
 const FUNCIONES = [
   {
@@ -64,31 +62,6 @@ const CIFRAS = [
   [62, 'dedica más de una hora por semana solo a ordenar información.'],
   [100, 'valoró con 4 o 5 puntos que la herramienta priorice sola.'],
 ]
-
-function PalabraQueCambia() {
-  const [i, setI] = useState(0)
-  const quieto = useReducedMotion()
-  useEffect(() => {
-    if (quieto) return
-    const id = setInterval(() => setI((n) => (n + 1) % PALABRAS.length), 2200)
-    return () => clearInterval(id)
-  }, [quieto])
-  return (
-    <span className="relative inline-flex text-accent-text">
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
-          key={PALABRAS[i]}
-          initial={{ opacity: 0, y: '0.35em', filter: 'blur(6px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, y: '-0.35em', filter: 'blur(6px)' }}
-          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        >
-          {PALABRAS[i]}
-        </motion.span>
-      </AnimatePresence>
-    </span>
-  )
-}
 
 function BotonPrincipal({ children, onClick, type = 'button', className = '' }) {
   return (
@@ -164,7 +137,7 @@ export default function Landing({ onIngresar, onCrearCuenta }) {
           <section className="max-w-[1160px] mx-auto px-5 md:px-8 pt-14 md:pt-24 pb-16 md:pb-24">
             <div className="text-center max-w-[860px] mx-auto">
               <h1 className="text-[40px] sm:text-[58px] lg:text-[76px] leading-[1.02] font-semibold tracking-[-0.035em] text-balance">
-                Que ningún <PalabraQueCambia /> se enfríe.
+                Que ningún <span className="text-accent-text">lead</span> se enfríe.
               </h1>
               <p className="mt-6 text-[17px] sm:text-[19px] leading-relaxed text-text-secondary max-w-[640px] mx-auto text-pretty">
                 Trackly te muestra cada mañana a quién contactar primero, te avisa antes de que un contacto venza y le da al líder la foto
@@ -217,13 +190,6 @@ export default function Landing({ onIngresar, onCrearCuenta }) {
                 <div className={i % 2 ? 'md:order-2' : ''}>
                   <h2 className="text-[32px] sm:text-[42px] leading-[1.05] font-semibold tracking-[-0.035em] text-balance">{titulo}</h2>
                   <p className="mt-5 text-[17px] leading-relaxed text-text-secondary max-w-[480px] text-pretty">{texto}</p>
-                  <button
-                    onClick={() => onCrearCuenta('')}
-                    className="group mt-7 inline-flex items-center gap-2 text-[15px] font-semibold text-accent-text"
-                  >
-                    Crear cuenta gratis
-                    <Icono nombre="flecha" className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
-                  </button>
                 </div>
                 <div className={i % 2 ? 'md:order-1' : ''}>
                   <Demo />
@@ -277,9 +243,6 @@ export default function Landing({ onIngresar, onCrearCuenta }) {
             <span className="flex gap-5">
               <button onClick={onIngresar} className="hover:text-text-primary">
                 Ingresar
-              </button>
-              <button onClick={() => onCrearCuenta('')} className="hover:text-text-primary">
-                Crear cuenta
               </button>
             </span>
           </div>
