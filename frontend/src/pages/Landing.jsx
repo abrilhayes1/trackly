@@ -4,7 +4,7 @@
 // atiende y pasa a "Al día"); cada función tiene su propia demostración. Con "reducir movimiento"
 // del sistema, todo queda quieto (MotionConfig reducedMotion="user").
 import { useState } from 'react'
-import { MotionConfig, useScroll, useMotionValueEvent } from 'motion/react'
+import { AnimatePresence, MotionConfig, motion, useScroll, useMotionValueEvent } from 'motion/react'
 import {
   DemoCelular,
   DemoContacta,
@@ -18,44 +18,67 @@ import {
   Recorrido,
 } from '../components/landing/Demos'
 import Logo from '../components/Logo'
+import Calculadora from '../components/landing/Calculadora'
+import Preguntas from '../components/landing/Preguntas'
 
-const FUNCIONES = [
-  {
-    titulo: 'Sabé a quién contactar hoy',
-    texto:
-      'Tus contactos se ordenan solos por urgencia: los que están por vencer, los que todavía nadie contactó y los que se quedaron sin próximo paso. Abrís Trackly y ya sabés por dónde empezar.',
-    Demo: DemoPrioriza,
-  },
-  {
-    titulo: 'Enterate antes de que sea tarde',
-    texto:
-      'Cada equipo define en cuántos días vence un contacto. Trackly avisa unos días antes y, si nadie lo atiende, lo pasa a una lista para que cualquiera del equipo lo pueda reclamar.',
-    Demo: DemoVencimiento,
-  },
-  {
-    titulo: 'Contactá en un toque',
-    texto:
-      'WhatsApp, llamada o email con un clic, y plantillas que se completan solas con el nombre de cada persona. Cada contacto queda registrado en su historial.',
-    Demo: DemoContacta,
-  },
-  {
-    titulo: 'Todo el equipo a la vista',
-    texto:
-      'El líder ve en un panel cuántos contactos tiene cada asesor, cuántos están por vencer y cuáles llegaron sin asignar, y los reparte en un clic.',
-    Demo: DemoEquipo,
-  },
-  {
-    titulo: 'Se adapta a tu rubro',
-    texto:
-      'Leads, pacientes, alumnos o candidatos: elegís cómo se llaman tus contactos, de dónde llegan, en cuántos días vencen y qué datos se cargan al cerrar una venta.',
-    Demo: DemoRubro,
-  },
-  {
-    titulo: 'También en el celular',
-    texto:
-      'La app te muestra lo urgente del día y te avisa cuando un contacto está por vencer o se acerca un recordatorio. Registrás el contacto ahí mismo, sin volver a la compu.',
-    Demo: DemoCelular,
-  },
+// "¿Por dónde querés empezar?": lo que le sirve a cada uno
+const FUNCIONES = {
+  asesor: [
+    {
+      titulo: 'Sabé a quién contactar hoy',
+      texto:
+        'Tus contactos se ordenan solos por urgencia: los que están por vencer, los que todavía nadie contactó y los que se quedaron sin próximo paso. Abrís Trackly y ya sabés por dónde empezar.',
+      Demo: DemoPrioriza,
+    },
+    {
+      titulo: 'Enterate antes de que sea tarde',
+      texto:
+        'Trackly te avisa unos días antes de que un contacto venza, y te recuerda a quién llamar y a qué hora. Nada depende de tu memoria ni de una planilla aparte.',
+      Demo: DemoVencimiento,
+    },
+    {
+      titulo: 'Contactá en un toque',
+      texto:
+        'WhatsApp, llamada o email con un clic, y plantillas que se completan solas con el nombre de cada persona. Cada contacto queda registrado en su historial.',
+      Demo: DemoContacta,
+    },
+    {
+      titulo: 'También en el celular',
+      texto:
+        'La app te muestra lo urgente del día y te avisa cuando un contacto está por vencer o se acerca un recordatorio. Registrás el contacto ahí mismo, sin volver a la compu.',
+      Demo: DemoCelular,
+    },
+  ],
+  lider: [
+    {
+      titulo: 'Todo el equipo a la vista',
+      texto:
+        'Ves en un panel cuántos contactos tiene cada asesor, cuántos están por vencer y cuáles llegaron sin asignar, y los repartís en un clic.',
+      Demo: DemoEquipo,
+    },
+    {
+      titulo: 'Ningún contacto se pierde',
+      texto:
+        'Vos definís en cuántos días vence un contacto. Si un asesor no llega a tiempo, el lead pasa a una lista para que cualquiera del equipo lo reclame.',
+      Demo: DemoVencimiento,
+    },
+    {
+      titulo: 'Medí lo que importa',
+      texto: 'Contactos por origen, tasa de conversión, por qué se pierden y cómo rinde cada asesor, actualizado al momento.',
+      Demo: DemoEstadisticas,
+    },
+    {
+      titulo: 'Se adapta a tu rubro',
+      texto:
+        'Leads, pacientes, alumnos o candidatos: elegís cómo se llaman tus contactos, de dónde llegan, en cuántos días vencen y qué datos se cargan al cerrar una venta.',
+      Demo: DemoRubro,
+    },
+  ],
+}
+
+const ROLES = [
+  ['asesor', 'Soy asesor'],
+  ['lider', 'Soy líder'],
 ]
 
 const CIFRAS = [
@@ -63,6 +86,33 @@ const CIFRAS = [
   [62, 'dedica más de una hora por semana solo a ordenar información.'],
   [100, 'valoró con 4 o 5 puntos que la herramienta priorice sola.'],
 ]
+
+function SelectorRol({ rol, onCambio }) {
+  return (
+    <div role="tablist" aria-label="¿Por dónde querés empezar?" className="inline-flex p-1 rounded-full bg-bg-tertiary">
+      {ROLES.map(([valor, texto]) => (
+        <button
+          key={valor}
+          role="tab"
+          aria-selected={rol === valor}
+          onClick={() => onCambio(valor)}
+          className={`relative px-5 sm:px-6 h-11 rounded-full text-[15px] font-semibold transition-colors duration-200 ${
+            rol === valor ? 'text-white' : 'text-text-secondary hover:text-text-primary'
+          }`}
+        >
+          {rol === valor && (
+            <motion.span
+              layoutId="rol-elegido"
+              className="absolute inset-0 rounded-full bg-accent"
+              transition={{ type: 'spring', duration: 0.45, bounce: 0.15 }}
+            />
+          )}
+          <span className="relative">{texto}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
 
 function BotonPrincipal({ children, onClick, type = 'button', className = '' }) {
   return (
@@ -107,6 +157,7 @@ function FormularioRegistro({ onCrearCuenta, id }) {
 export default function Landing({ onIngresar, onCrearCuenta }) {
   const { scrollY } = useScroll()
   const [conBorde, setConBorde] = useState(false)
+  const [rol, setRol] = useState('asesor')
   useMotionValueEvent(scrollY, 'change', (y) => setConBorde(y > 8))
 
   return (
@@ -116,7 +167,18 @@ export default function Landing({ onIngresar, onCrearCuenta }) {
           className={`sticky top-0 z-30 bg-bg-secondary border-b transition-colors duration-200 ${conBorde ? 'border-border-tertiary' : 'border-transparent'}`}
         >
           <div className="max-w-[1160px] mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
-            <Logo alto="h-7 sm:h-8" />
+            <Logo alto="h-6 sm:h-8" />
+            <div className="hidden md:flex items-center gap-7 text-[14px] text-text-secondary">
+              <a href="#funciones" className="hover:text-text-primary">
+                Funciones
+              </a>
+              <a href="#calculadora" className="hover:text-text-primary">
+                Calculadora
+              </a>
+              <a href="#preguntas" className="hover:text-text-primary">
+                Preguntas
+              </a>
+            </div>
             <nav className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={onIngresar}
@@ -124,7 +186,7 @@ export default function Landing({ onIngresar, onCrearCuenta }) {
               >
                 Ingresar
               </button>
-              <BotonPrincipal onClick={() => onCrearCuenta('')} className="h-10 px-4 text-[14px]">
+              <BotonPrincipal onClick={() => onCrearCuenta('')} className="h-10 px-3.5 sm:px-4 text-[14px] whitespace-nowrap">
                 <span>
                   Crear cuenta<span className="hidden sm:inline"> gratis</span>
                 </span>
@@ -184,32 +246,49 @@ export default function Landing({ onIngresar, onCrearCuenta }) {
             </div>
           </section>
 
-          {/* funciones, en zigzag */}
-          <section className="max-w-[1160px] mx-auto px-5 md:px-8 py-20 md:py-28 flex flex-col gap-24 md:gap-32">
-            {FUNCIONES.map(({ titulo, texto, Demo }, i) => (
-              <article key={titulo} className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
-                <div className={i % 2 ? 'md:order-2' : ''}>
-                  <h2 className="text-[32px] sm:text-[42px] leading-[1.05] font-semibold tracking-[-0.035em] text-balance">{titulo}</h2>
-                  <p className="mt-5 text-[17px] leading-relaxed text-text-secondary max-w-[480px] text-pretty">{texto}</p>
-                </div>
-                <div className={i % 2 ? 'md:order-1' : ''}>
-                  <Demo />
-                </div>
-              </article>
-            ))}
+          {/* funciones, según quién sos */}
+          <section id="funciones" className="max-w-[1160px] mx-auto px-5 md:px-8 pt-20 md:pt-28 pb-8 scroll-mt-16">
+            <div className="flex flex-col items-center text-center gap-6">
+              <h2 className="text-[32px] sm:text-[42px] leading-[1.05] font-semibold tracking-[-0.035em] text-balance">
+                ¿Por dónde querés empezar?
+              </h2>
+              <SelectorRol rol={rol} onCambio={setRol} />
+            </div>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={rol}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8, transition: { duration: 0.15 } }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="mt-16 md:mt-20 flex flex-col gap-24 md:gap-32"
+              >
+                {FUNCIONES[rol].map(({ titulo, texto, Demo }, i) => (
+                  <article key={titulo} className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+                    <div className={i % 2 ? 'md:order-2' : ''}>
+                      <h3 className="text-[32px] sm:text-[42px] leading-[1.05] font-semibold tracking-[-0.035em] text-balance">{titulo}</h3>
+                      <p className="mt-5 text-[17px] leading-relaxed text-text-secondary max-w-[480px] text-pretty">{texto}</p>
+                    </div>
+                    <div className={i % 2 ? 'md:order-1' : ''}>
+                      <Demo />
+                    </div>
+                  </article>
+                ))}
+              </motion.div>
+            </AnimatePresence>
           </section>
 
-          {/* estadísticas */}
-          <section className="max-w-[1160px] mx-auto px-5 md:px-8">
+          {/* calculadora */}
+          <section id="calculadora" className="max-w-[1160px] mx-auto px-5 md:px-8 pt-20 md:pt-28 scroll-mt-16">
             <div className="rounded-[28px] bg-bg-tertiary px-6 sm:px-10 py-12 sm:py-16">
-              <div className="max-w-[620px]">
-                <h2 className="text-[32px] sm:text-[42px] leading-[1.05] font-semibold tracking-[-0.035em]">Medí lo que importa.</h2>
-                <p className="mt-5 text-[17px] leading-relaxed text-text-secondary text-pretty">
-                  Contactos por origen, tasa de conversión, por qué se pierden y cómo rinde cada asesor, actualizado al momento.
-                </p>
-              </div>
+              <h2 className="text-[32px] sm:text-[42px] leading-[1.05] font-semibold tracking-[-0.035em] max-w-[640px] text-balance">
+                ¿Cuántas oportunidades se te escapan?
+              </h2>
+              <p className="mt-4 text-[17px] leading-relaxed text-text-secondary max-w-[560px] text-pretty">
+                Movelo con tus números y fijate cuánto se pierde solo por no llegar a tiempo.
+              </p>
               <div className="mt-10">
-                <DemoEstadisticas />
+                <Calculadora />
               </div>
             </div>
           </section>
@@ -222,6 +301,12 @@ export default function Landing({ onIngresar, onCrearCuenta }) {
             <div className="mt-14 max-w-[900px] mx-auto">
               <Recorrido />
             </div>
+          </section>
+
+          {/* preguntas frecuentes */}
+          <section id="preguntas" className="max-w-[860px] mx-auto px-5 md:px-8 pb-20 md:pb-28 scroll-mt-16">
+            <h2 className="text-[32px] sm:text-[42px] leading-[1.05] font-semibold tracking-[-0.035em] mb-10">Preguntas frecuentes</h2>
+            <Preguntas />
           </section>
 
           {/* cierre */}

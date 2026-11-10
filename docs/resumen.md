@@ -87,6 +87,12 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   y botón), escena principal (Mis leads con un lead que pasa de "Por vencer" a "Al día", la tarjeta,
   la alerta y cursores de compañeros), 3 cifras de la encuesta de la tesis (Anexo A), 6 funciones en
   zigzag con su demostración animada, estadísticas, el recorrido de un lead y el cierre.
+- Rearmada con ideas de la landing de Tecnom: "¿Por dónde querés empezar?" con "Soy asesor / Soy
+  líder" (cada uno ve sus 4 funciones; la pastilla elegida se desliza con `layoutId`), calculadora
+  "¿Cuántas oportunidades se te escapan?" (`components/landing/Calculadora.jsx`: leads por mes, % sin
+  seguimiento y % de cierre; dice que es una estimación) y preguntas frecuentes
+  (`components/landing/Preguntas.jsx`, se abren de a una). La barra tiene links a Funciones,
+  Calculadora y Preguntas (en la compu). "Crear cuenta" solo arriba y al final.
 - Pautas: un movimiento principal, demostraciones que solo corren mientras se ven, todo quieto con
   "reducir movimiento" (`MotionConfig reducedMotion="user"`), sin etiquetas sobre los títulos, sin
   textos con degradé; se adapta al celular y al modo oscuro.

@@ -124,6 +124,13 @@ button:not(:disabled):active {
   }
 }
 
+/* los links de la landing (Funciones, Calculadora, Preguntas) bajan con un desplazamiento suave */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 /* quien pidió menos movimiento en su sistema: sin escalas, solo fundidos */
 @media (prefers-reduced-motion: reduce) {
   button:not(:disabled):active {

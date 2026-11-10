@@ -597,7 +597,7 @@ export function DemoEstadisticas() {
   const visible = useInView(ref, { once: true, amount: 0.4 })
   const max = Math.max(...ORIGENES.map(([, v]) => v))
   return (
-    <div ref={ref} className="grid sm:grid-cols-[1.4fr_1fr] gap-4" aria-hidden="true">
+    <div ref={ref} className="flex flex-col gap-4" aria-hidden="true">
       <div className="bg-bg-primary border border-border-tertiary rounded-2xl p-5">
         <div className="text-[13px] font-semibold text-text-primary">Leads por origen</div>
         <div className="flex items-end gap-3 h-[160px] mt-5 border-b border-border-tertiary">
@@ -622,7 +622,7 @@ export function DemoEstadisticas() {
           ))}
         </div>
       </div>
-      <div className="grid gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <div className="bg-bg-primary border border-border-tertiary rounded-2xl p-5">
           <div className="text-[12px] text-text-secondary">Tasa de conversión</div>
           <div className="text-[40px] font-semibold text-text-primary leading-none mt-2">
