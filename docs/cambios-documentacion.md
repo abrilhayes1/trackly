@@ -71,6 +71,12 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 - Prioridad baja, Etapa 2. Se adapta al celular y al modo oscuro, y respeta la opción del sistema
   de "reducir movimiento".
 
+### RF52 — Términos y condiciones y política de privacidad *(nuevo, sección 4.1 Acceso y equipo)*
+
+- Dos páginas públicas, sin iniciar sesión: `/?legal=terminos` y `/?legal=privacidad` (`pages/Legal.jsx`). Se enlazan desde el registro y desde el pie de la landing.
+- La política sigue la **Ley 25.326**: el equipo es responsable de los datos de sus contactos y Trackly es encargado del tratamiento; dice dónde se guardan (Supabase, Vercel, Railway; puede haber transferencia internacional), cómo se protegen, cuánto tiempo se guardan, los derechos de acceso, rectificación y supresión, y el aviso de la AAIP como órgano de control.
+- Para crear la cuenta hay que tildar la aceptación; con Google se avisa que continuar implica aceptarlos.
+
 ## Requerimientos que cambian
 
 | Dónde | Antes | Ahora |
@@ -84,7 +90,7 @@ Lista de lo que hoy hace Trackly distinto o de más respecto de `docs/documentac
 | **RF37** (Estadísticas) | Dashboard con leads por origen, interés, evolución semanal y tasa de contacto | Igual, más los indicadores de ganados y **tasa de conversión** (ganados sobre cerrados), y filtros por período (30 días, 90 días o todo) y por asesor (líder). |
 | **RF17 / RF18 / RF36** (Vencido, reclamo y archivo) | — | La vista **Archivo** tiene dos pestañas: *Vencidos* (se reclaman, con confirmación) y *Archivados* (se reactivan). |
 | **RF05** (Onboarding) | 5 pasos | Mismos 5 pasos. El paso 1 pide además el nombre de la persona y el paso 2 pide también el aviso previo y los días hasta pasar a Archivo. |
-| **RF01** (Login) | Email/contraseña y Google | Igual, más **"¿Olvidaste tu contraseña?"**: Supabase manda un enlace por email y, al volver, la persona elige una contraseña nueva antes de entrar. |
+| **RF01** (Login) | Email/contraseña y Google | Pantalla dividida: a la izquierda un panel violeta con el logo, el lema y tres datos de la encuesta; a la derecha el formulario, con Google abajo. **"¿Olvidaste tu contraseña?"**: Supabase manda un enlace por email y, al volver, la persona elige una contraseña nueva antes de entrar. **Crear cuenta** pide nombre y apellido (pasa al onboarding), muestra el requisito de mínimo 6 caracteres y exige aceptar los **términos y condiciones y la política de privacidad**; la fecha de aceptación queda guardada en la cuenta (`terminos_aceptados`). |
 | **RF02** (Invitaciones) | El líder invita por email | El líder carga los emails; la persona entra sola al equipo cuando crea su cuenta con ese email. **Pendiente:** mandar el email de invitación (necesita configurar SMTP). |
 | **RF06** (Campos de cierre) | Definir nombre, tipo y si es obligatorio | Igual. Los tipos son texto, número y lista de opciones; se pueden ordenar. Los equipos que ya existían arrancaron con carrera, modalidad, descuento e importe. |
 | **RF29** (Eventos) | Con categoría | La categoría es opcional y se sugiere desde las categorías de origen. El menú muestra el nombre que eligió el equipo ("Charlas", "Webinars"...) y solo aparece si el equipo usa eventos. |

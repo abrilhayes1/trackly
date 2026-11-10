@@ -76,6 +76,12 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   con el ícono (fondo #F7F6F2, o #1C1C1A en modo oscuro).
 - Para el futuro: un SVG del logo se vería más nítido en tamaños grandes que los PNG actuales.
 
+## Login y términos
+
+- El login (en `App.jsx`) es una pantalla dividida. A la izquierda, desde `md`, va un panel violeta fijo con el logo oscuro, el lema y tres datos de la encuesta. A la derecha va el formulario: email, contraseña, botón y, abajo del "o", Google. En el celular solo se ve el formulario, con el logo arriba.
+- **Crear cuenta** pide nombre y apellido y muestra "Mínimo 6 caracteres", que se pone en verde al cumplirlo. Además exige tildar "Acepto los términos y condiciones y la política de privacidad". El nombre y la fecha de aceptación van a `user_metadata` (`full_name`, `terminos_aceptados`); el onboarding ya toma `full_name` como nombre sugerido.
+- Las páginas legales se abren sin sesión con `/?legal=terminos` y `/?legal=privacidad`: `main.jsx` carga `pages/Legal.jsx` en vez de la app. Se usa parámetro y no ruta porque Vercel no tiene reescrituras configuradas.
+
 ## Landing (página de bienvenida) con Motion
 
 - `pages/Landing.jsx` + `components/landing/` (Demos.jsx, Piezas.jsx). Se ve antes del login para

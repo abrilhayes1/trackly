@@ -327,6 +327,12 @@ export default function Landing({ onIngresar, onCrearCuenta }) {
           <div className="max-w-[1160px] mx-auto px-5 md:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-[13px] text-text-secondary">
             <span>© 2026 Trackly</span>
             <span className="flex gap-5">
+              <a href="/?legal=terminos" className="hover:text-text-primary">
+                Términos
+              </a>
+              <a href="/?legal=privacidad" className="hover:text-text-primary">
+                Privacidad
+              </a>
               <button onClick={onIngresar} className="hover:text-text-primary">
                 Ingresar
               </button>

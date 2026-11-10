@@ -30,6 +30,17 @@ if (faltan.length > 0) {
       </div>
     </div>,
   )
+} else if (['terminos', 'privacidad'].includes(new URLSearchParams(window.location.search).get('legal'))) {
+  // términos y política de privacidad: se leen sin iniciar sesión
+  const tipo = new URLSearchParams(window.location.search).get('legal')
+  import('./pages/Legal.jsx').then(({ default: Legal }) => {
+    document.title = (tipo === 'privacidad' ? 'Política de privacidad' : 'Términos y condiciones') + ' · Trackly'
+    raiz.render(
+      <StrictMode>
+        <Legal tipo={tipo} />
+      </StrictMode>,
+    )
+  })
 } else {
   // App se carga recién acá: el cliente de Supabase falla si se crea sin sus variables
   import('./App.jsx').then(({ default: App }) => {
