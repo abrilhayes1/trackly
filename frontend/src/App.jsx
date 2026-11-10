@@ -487,9 +487,9 @@ function App() {
           </p>
           <ul className="mt-10 space-y-4">
             {[
-              ['62%', 'de los asesores pierde contactos por falta de aviso.'],
+              ['62%', 'de los asesores pierde contactos seguido o todo el tiempo por falta de aviso.'],
               ['62%', 'dedica más de una hora por semana solo a ordenar información.'],
-              ['100%', 'quiere que la herramienta priorice sola.'],
+              ['100%', 'valoró con 4 o 5 puntos que la herramienta priorice sola.'],
             ].map(([cifra, texto]) => (
               <li key={texto} className="flex items-baseline gap-3 text-[14px] text-white/80">
                 <span className="w-12 shrink-0 font-semibold text-[#c4bdff] tabular-nums">{cifra}</span>
