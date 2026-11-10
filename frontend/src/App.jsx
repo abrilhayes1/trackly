@@ -16,15 +16,6 @@ const Estadisticas = lazy(() => import('./pages/Estadisticas'))
 const Perfil = lazy(() => import('./pages/Perfil'))
 const Landing = lazy(() => import('./pages/Landing'))
 
-// quien ya entró alguna vez desde este navegador va directo al login; el resto ve antes la landing
-const YA_INGRESO = 'trackly-ya-ingreso'
-function yaIngreso() {
-  try {
-    return localStorage.getItem(YA_INGRESO) === '1' || new URLSearchParams(window.location.search).has('ingresar')
-  } catch {
-    return false
-  }
-}
 import CambioContrasena from './components/CambioContrasena'
 import CampoContrasena from './components/CampoContrasena'
 import Sidebar from './components/Sidebar'
@@ -37,6 +28,17 @@ import { HORAS_INACTIVIDAD, marcarActividad, olvidarActividad, sesionVencida, vi
 import { calcularContadores } from './lib/contadores'
 import { pantallaInicial } from './lib/preferencias'
 import { fechaLocal } from './lib/agenda'
+import Logo from './components/Logo'
+
+// quien ya entró alguna vez desde este navegador va directo al login; el resto ve antes la landing
+const YA_INGRESO = 'trackly-ya-ingreso'
+function yaIngreso() {
+  try {
+    return localStorage.getItem(YA_INGRESO) === '1' || new URLSearchParams(window.location.search).has('ingresar')
+  } catch {
+    return false
+  }
+}
 
 function App() {
   const [email, setEmail] = useState('')
@@ -289,8 +291,8 @@ function App() {
         style={{ background: 'linear-gradient(135deg, var(--color-purple-bg) 0%, var(--color-bg-secondary) 60%)' }}
       >
         <div className="bg-bg-primary border border-border-tertiary rounded-2xl w-full max-w-md px-8 py-9">
-          <h1 className="text-center text-2xl font-semibold tracking-tight text-accent-text mb-1">
-            Trackly<span className="text-green-border">.</span>
+          <h1 className="flex justify-center mb-3">
+            <Logo alto="h-8" />
           </h1>
           <p className="text-center text-xs text-text-secondary mb-6">Elegí una contraseña nueva para {sesion.user.email}</p>
           <CambioContrasena textoBoton="Guardar y entrar" onListo={() => setRecuperando(false)} />
@@ -464,8 +466,8 @@ function App() {
         className="bg-bg-primary border border-border-tertiary rounded-2xl w-full max-w-sm px-8 py-10"
         style={{ boxShadow: '0 12px 40px rgba(60, 52, 137, 0.08)' }}
       >
-        <h1 className="text-center text-2xl font-semibold tracking-tight text-accent-text mb-1">
-          Trackly<span className="text-green-border">.</span>
+        <h1 className="flex justify-center mb-3">
+          <Logo alto="h-8" />
         </h1>
         <p className="text-center text-xs text-text-secondary mb-7">
           {modoLogin === 'crear'

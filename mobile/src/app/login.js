@@ -1,6 +1,6 @@
 // Login (RF41): las mismas cuentas que la web, con email y contraseña.
 import { useState } from 'react'
-import { KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from 'react-native'
+import { Image, KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { supabase } from '../lib/supabase'
 import { LETRA, useTema } from '../lib/tema'
@@ -11,7 +11,7 @@ import Icono from '../components/Icono'
 const WEB = 'https://trackly-six-delta.vercel.app'
 
 export default function Login() {
-  const { c } = useTema()
+  const { c, oscuro } = useTema()
   const arriba = useSafeAreaInsets().top
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -54,19 +54,12 @@ export default function Login() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: c.fondo2 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 24, paddingTop: arriba + 56 }} keyboardShouldPersistTaps="handled">
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 40 }}>
-          <View
-            style={{ width: 40, height: 40, borderRadius: 11, backgroundColor: c.acento, alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Icono nombre="tendencia" tamano={20} color="#fff" grosor={2.4} />
-          </View>
-          <Texto peso="negrita" tamano={22} color={c.acentoTexto}>
-            Trackly
-            <Texto peso="negrita" tamano={22} color={c.verdeBorde}>
-              .
-            </Texto>
-          </Texto>
-        </View>
+        <Image
+          source={oscuro ? require('../../assets/images/trackly-logo-oscuro.png') : require('../../assets/images/trackly-logo.png')}
+          accessibilityLabel="Trackly"
+          style={{ width: 160, height: 35, marginBottom: 40 }}
+          resizeMode="contain"
+        />
 
         <Texto peso="negrita" tamano={30} style={{ lineHeight: 36, letterSpacing: -0.6 }}>
           Tus leads urgentes,{'\n'}siempre a mano.

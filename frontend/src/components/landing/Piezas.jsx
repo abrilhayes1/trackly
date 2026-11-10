@@ -1,5 +1,6 @@
 // Piezas de la interfaz de Trackly en miniatura, para las demostraciones de la landing. Usan los
 // mismos colores y formas que la app (no son capturas: así se ven nítidas y se pueden animar).
+import Logo from '../Logo'
 
 export const Punto = ({ color }) => <span className={`w-2 h-2 rounded-full shrink-0 ${color}`} />
 
@@ -48,9 +49,7 @@ export function Ventana({ titulo, children, className = '' }) {
       style={{ boxShadow: '0 24px 60px -18px rgba(44, 38, 110, 0.28), 0 2px 6px rgba(44, 38, 110, 0.06)' }}
     >
       <div className="flex items-center gap-3 px-4 py-2.5 bg-bg-primary border-b border-border-tertiary">
-        <span className="text-[13px] font-semibold text-accent-text">
-          Trackly<span className="text-green-border">.</span>
-        </span>
+        <Logo alto="h-[18px]" />
         {titulo && <span className="text-[11px] text-text-tertiary">{titulo}</span>}
       </div>
       {children}

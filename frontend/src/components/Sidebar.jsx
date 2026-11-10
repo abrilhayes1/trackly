@@ -2,6 +2,7 @@ import { useTerminos, useConfigEquipo } from '../lib/configEquipo'
 import Avatar from './Avatar'
 import { nombreEventos } from '../lib/charlas'
 import { iniciales as inicialesDe } from '../lib/formato'
+import Logo from './Logo'
 
 const Svg = ({ children }) => (
   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -131,9 +132,7 @@ export default function Sidebar({ email, perfil, vista, onNavegar, onCerrarSesio
   return (
     <aside className="w-[210px] shrink-0 bg-bg-secondary border-r border-border-tertiary flex flex-col sticky top-0 h-screen py-[17px]">
       <div className="px-4 pb-3.5 mb-1.5 border-b border-border-tertiary">
-        <span className="text-[17px] font-semibold text-accent-text tracking-tight">
-          Trackly<span className="text-green-border">.</span>
-        </span>
+        <Logo alto="h-[22px]" />
         <span className="block text-[10px] text-text-secondary mt-0.5">{perfil?.tenants?.nombre || 'Tu equipo'}</span>
       </div>
 

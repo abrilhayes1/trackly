@@ -68,6 +68,17 @@ body {
   background: var(--color-bg-app);
 }
 
+/* logo: el de letras oscuras en modo claro y el de letras violeta en modo oscuro (components/Logo.jsx) */
+.logo-modo-oscuro {
+  display: none;
+}
+:root[data-tema='oscuro'] .logo-modo-claro {
+  display: none;
+}
+:root[data-tema='oscuro'] .logo-modo-oscuro {
+  display: inline;
+}
+
 /* Lo que dibuja el navegador también lleva los colores de Trackly: texto seleccionado, cursor de
    escritura y el contorno al moverse con el teclado */
 ::selection {

@@ -64,6 +64,18 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
   - El vencimiento se puede apagar por equipo (`vencimiento_habilitado`). El aviso previo es
     `dias_alerta_previa`.
 
+## Logo
+
+- Logo de Abril (ícono de barras con degradé + "Trackly"). Web: `components/Logo.jsx` muestra
+  `public/logos/trackly-logo.png` (letras azul oscuro) en modo claro y `trackly-logo-oscuro.png`
+  (letras #a78bfa e ícono con los tonos oscuros más luminosos) en modo oscuro; lo elige `index.css`
+  con `data-tema`. Está en la landing (barra y ventanitas), login, recuperar contraseña, onboarding y
+  menú lateral. Favicon `public/favicon.png` y `apple-touch-icon.png`.
+- Mobile: logo en el login (claro u oscuro según el tema), `icon.png`, ícono adaptativo de Android
+  (frente con el ícono en la zona segura, fondo blanco, versión monocromática) y pantalla de carga
+  con el ícono (fondo #F7F6F2, o #1C1C1A en modo oscuro).
+- Para el futuro: un SVG del logo se vería más nítido en tamaños grandes que los PNG actuales.
+
 ## Landing (página de bienvenida) con Motion
 
 - `pages/Landing.jsx` + `components/landing/` (Demos.jsx, Piezas.jsx). Se ve antes del login para

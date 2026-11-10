@@ -22,6 +22,7 @@ import {
   CamposVencimiento,
   ListaEmails,
 } from '../components/CamposEquipo'
+import Logo from '../components/Logo'
 
 const PASOS = ['Tu equipo', 'Contactos', 'Eventos', 'Invitar', 'Resumen']
 
@@ -192,9 +193,7 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
 
   return (
     <div className="min-h-screen bg-bg-secondary flex flex-col items-center px-4 pt-8 pb-12">
-      <div className="text-[22px] font-bold text-accent-text tracking-tight mb-10">
-        Trackly<span className="text-green-border">.</span>
-      </div>
+      <Logo alto="h-8" className="mb-10" />
 
       <div className="w-full max-w-[520px] bg-bg-primary border border-border-tertiary rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(83,74,183,0.07)]">
         {/* progreso */}

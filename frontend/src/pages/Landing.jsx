@@ -17,6 +17,7 @@ import {
   NumeroQueSube,
   Recorrido,
 } from '../components/landing/Demos'
+import Logo from '../components/Logo'
 
 const FUNCIONES = [
   {
@@ -115,9 +116,7 @@ export default function Landing({ onIngresar, onCrearCuenta }) {
           className={`sticky top-0 z-30 bg-bg-secondary border-b transition-colors duration-200 ${conBorde ? 'border-border-tertiary' : 'border-transparent'}`}
         >
           <div className="max-w-[1160px] mx-auto px-5 md:px-8 h-16 flex items-center justify-between">
-            <span className="text-[20px] font-semibold tracking-tight text-accent-text">
-              Trackly<span className="text-green-border">.</span>
-            </span>
+            <Logo alto="h-7 sm:h-8" />
             <nav className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={onIngresar}
@@ -126,7 +125,9 @@ export default function Landing({ onIngresar, onCrearCuenta }) {
                 Ingresar
               </button>
               <BotonPrincipal onClick={() => onCrearCuenta('')} className="h-10 px-4 text-[14px]">
-                Crear cuenta<span className="hidden sm:inline">&nbsp;gratis</span>
+                <span>
+                  Crear cuenta<span className="hidden sm:inline"> gratis</span>
+                </span>
               </BotonPrincipal>
             </nav>
           </div>
