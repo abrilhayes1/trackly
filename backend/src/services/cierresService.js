@@ -29,11 +29,11 @@ async function listar(supabase, { tipo, campos, limite, desde, asesor } = {}) {
   }
 
   // con filtro por asesor, el lead tiene que existir y ser de ese asesor (!inner)
-  const lead = asesor ? 'lead:leads!inner(*, asesor:profiles(nombre))' : 'lead:leads(*, asesor:profiles(nombre))';
+  const lead = asesor ? 'lead:leads!inner(*, asesor:profiles!asesor_id(nombre))' : 'lead:leads(*, asesor:profiles!asesor_id(nombre))';
   let consulta = filtrarTipo(
     supabase
       .from('cierres')
-      .select(`*, ${lead}, cerrador:profiles(nombre)`)
+      .select(`*, ${lead}, cerrador:profiles!cerrado_por(nombre)`)
       .order('updated_at', { ascending: false })
       .order('id', { ascending: true }),
   );

@@ -36,7 +36,7 @@ async function obtener(supabase, id) {
   const { data, error } = await supabase
     .from('charlas')
     .select(
-      '*, invitados:charla_notificados(id, asistio, notificado_at, notificado_por, invitador:profiles(nombre), lead:leads(id, nombre, interes, estado, asesor_id, telefono, email, origen, consulta, fecha_ingreso, ultimo_contacto, asesor:profiles(nombre)))',
+      '*, invitados:charla_notificados(id, asistio, notificado_at, notificado_por, invitador:profiles!notificado_por(nombre), lead:leads(id, nombre, interes, estado, asesor_id, telefono, email, origen, consulta, fecha_ingreso, ultimo_contacto, asesor:profiles!asesor_id(nombre)))',
     )
     .eq('id', id)
     .maybeSingle();

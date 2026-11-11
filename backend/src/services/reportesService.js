@@ -16,7 +16,7 @@ function errorPermiso(error) {
 }
 
 async function listar(supabase) {
-  const { data, error } = await supabase.from('reportes').select('*, autor:profiles(nombre)').order('created_at', { ascending: true });
+  const { data, error } = await supabase.from('reportes').select('*, autor:profiles!creado_por(nombre)').order('created_at', { ascending: true });
   lanzarSiError(error);
   return data;
 }
@@ -27,7 +27,7 @@ async function crear(supabase, user, body) {
   const { data, error } = await supabase
     .from('reportes')
     .insert({ ...datos(body), tenant_id: perfil.tenant_id, creado_por: user.id })
-    .select('*, autor:profiles(nombre)')
+    .select('*, autor:profiles!creado_por(nombre)')
     .single();
   errorPermiso(error);
   return data;
@@ -38,7 +38,7 @@ async function editar(supabase, id, body) {
     .from('reportes')
     .update({ ...datos(body), updated_at: new Date().toISOString() })
     .eq('id', id)
-    .select('*, autor:profiles(nombre)')
+    .select('*, autor:profiles!creado_por(nombre)')
     .maybeSingle();
   errorPermiso(error);
   if (!data) throw new ErrorHttp(403, 'No podés modificar este reporte');

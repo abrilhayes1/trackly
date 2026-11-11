@@ -24,7 +24,7 @@ async function listar(supabase, estados, campos) {
     throw new ErrorHttp(400, 'Campos inválidos (usá analisis)');
   }
 
-  let consulta = supabase.from('leads').select(campos === 'analisis' ? COLUMNAS_ANALISIS : '*, asesor:profiles(nombre)');
+  let consulta = supabase.from('leads').select(campos === 'analisis' ? COLUMNAS_ANALISIS : '*, asesor:profiles!asesor_id(nombre)');
 
   if (estados !== undefined && estados !== '') {
     const lista = String(estados)
@@ -117,7 +117,7 @@ async function buscar(supabase, consulta) {
 
   const { data, error } = await supabase
     .from('leads')
-    .select('*, asesor:profiles(nombre)')
+    .select('*, asesor:profiles!asesor_id(nombre)')
     .or(filtros.join(','))
     .order('fecha_ingreso', { ascending: false })
     .limit(30);
@@ -236,7 +236,7 @@ async function actualizar(supabase, user, id, body) {
 async function listarHistorial(supabase, leadId) {
   const { data, error } = await supabase
     .from('lead_historial')
-    .select('id, texto, created_at, autor:profiles(nombre)')
+    .select('id, texto, created_at, autor:profiles!autor_id(nombre)')
     .eq('lead_id', leadId)
     .order('created_at', { ascending: false });
 
@@ -258,7 +258,7 @@ async function agregarHistorial(supabase, user, leadId, body) {
   const { data, error } = await supabase
     .from('lead_historial')
     .insert({ lead_id: leadId, texto, autor_id: user.id })
-    .select('id, texto, created_at, autor:profiles(nombre)')
+    .select('id, texto, created_at, autor:profiles!autor_id(nombre)')
     .single();
 
   if (error) {

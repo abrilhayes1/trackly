@@ -23,7 +23,7 @@ function errorPermiso(error) {
   lanzarSiError(error);
 }
 
-const COLUMNAS = '*, autor:profiles(nombre)';
+const COLUMNAS = '*, autor:profiles!creado_por(nombre)';
 
 async function listar(supabase) {
   const { data, error } = await supabase.from('plantillas').select(COLUMNAS).order('compartida', { ascending: false }).order('nombre');
