@@ -2,6 +2,7 @@
 // filtros y cómo verlo, con vista previa en vivo. Privados, o compartidos con el equipo (líder).
 import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../lib/api'
+import { miembrosConDatos } from '../lib/miembros'
 import { leadsParaAnalisis } from '../lib/analisis'
 import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
 import { etiquetaInteres } from '../lib/interes'
@@ -316,7 +317,7 @@ export default function Reportes({ userId, rol, cambios }) {
       .then(([leads, cierres, rep, equipo]) => {
         setDatos({ leads, cierres })
         setReportes(rep)
-        setMiembros(equipo.miembros)
+        setMiembros(miembrosConDatos(equipo.miembros, leads))
         setAhora(Date.now())
         setError(null)
       })

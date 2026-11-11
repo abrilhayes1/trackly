@@ -7,6 +7,7 @@ import { colorPorInteres, sinCategoria, etiquetaInteres } from '../lib/interes'
 import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
 import { useLeadsEquipo } from '../lib/leadsEquipo'
 import Avatar from '../components/Avatar'
+import { estaActivo, leadsDeDesactivados, miembrosActivos, miembrosParaPanel, nombreMiembro } from '../lib/miembros'
 
 const ESTADOS = {
   porVencer: { label: 'Por vencer', clases: 'bg-red-bg text-red-text border-red-border' },
@@ -68,7 +69,7 @@ function SelectorAsesor({ lead, miembros, onElegir, texto, deshabilitado }) {
     >
       <option value="">{texto}</option>
       {miembros
-        .filter((m) => m.id !== lead.asesor_id)
+        .filter((m) => m.id !== lead.asesor_id && estaActivo(m))
         .map((m) => (
           <option key={m.id} value={m.id}>
             {m.nombre}
@@ -151,7 +152,9 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
   }
 
   const estadoDe = (l) => (l.estado === 'vencido' ? 'vencido' : grupoDe.get(l.id)?.clave || 'alDia')
-  const nombreDe = (id) => miembros.find((m) => m.id === id)?.nombre
+  const nombreDe = (id) => nombreMiembro(miembros.find((m) => m.id === id))
+  // leads que siguen a nombre de alguien desactivado: el líder los reasigna de a poco
+  const deDesactivados = leadsDeDesactivados(leads, miembros)
 
   async function reasignar(lead, asesorId) {
     setReasignando(lead.id)
@@ -180,7 +183,10 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
     setPestana(nueva)
     setFiltroEquipo(filtro)
   }
-  const listaEquipo = delEquipo.filter((l) => !filtroEquipo || l.estado === (filtroEquipo === 'activos' ? 'activo' : 'vencido'))
+  const listaEquipo =
+    filtroEquipo === 'desactivados'
+      ? deDesactivados
+      : delEquipo.filter((l) => !filtroEquipo || l.estado === (filtroEquipo === 'activos' ? 'activo' : 'vencido'))
 
   const avisoHtml = aviso && (
     <p
@@ -230,7 +236,9 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
           <Avatar nombre={m?.nombre} foto={m?.avatar_url} tamano="w-[42px] h-[42px] text-sm" />
           <div>
             <h1 className="text-base font-semibold tracking-tight text-text-primary">{m?.nombre}</h1>
-            <p className="text-xs text-text-secondary">{m?.rol === 'lider' ? 'Líder de equipo' : 'Asesor comercial'}</p>
+            <p className="text-xs text-text-secondary">
+              {!estaActivo(m) ? 'Desactivado: reasigná sus contactos' : m?.rol === 'lider' ? 'Líder de equipo' : 'Asesor comercial'}
+            </p>
           </div>
         </div>
         <div className="grid grid-cols-4 gap-2 mb-5">
@@ -291,7 +299,7 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
           <div className="grid grid-cols-4 gap-2 mb-5">
             <Indicador
               label="Miembros del equipo"
-              valor={miembros.length}
+              valor={miembrosActivos(miembros).length}
               activo={pestana === 'asesores'}
               onClick={() => irA('asesores')}
             />
@@ -317,6 +325,20 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
             />
           </div>
 
+          {deDesactivados.length > 0 && (
+            <button
+              onClick={() => irA('leads', 'desactivados')}
+              className="w-full flex items-center gap-2 text-left text-xs text-amber-text bg-amber-bg border border-amber-border/40 rounded-md px-3 py-2 mb-4 hover:border-amber-border"
+            >
+              <span className="flex-1">
+                {deDesactivados.length === 1
+                  ? `1 ${Uno.toLowerCase()} sigue a nombre de alguien desactivado.`
+                  : `${deDesactivados.length} ${varios} siguen a nombre de personas desactivadas.`}
+              </span>
+              <span className="font-semibold">Reasignar →</span>
+            </button>
+          )}
+
           <div className="flex gap-[5px] border-b border-border-tertiary mb-4">
             <Pestana activa={pestana === 'asesores'} onClick={() => irA('asesores')}>
               Asesores
@@ -334,7 +356,7 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
           {pestana === 'asesores' && (
             <>
               <p className="text-xs text-text-secondary mb-3">Tocá a alguien para ver sus {varios} y su actividad</p>
-              {miembros.map((m) => {
+              {miembrosParaPanel(miembros, leads).map((m) => {
                 const r = resumen(m.id)
                 return (
                   <div
@@ -345,9 +367,14 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
                     }}
                     className="flex items-center gap-3 px-4 py-3 mb-2 border border-border-tertiary rounded-(--radius-lg) bg-bg-primary cursor-pointer hover:border-accent transition-colors"
                   >
-                    <Avatar nombre={m.nombre} foto={m.avatar_url} tamano="w-[34px] h-[34px] text-[11px]" />
+                    <span className={estaActivo(m) ? '' : 'opacity-50'}>
+                      <Avatar nombre={m.nombre} foto={m.avatar_url} tamano="w-[34px] h-[34px] text-[11px]" />
+                    </span>
                     <div className="min-w-0">
-                      <div className="text-[13px] font-medium text-text-primary">{m.nombre}</div>
+                      <div className="text-[13px] font-medium text-text-primary flex items-center gap-1.5">
+                        {m.nombre}
+                        {!estaActivo(m) && <Pill clases="bg-bg-secondary text-text-tertiary border-border-tertiary">Desactivado</Pill>}
+                      </div>
                       <div className="text-[11px] text-text-secondary">
                         {r.asignados === 1 ? `1 ${Uno.toLowerCase()} asignado` : `${r.asignados} ${varios} asignados`}
                         {m.rol === 'lider' ? ' · líder' : ''}
@@ -369,7 +396,7 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
                   </div>
                 )
               })}
-              {miembros.length === 1 && (
+              {miembrosActivos(miembros).length === 1 && (
                 <p className="text-[11px] text-text-tertiary mt-2">
                   Todavía sos la única persona del equipo. Invitá asesores desde Configuración.
                 </p>
@@ -383,9 +410,11 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
                 <p className="text-xs text-text-secondary">
                   {filtroEquipo === 'activos'
                     ? `Los ${varios} activos del equipo, con su asesor`
-                    : filtroEquipo === 'vencidos'
-                      ? `Los ${varios} vencidos del equipo: se reclaman en Archivo`
-                      : `Los ${varios} activos y vencidos del equipo, con su asesor`}
+                    : filtroEquipo === 'desactivados'
+                      ? `${Varios} a nombre de personas desactivadas: reasignalos de a poco`
+                      : filtroEquipo === 'vencidos'
+                        ? `Los ${varios} vencidos del equipo: se reclaman en Archivo`
+                        : `Los ${varios} activos y vencidos del equipo, con su asesor`}
                 </p>
                 {filtroEquipo && (
                   <button onClick={() => setFiltroEquipo(null)} className="text-[11px] text-accent hover:underline">
@@ -449,11 +478,13 @@ export default function PanelLider({ rol, onAbrirLead, onCambio }) {
               </table>
               {listaEquipo.length === 0 && (
                 <p className="text-center py-8 text-xs text-text-tertiary">
-                  {filtroEquipo === 'vencidos'
-                    ? 'No hay vencidos sin gestión.'
-                    : filtroEquipo === 'activos'
-                      ? `No hay ${varios} activos.`
-                      : `Todavía no hay ${varios} en el equipo.`}
+                  {filtroEquipo === 'desactivados'
+                    ? `Ya no quedan ${varios} a nombre de personas desactivadas.`
+                    : filtroEquipo === 'vencidos'
+                      ? 'No hay vencidos sin gestión.'
+                      : filtroEquipo === 'activos'
+                        ? `No hay ${varios} activos.`
+                        : `Todavía no hay ${varios} en el equipo.`}
                 </p>
               )}
             </>

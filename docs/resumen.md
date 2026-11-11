@@ -82,6 +82,18 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 - **Crear cuenta** pide nombre y apellido y muestra "Mínimo 6 caracteres", que se pone en verde al cumplirlo. Además exige tildar "Acepto los términos y condiciones y la política de privacidad". El nombre y la fecha de aceptación van a `user_metadata` (`full_name`, `terminos_aceptados`); el onboarding ya toma `full_name` como nombre sugerido.
 - Las páginas legales se abren sin sesión con `/?legal=terminos` y `/?legal=privacidad`: `main.jsx` carga `pages/Legal.jsx` en vez de la app. Se usa parámetro y no ruta porque Vercel no tiene reescrituras configuradas.
 
+## Licencias y miembros (19_licencias.sql)
+
+- `tenants.licencias` (default 1). Ocupan licencia los perfiles activos más las invitaciones pendientes (`licencias_usadas`). Se cargan a mano: `update tenants set licencias = 15 where nombre = '...'`. Un trigger impide que se cambien desde la app.
+- `profiles.activo`, `desactivado_at`, `desactivado_por` e `historico`. `current_tenant_id()` y `current_user_rol()` ahora exigen `activo`, así que alguien desactivado pierde el acceso a todo por RLS sin tocar ninguna regla. Otro trigger impide cambiar desde la app `activo`, `rol` o `tenant_id`.
+- Funciones del líder: `desactivar_miembro`, `reactivar_miembro`, `cambiar_rol_miembro`. A un desactivado no se le pueden asignar leads (trigger en `leads.asesor_id`).
+- **Cambio de equipo** (`mover_a_equipo`): el perfil viejo se copia con otro id como "histórico" y todo lo que apuntaba a él (leads, historial, cierres, charlas, recordatorios…) pasa a la copia; la cuenta queda libre para el equipo nuevo. Para eso `profiles.id` ya no tiene referencia a `auth.users`, y las columnas que apuntaban a `auth.users` ahora apuntan a `profiles` (revisadas al final de la operación). Lo usan `aceptar_invitacion_de` (invitación de otro equipo) y `crear_equipo` (si estaba desactivado).
+- API: `GET /api/me` devuelve `{ desactivado, equipo, invitaciones }` si lo desactivaron, y `invitaciones` de otros equipos si está activo; `POST /api/me/invitaciones/:id/aceptar`, `DELETE /api/me/invitaciones/:id`; `GET /api/config/equipo` trae `licencias`; `POST /api/config/miembros/:id/desactivar|reactivar`, `PATCH /api/config/miembros/:id` (rol).
+- Web: Configuración → Miembros muestra "Usás X de Y licencias", rol, Desactivar (con confirmación y cuántos leads quedan) y Reactivar. El Panel del equipo avisa los leads a nombre de desactivados y los filtra. Selectores de asignación solo con activos; Estadísticas y Reportes siguen contando a quien ya no está, con "(desactivado)". `lib/miembros.js` tiene la lógica (con tests).
+- Quien fue desactivado ve una pantalla con las invitaciones de otros equipos, "Crear mi propio equipo" y "Cerrar sesión". Quien está activo y recibe otra invitación ve una franja arriba con "Ver invitación". En la app mobile se muestra el aviso de desactivado.
+- El onboarding quedó en 4 pasos (sin "Invitar").
+- Probado en un Postgres local con un esquema que imita Supabase: licencias, desactivar, reactivar, cambio de equipo (los leads y el historial quedan en el equipo anterior) y la regla de la única persona líder.
+
 ## Landing (página de bienvenida) con Motion
 
 - `pages/Landing.jsx` + `components/landing/` (Demos.jsx, Piezas.jsx). Se ve antes del login para

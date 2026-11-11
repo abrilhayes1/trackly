@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { apiFetch } from '../lib/api'
 import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
 import { useLeadsEquipo } from '../lib/leadsEquipo'
+import { estaActivo } from '../lib/miembros'
 import {
   CAMPOS,
   MAX_FILAS,
@@ -336,7 +337,7 @@ export default function ImportarLeads({ rol, userId, onCerrar, onImportado }) {
                     <select className={selector} value={asignar} onChange={(e) => setAsignar(e.target.value)}>
                       <option value="yo">A mí</option>
                       {miembros
-                        .filter((m) => m.id !== userId)
+                        .filter((m) => m.id !== userId && estaActivo(m))
                         .map((m) => (
                           <option key={m.id} value={m.id}>
                             {m.nombre}

@@ -2,6 +2,7 @@
 // onboarding, editable, más los miembros del equipo y las invitaciones pendientes.
 import { useEffect, useState } from 'react'
 import Avatar from '../components/Avatar'
+import Confirmacion from '../components/Confirmacion'
 import { apiFetch } from '../lib/api'
 import { useConfigEquipo, RUBROS, EMAIL_VALIDO, errorVencimiento } from '../lib/configEquipo'
 import {
@@ -16,6 +17,8 @@ import {
   EditorCamposCierre,
 } from '../components/CamposEquipo'
 import { TIPOS_CAMPO, nuevoIdCampo } from '../lib/cierre'
+import { useLeadsEquipo } from '../lib/leadsEquipo'
+import { estaActivo, licenciasUsadas } from '../lib/miembros'
 
 const etiquetaRol = { lider: 'Líder', asesor: 'Asesor' }
 
@@ -70,7 +73,7 @@ function errorFormulario(f) {
   return errorVencimiento(f)
 }
 
-export default function Configuracion({ rol, nombreEquipo, onGuardado }) {
+export default function Configuracion({ rol, nombreEquipo, miId, onGuardado }) {
   const { config, recargar } = useConfigEquipo()
   const [form, setForm] = useState(null)
   const [guardando, setGuardando] = useState(false)
@@ -81,6 +84,10 @@ export default function Configuracion({ rol, nombreEquipo, onGuardado }) {
   const [nuevos, setNuevos] = useState([''])
   const [invitando, setInvitando] = useState(false)
   const [avisoInvitar, setAvisoInvitar] = useState(null)
+  // desactivar a alguien pide confirmación: muestra cuántos leads quedan a su nombre
+  const [aDesactivar, setADesactivar] = useState(null)
+  const [accion, setAccion] = useState({ ocupado: false, error: null })
+  const { leads } = useLeadsEquipo()
 
   // el formulario arranca con la configuración actual (y se resetea si se recarga desde afuera)
   const [base, setBase] = useState(null)
@@ -165,6 +172,23 @@ export default function Configuracion({ rol, nombreEquipo, onGuardado }) {
       setAvisoInvitar({ tipo: 'error', texto: e.message })
     } finally {
       setInvitando(false)
+    }
+  }
+
+  // acciones sobre un miembro: desactivar, reactivar o cambiar el rol
+  async function accionMiembro(ruta, opciones, textoOk) {
+    setAccion({ ocupado: true, error: null })
+    try {
+      await apiFetch(`/api/config/miembros/${ruta}`, { method: 'POST', ...opciones })
+      setAccion({ ocupado: false, error: null })
+      setADesactivar(null)
+      setAvisoInvitar({ tipo: 'ok', texto: textoOk })
+      cargarEquipo()
+      return true
+    } catch (e) {
+      setAccion({ ocupado: false, error: e.message })
+      if (!aDesactivar) setAvisoInvitar({ tipo: 'error', texto: e.message })
+      return false
     }
   }
 
@@ -309,51 +333,184 @@ export default function Configuracion({ rol, nombreEquipo, onGuardado }) {
         </button>
       </div>
 
-      <Tarjeta
-        titulo="Miembros del equipo"
-        descripcion="Las personas invitadas entran solas al equipo, como asesores, cuando crean su cuenta en Trackly con ese email."
-      >
+      <Tarjeta titulo="Miembros del equipo">
         {errorEquipo && <Aviso tipo="error">{errorEquipo}</Aviso>}
         {equipo && (
-          <div className="mb-4">
-            {equipo.miembros.map((m) => (
-              <div key={m.id} className="flex items-center gap-2 py-1.5 border-b border-border-tertiary last:border-0">
-                <Avatar nombre={m.nombre} foto={m.avatar_url} />
-                <span className="text-xs text-text-primary flex-1">{m.nombre}</span>
-                <span className="text-[10px] text-text-secondary">{etiquetaRol[m.rol] || m.rol}</span>
-              </div>
-            ))}
-            {equipo.invitaciones.map((inv) => (
-              <div key={inv.id} className="flex items-center gap-2 py-1.5 border-b border-border-tertiary last:border-0">
-                <span className="w-6 h-6 rounded-full border border-dashed border-border-secondary" />
-                <span className="text-xs text-text-secondary flex-1">{inv.email}</span>
-                <span className="text-[10px] px-1.5 py-px rounded-full bg-amber-bg text-amber-text">Invitación pendiente</span>
-                <button
-                  onClick={() => cancelarInvitacion(inv.id)}
-                  className="text-[11px] text-text-tertiary hover:text-red-text ml-1"
-                  title="Cancelar invitación"
-                >
-                  Cancelar
-                </button>
-              </div>
-            ))}
-          </div>
+          <MiembrosEquipo
+            equipo={equipo}
+            miId={miId}
+            onDesactivar={(m) => {
+              setAccion({ ocupado: false, error: null })
+              setADesactivar(m)
+            }}
+            onReactivar={(m) => accionMiembro(`${m.id}/reactivar`, {}, `${m.nombre} volvió a estar activo.`)}
+            onCambiarRol={(m, rol) =>
+              accionMiembro(
+                m.id,
+                { method: 'PATCH', body: JSON.stringify({ rol }) },
+                `${m.nombre} ahora es ${rol === 'lider' ? 'líder' : 'asesor'}.`,
+              )
+            }
+            onCancelarInvitacion={cancelarInvitacion}
+          />
         )}
 
-        <Campo label="Invitar personas">
-          <ListaEmails emails={nuevos} onCambiar={setNuevos} textoAgregar="+ Agregar otro email" />
-        </Campo>
+        {equipo && <InvitarPersonas equipo={equipo} nuevos={nuevos} setNuevos={setNuevos} />}
         {avisoInvitar && <Aviso tipo={avisoInvitar.tipo}>{avisoInvitar.texto}</Aviso>}
-        <div className="flex justify-end">
-          <button
-            onClick={invitar}
-            disabled={invitando}
-            className="text-xs font-medium px-4 py-2 rounded-md bg-accent text-white hover:bg-accent-dark disabled:opacity-60"
+        {equipo && libres(equipo) > 0 && (
+          <div className="flex justify-end">
+            <button
+              onClick={invitar}
+              disabled={invitando}
+              className="text-xs font-medium px-4 py-2 rounded-md bg-accent text-white hover:bg-accent-dark disabled:opacity-60"
+            >
+              {invitando ? 'Invitando...' : 'Invitar'}
+            </button>
+          </div>
+        )}
+      </Tarjeta>
+
+      {aDesactivar && (
+        <Confirmacion
+          titulo={`¿Desactivar a ${aDesactivar.nombre}?`}
+          textoConfirmar="Desactivar"
+          peligro
+          ocupado={accion.ocupado}
+          error={accion.error}
+          onCancelar={() => setADesactivar(null)}
+          onConfirmar={() =>
+            accionMiembro(`${aDesactivar.id}/desactivar`, {}, `${aDesactivar.nombre} quedó desactivado y se liberó su licencia.`)
+          }
+        >
+          <p>No va a poder entrar más a Trackly con este equipo y se libera su licencia.</p>
+          <p>
+            {(() => {
+              const n = leads.filter((l) => l.asesor_id === aDesactivar.id && (l.estado === 'activo' || l.estado === 'vencido')).length
+              return n === 0
+                ? 'No tiene contactos activos a su nombre.'
+                : `Tiene ${n === 1 ? '1 contacto' : `${n} contactos`} a su nombre: van a seguir ahí hasta que los reasignes desde el Panel del equipo.`
+            })()}
+          </p>
+          <p>Su historial no se borra. Si vuelve, lo podés reactivar.</p>
+        </Confirmacion>
+      )}
+    </div>
+  )
+}
+
+const libres = (equipo) => (equipo.licencias == null ? Infinity : equipo.licencias - licenciasUsadas(equipo.miembros, equipo.invitaciones))
+
+const claseAccion = 'text-[11px] text-text-tertiary hover:text-text-primary px-1.5 py-1 rounded'
+
+function FilaMiembro({ m, children, apagado }) {
+  return (
+    <div className="flex items-center gap-2 py-2 border-b border-border-tertiary last:border-0">
+      <span className={apagado ? 'opacity-50' : ''}>
+        <Avatar nombre={m.nombre} foto={m.avatar_url} />
+      </span>
+      <span className={`text-xs flex-1 min-w-0 truncate ${apagado ? 'text-text-tertiary' : 'text-text-primary'}`}>{m.nombre}</span>
+      {children}
+    </div>
+  )
+}
+
+function MiembrosEquipo({ equipo, miId, onDesactivar, onReactivar, onCambiarRol, onCancelarInvitacion }) {
+  const activos = equipo.miembros.filter(estaActivo)
+  const desactivados = equipo.miembros.filter((m) => !estaActivo(m))
+  const lideres = activos.filter((m) => m.rol === 'lider').length
+  const usadas = licenciasUsadas(equipo.miembros, equipo.invitaciones)
+
+  return (
+    <div className="mb-4">
+      {equipo.licencias != null && (
+        <div className="mb-3">
+          <div className="flex items-baseline justify-between text-xs mb-1.5">
+            <span className="text-text-primary font-medium">
+              Usás {usadas} de {equipo.licencias} {equipo.licencias === 1 ? 'licencia' : 'licencias'}
+            </span>
+            <span className="text-text-tertiary">Cada persona activa o invitada ocupa una</span>
+          </div>
+          <div className="h-1.5 rounded-full bg-bg-secondary overflow-hidden">
+            <div
+              className={`h-full rounded-full ${usadas >= equipo.licencias ? 'bg-amber-border' : 'bg-accent'}`}
+              style={{ width: `${Math.min(100, (usadas / equipo.licencias) * 100)}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {activos.map((m) => (
+        <FilaMiembro key={m.id} m={m}>
+          {m.id === miId && <span className="text-[10px] text-text-tertiary">Vos</span>}
+          <select
+            value={m.rol}
+            aria-label={`Rol de ${m.nombre}`}
+            disabled={m.rol === 'lider' && lideres === 1}
+            title={m.rol === 'lider' && lideres === 1 ? 'El equipo tiene que tener al menos una persona líder' : undefined}
+            onChange={(e) => onCambiarRol(m, e.target.value)}
+            className="text-[11px] px-1.5 py-1 rounded-md border border-border-secondary bg-bg-primary text-text-secondary disabled:opacity-60"
           >
-            {invitando ? 'Invitando...' : 'Invitar'}
+            <option value="asesor">{etiquetaRol.asesor}</option>
+            <option value="lider">{etiquetaRol.lider}</option>
+          </select>
+          {m.id !== miId && (
+            <button onClick={() => onDesactivar(m)} className={`${claseAccion} hover:text-red-text`}>
+              Desactivar
+            </button>
+          )}
+        </FilaMiembro>
+      ))}
+
+      {equipo.invitaciones.map((inv) => (
+        <div key={inv.id} className="flex items-center gap-2 py-2 border-b border-border-tertiary last:border-0">
+          <span className="w-6 h-6 rounded-full border border-dashed border-border-secondary shrink-0" />
+          <span className="text-xs text-text-secondary flex-1 min-w-0 truncate">{inv.email}</span>
+          <span className="text-[10px] px-1.5 py-px rounded-full bg-amber-bg text-amber-text">Invitación pendiente</span>
+          <button onClick={() => onCancelarInvitacion(inv.id)} className={`${claseAccion} hover:text-red-text`}>
+            Cancelar
           </button>
         </div>
-      </Tarjeta>
+      ))}
+
+      {desactivados.length > 0 && (
+        <>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.05em] text-text-tertiary mt-4 mb-1">Desactivados</div>
+          {desactivados.map((m) => (
+            <FilaMiembro key={m.id} m={m} apagado>
+              {m.historico ? (
+                <span className="text-[10px] text-text-tertiary">Se unió a otro equipo</span>
+              ) : (
+                <button onClick={() => onReactivar(m)} className={claseAccion}>
+                  Reactivar
+                </button>
+              )}
+            </FilaMiembro>
+          ))}
+        </>
+      )}
     </div>
+  )
+}
+
+function InvitarPersonas({ equipo, nuevos, setNuevos }) {
+  const quedan = libres(equipo)
+  if (quedan <= 0) {
+    return (
+      <p className="text-xs text-text-secondary bg-bg-secondary rounded-md px-3 py-2.5 mb-3">
+        {equipo.licencias === 1
+          ? 'Tu equipo tiene 1 licencia, la tuya. Para invitar personas necesitás más licencias.'
+          : `Usaste las ${equipo.licencias} licencias. Para invitar a alguien, desactivá a quien ya no esté o pedí más licencias.`}
+      </p>
+    )
+  }
+  return (
+    <Campo
+      label="Invitar personas"
+      ayuda={`Entran solas al equipo, como asesores, cuando crean su cuenta con ese email.${
+        Number.isFinite(quedan) ? ` ${quedan === 1 ? 'Queda 1 licencia libre' : `Quedan ${quedan} licencias libres`}.` : ''
+      }`}
+    >
+      <ListaEmails emails={nuevos} onCambiar={setNuevos} textoAgregar="+ Agregar otro email" />
+    </Campo>
   )
 }

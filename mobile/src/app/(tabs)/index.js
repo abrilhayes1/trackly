@@ -21,7 +21,7 @@ const POR_SECCION = 7
 export default function MisLeads() {
   const { c } = useTema()
   const arriba = useSafeAreaInsets().top
-  const { perfil, leads, agenda, config, userId, cargando, error, recargar, recordarLead } = useSesion()
+  const { perfil, desactivado, leads, agenda, config, userId, cargando, error, recargar, recordarLead } = useSesion()
   const [buscando, setBuscando] = useState(false)
   const [q, setQ] = useState('')
   const [resultados, setResultados] = useState(null)
@@ -148,8 +148,15 @@ export default function MisLeads() {
               </View>
             )}
             {cargando && !perfil && <ActivityIndicator color={c.acento} style={{ marginTop: 40 }} />}
+            {/* el líder lo desactivó: puede sumarse a otro equipo o armar el suyo desde la web */}
+            {!cargando && !error && desactivado && (
+              <Texto tamano={15} color={c.texto2} style={{ textAlign: 'center', marginTop: 40, lineHeight: 22 }}>
+                Tu acceso a {desactivado.equipo} fue desactivado. Si creés que es un error, hablá con quien lidera el equipo. Si te
+                invitaron a otro equipo, aceptá la invitación desde la web (trackly-six-delta.vercel.app).
+              </Texto>
+            )}
             {/* cuenta sin equipo: el equipo se crea (o se acepta la invitación) desde la web */}
-            {!cargando && !error && perfil === null && (
+            {!cargando && !error && perfil === null && !desactivado && (
               <Texto tamano={15} color={c.texto2} style={{ textAlign: 'center', marginTop: 40, lineHeight: 22 }}>
                 Tu cuenta todavía no tiene equipo. Crealo desde la web (trackly-six-delta.vercel.app) o pedile al líder que te invite con
                 este email.

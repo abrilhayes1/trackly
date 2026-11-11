@@ -10,6 +10,9 @@ const imagen = express.raw({ type: ['image/jpeg', 'image/png', 'image/webp'], li
 
 router.get('/', requireAuth, me.perfil);
 router.patch('/', requireAuth, me.cambiarNombre);
+// invitaciones de otros equipos
+router.post('/invitaciones/:id/aceptar', requireAuth, me.aceptarInvitacion);
+router.delete('/invitaciones/:id', requireAuth, me.rechazarInvitacion);
 // subir fotos es lo más pesado: como mucho 10 por minuto
 const limiteFotos = limitarPedidos({ maximo: 10, mensaje: 'Subiste muchas fotos seguidas. Esperá un minuto.' });
 

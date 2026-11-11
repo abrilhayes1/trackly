@@ -242,7 +242,7 @@ export default function Landing({ onIngresar, onCrearCuenta }) {
                   </p>
                 ))}
               </div>
-              <p className="mt-10 text-[12px] text-text-tertiary">Encuesta a asesores comerciales, 2026.</p>
+              <p className="mt-10 text-[12px] text-text-tertiary">Encuesta a 8 asesores comerciales, 2026.</p>
             </div>
           </section>
 

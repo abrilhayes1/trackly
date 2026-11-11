@@ -19,26 +19,58 @@ function fotoDeGoogle(user) {
   return typeof url === 'string' && url.startsWith('https://lh3.googleusercontent.com/') ? url : null;
 }
 
+// Invitaciones de otros equipos para el usuario logueado. Si la base todavía no tiene la función
+// (falta correr 19_licencias.sql), no hay invitaciones y el resto sigue andando.
+async function misInvitaciones(supabase) {
+  const { data, error } = await supabase.rpc('mis_invitaciones');
+  return error ? [] : data || [];
+}
+
 // Devuelve null si el usuario todavía no tiene equipo (tiene que hacer el onboarding).
 // Si no tiene equipo pero alguien lo invitó, lo suma a ese equipo antes de responder.
+// Si el líder lo desactivó, devuelve { desactivado: true, equipo, invitaciones }.
 async function perfil(supabase, user) {
   let encontrado = await buscarPerfil(supabase, user);
 
   if (!encontrado) {
     const { data: unido, error } = await supabase.rpc('aceptar_invitacion');
     lanzarSiError(error);
-    if (!unido) return null;
-    encontrado = await buscarPerfil(supabase, user);
+    if (unido) encontrado = await buscarPerfil(supabase, user);
+  }
+
+  // sin perfil visible o desactivado: se pregunta el estado de la cuenta (las reglas de la base ya
+  // no le dejan leer su equipo)
+  if (!encontrado || encontrado.activo === false) {
+    const { data: estado, error } = await supabase.rpc('mi_estado');
+    if (error || !estado) return encontrado && encontrado.activo !== false ? encontrado : null;
+    if (estado.activo === false) {
+      return { desactivado: true, equipo: estado.equipo, invitaciones: await misInvitaciones(supabase) };
+    }
+    if (!encontrado) return null;
   }
 
   // si nunca eligió foto (null; '' es que la quitó) y entró con Google, se usa la de Google
   const google = fotoDeGoogle(user);
-  if (encontrado && encontrado.avatar_url === null && google) {
+  if (encontrado.avatar_url === null && google) {
     const { data } = await supabase.rpc('cambiar_mi_foto', { p_url: google });
     if (data) encontrado.avatar_url = data.avatar_url;
   }
 
+  encontrado.invitaciones = await misInvitaciones(supabase);
   return encontrado;
+}
+
+// Aceptar la invitación de otro equipo (si estaba en uno, se va de ese) o rechazarla
+async function aceptarInvitacion(supabase, user, id) {
+  const { error } = await supabase.rpc('aceptar_invitacion_de', { p_id: id });
+  lanzarErrorDeBase(error);
+  return perfil(supabase, user);
+}
+
+async function rechazarInvitacion(supabase, id) {
+  const { error } = await supabase.rpc('rechazar_invitacion', { p_id: id });
+  lanzarErrorDeBase(error);
+  return { ok: true };
 }
 
 async function cambiarNombre(supabase, user, body) {
@@ -99,4 +131,4 @@ async function quitarFoto(supabase, user) {
   return buscarPerfil(supabase, user);
 }
 
-module.exports = { perfil, cambiarNombre, cambiarFoto, quitarFoto };
+module.exports = { perfil, cambiarNombre, cambiarFoto, quitarFoto, aceptarInvitacion, rechazarInvitacion };

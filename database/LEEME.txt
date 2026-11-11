@@ -19,6 +19,8 @@ Ejecutar en este orden (se pueden volver a correr sin duplicar nada, salvo 2_cie
   16_importar_leads.sql          importar contactos desde una planilla (importar_leads) sin duplicar teléfonos ni emails
   17_configurables.sql           motivos de pérdida, vencimiento por días hábiles y tabla plantillas (mensajes)
   18_contactos_unicos.sql        varios emails por contacto y sin contactos repetidos (mismo teléfono o email)
+  19_licencias.sql               licencias por equipo, desactivar/reactivar miembros, cambiar rol y pasar de equipo
+                                 (las licencias se cargan a mano: update tenants set licencias = 15 where nombre = '...')
 
 Opcional, para probar:
   seed_equipo_demo.sql           equipo de prueba: líder + 3 asesores (contraseña Demo2026!) y ~40 contactos en todos los estados

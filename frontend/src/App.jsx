@@ -29,6 +29,7 @@ import { calcularContadores } from './lib/contadores'
 import { pantallaInicial } from './lib/preferencias'
 import { fechaLocal } from './lib/agenda'
 import Logo from './components/Logo'
+import { AvisoInvitaciones, CuentaDesactivada } from './components/Invitaciones'
 
 // quien ya entró alguna vez desde este navegador va directo al login; el resto ve antes la landing
 const YA_INGRESO = 'trackly-ya-ingreso'
@@ -64,6 +65,8 @@ function App() {
   const [recuperando, setRecuperando] = useState(false)
   const [mensajeLogin, setMensajeLogin] = useState(null)
   const [verLogin, setVerLogin] = useState(yaIngreso)
+  // alguien desactivado que eligió armar su propio equipo
+  const [crearPropio, setCrearPropio] = useState(false)
   // la pantalla con la que abre la app la elige cada uno en Mi perfil
   const [vista, setVista] = useState(pantallaInicial)
   const [busqueda, setBusqueda] = useState('')
@@ -83,6 +86,7 @@ function App() {
     setLeadAbierto(null)
     setVista('leads')
     setPerfil(undefined)
+    setCrearPropio(false)
     setLista({ leads: [], listo: false, error: null })
     setConfigLista(false)
   }, [])
@@ -141,7 +145,7 @@ function App() {
   }, [userId, recargasPerfil])
 
   // configuración del equipo (terminología, vencimiento...), compartida por toda la app
-  const tieneEquipo = !!perfil
+  const tieneEquipo = !!perfil && !perfil.desactivado
   useEffect(() => {
     if (!tieneEquipo) return
     apiFetch('/api/config')
@@ -317,14 +321,29 @@ function App() {
     )
   }
 
+  // el líder lo desactivó: puede unirse a otro equipo que lo invitó o armar el suyo
+  if (sesion && perfil?.desactivado && !crearPropio) {
+    return (
+      <CuentaDesactivada
+        equipo={perfil.equipo}
+        invitaciones={perfil.invitaciones}
+        onCrearEquipo={() => setCrearPropio(true)}
+        onCerrarSesion={cerrarSesion}
+      />
+    )
+  }
+
   // usuario sin equipo: arma el suyo (si alguien lo invitó, /api/me ya lo sumó a ese equipo)
-  if (sesion && perfil === null) {
+  if (sesion && (perfil === null || perfil?.desactivado)) {
     return (
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-text-secondary text-sm">Cargando...</div>}>
         <Onboarding
           email={sesion.user.email}
           nombreSugerido={sesion.user.user_metadata?.full_name || sesion.user.user_metadata?.name || ''}
-          onListo={() => setRecargasPerfil((n) => n + 1)}
+          onListo={() => {
+            setCrearPropio(false)
+            setRecargasPerfil((n) => n + 1)
+          }}
           onCerrarSesion={cerrarSesion}
         />
       </Suspense>
@@ -357,6 +376,11 @@ function App() {
             />
             <main className="flex-1 min-w-0 bg-bg-primary">
               <Topbar busqueda={busqueda} onBuscar={setBusqueda} />
+              <AvisoInvitaciones
+                invitaciones={perfil?.invitaciones}
+                equipoActual={perfil?.tenants?.nombre}
+                onRechazada={(id) => setPerfil((p) => ({ ...p, invitaciones: p.invitaciones.filter((i) => i.id !== id) }))}
+              />
 
               {/* mientras se descarga una pantalla que todavía no se abrió */}
               <Suspense fallback={<p className="p-5 text-sm text-text-secondary">Cargando...</p>}>
@@ -392,6 +416,7 @@ function App() {
                   <Configuracion
                     rol={perfil?.rol}
                     nombreEquipo={perfil?.tenants?.nombre}
+                    miId={userId}
                     onGuardado={() => {
                       setRecargasPerfil((n) => n + 1)
                       setCambios((n) => n + 1)
@@ -498,7 +523,7 @@ function App() {
             ))}
           </ul>
         </div>
-        <p className="text-[12px] text-white/45">Encuesta a asesores comerciales, 2026.</p>
+        <p className="text-[12px] text-white/45">Encuesta a 8 asesores comerciales, 2026.</p>
       </aside>
 
       <main className="min-h-screen flex flex-col px-5 py-5 sm:px-10">

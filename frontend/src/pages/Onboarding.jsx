@@ -1,30 +1,12 @@
-// Onboarding (RF05, CU12): la primera vez que alguien entra sin equipo, arma el suyo en 5 pasos.
+// Onboarding (RF05, CU12): la primera vez que alguien entra sin equipo, arma el suyo en 4 pasos.
 // Sigue el diseño del onboarding del prototipo (docs/prototipos).
 import { useState } from 'react'
 import { apiFetch } from '../lib/api'
-import {
-  RUBROS,
-  CONTACTOS,
-  EVENTOS,
-  ORIGENES_SUGERIDOS,
-  EMAIL_VALIDO,
-  pluralizar,
-  etiquetaRubro,
-  errorVencimiento,
-} from '../lib/configEquipo'
-import {
-  Campo,
-  claseInput,
-  Opcion,
-  GrillaOpciones,
-  Interruptor,
-  Etiquetas,
-  CamposVencimiento,
-  ListaEmails,
-} from '../components/CamposEquipo'
+import { RUBROS, CONTACTOS, EVENTOS, ORIGENES_SUGERIDOS, pluralizar, etiquetaRubro, errorVencimiento } from '../lib/configEquipo'
+import { Campo, claseInput, Opcion, GrillaOpciones, Interruptor, Etiquetas, CamposVencimiento } from '../components/CamposEquipo'
 import Logo from '../components/Logo'
 
-const PASOS = ['Tu equipo', 'Contactos', 'Eventos', 'Invitar', 'Resumen']
+const PASOS = ['Tu equipo', 'Contactos', 'Eventos', 'Resumen']
 
 const INICIAL = {
   nombreUsuario: '',
@@ -42,7 +24,6 @@ const INICIAL = {
   evento: 'Charla informativa', // uno de EVENTOS o 'Otro'
   eventoOtro: '',
   emailDiario: true,
-  invitados: [''],
 }
 
 // nombre del contacto elegido, en singular y plural
@@ -59,10 +40,6 @@ function nombreEvento(d) {
   return d.evento === 'Otro' ? d.eventoOtro.trim() : d.evento
 }
 
-function emailsCargados(d) {
-  return d.invitados.map((e) => e.trim().toLowerCase()).filter(Boolean)
-}
-
 // qué le falta a cada paso para poder seguir (null = está completo)
 function errorDelPaso(paso, d) {
   if (paso === 1) {
@@ -74,10 +51,6 @@ function errorDelPaso(paso, d) {
     return errorVencimiento(d)
   }
   if (paso === 3 && d.eventosHabilitado && !nombreEvento(d)) return 'Escribí cómo se llaman tus eventos.'
-  if (paso === 4) {
-    const mal = emailsCargados(d).find((e) => !EMAIL_VALIDO.test(e))
-    if (mal) return `El email "${mal}" no es válido.`
-  }
   return null
 }
 
@@ -154,7 +127,6 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
           eventosHabilitado: d.eventosHabilitado,
           terminoEvento: d.eventosHabilitado ? nombreEvento(d) : '',
           emailDiario: d.emailDiario,
-          invitados: emailsCargados(d),
         }),
       })
       setListo(respuesta)
@@ -165,7 +137,6 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
     }
   }
 
-  const invitados = emailsCargados(d)
   const resumen = [
     { icono: '🏢', label: 'Equipo', valor: d.equipoNombre.trim() },
     { icono: '🗂️', label: 'Rubro', valor: etiquetaRubro(d.rubro) },
@@ -186,8 +157,8 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
     { icono: '📧', label: 'Resumen diario', valor: d.emailDiario ? 'Activado' : 'Desactivado' },
     {
       icono: '👥',
-      label: 'Equipo invitado',
-      valor: invitados.length ? invitados.join(', ') : 'Nadie todavía',
+      label: 'Licencias',
+      valor: '1, la tuya. Cuando tu equipo tenga más licencias, invitás asesores desde Configuración.',
     },
   ]
 
@@ -248,8 +219,6 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
             <h2 className="text-xl font-bold text-text-primary mb-2">¡{d.equipoNombre.trim()} ya está en Trackly!</h2>
             <p className="text-[13px] text-text-secondary leading-relaxed mb-6">
               Tu configuración quedó guardada. Podés empezar a cargar {t.varios.toLowerCase()} ahora mismo.
-              {listo.invitados > 0 &&
-                ` Las personas que invitaste entran solas a tu equipo cuando crean su cuenta en Trackly con ese email.`}
             </p>
             <button onClick={onListo} className="px-6 py-2.5 rounded-md bg-accent text-white text-[13px] font-medium hover:bg-accent-dark">
               Ir a Trackly →
@@ -301,7 +270,7 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
               {paso === 2 && (
                 <>
                   <Encabezado
-                    eyebrow="Paso 2 de 5"
+                    eyebrow="Paso 2 de 4"
                     titulo="¿Cómo llamás a tus contactos?"
                     descripcion="Trackly usa la terminología de tu negocio para que todo se sienta natural."
                   />
@@ -362,7 +331,7 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
               {paso === 3 && (
                 <>
                   <Encabezado
-                    eyebrow="Paso 3 de 5"
+                    eyebrow="Paso 3 de 4"
                     titulo="¿Organizan eventos o reuniones?"
                     descripcion="Trackly puede gestionar eventos a los que invitás a tus contactos y registrar quién asistió."
                   />
@@ -410,23 +379,7 @@ export default function Onboarding({ email, nombreSugerido, onListo, onCerrarSes
               {paso === 4 && (
                 <>
                   <Encabezado
-                    eyebrow="Paso 4 de 5"
-                    titulo="Sumá a tu equipo"
-                    descripcion="Cargá los emails de tu equipo. Cuando cada persona cree su cuenta en Trackly con ese email, entra sola a tu equipo. No es obligatorio para seguir."
-                  />
-                  <Campo label="Emails del equipo">
-                    <ListaEmails emails={d.invitados} onCambiar={(v) => cambiar({ invitados: v })} />
-                    <div className="text-[11px] text-text-tertiary mt-2">
-                      Si preferís, salteá este paso y sumá gente después desde la configuración del equipo.
-                    </div>
-                  </Campo>
-                </>
-              )}
-
-              {paso === 5 && (
-                <>
-                  <Encabezado
-                    eyebrow="Paso 5 de 5"
+                    eyebrow="Paso 4 de 4"
                     titulo="Todo listo para arrancar"
                     descripcion="Así queda configurado tu equipo. Podés cambiarlo después desde la configuración."
                   />

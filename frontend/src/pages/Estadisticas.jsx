@@ -6,6 +6,7 @@ import { TarjetaGrafico as Tarjeta, Barras, Columnas } from '../components/Grafi
 import { useTooltip } from '../lib/useTooltip'
 import Reportes from './Reportes'
 import { apiFetch } from '../lib/api'
+import { miembrosConDatos } from '../lib/miembros'
 import { leadsParaAnalisis } from '../lib/analisis'
 import Avatar from '../components/Avatar'
 import { useConfigEquipo, useTerminos } from '../lib/configEquipo'
@@ -58,7 +59,7 @@ export default function Estadisticas({ userId, rol, cambios }) {
       .then(([l, equipo, c]) => {
         setLeads(l)
         setCierres(c)
-        setMiembros(equipo.miembros)
+        setMiembros(miembrosConDatos(equipo.miembros, l))
         setAhora(Date.now())
         setError(null)
       })

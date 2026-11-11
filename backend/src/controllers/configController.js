@@ -20,4 +20,16 @@ async function borrarInvitacion(req, res) {
   res.json(await configService.borrarInvitacion(req.supabase, req.params.id));
 }
 
-module.exports = { obtener, guardar, equipo, invitar, borrarInvitacion };
+async function desactivarMiembro(req, res) {
+  res.json(await configService.desactivarMiembro(req.supabase, req.params.id));
+}
+
+async function reactivarMiembro(req, res) {
+  res.json(await configService.reactivarMiembro(req.supabase, req.params.id));
+}
+
+async function cambiarRol(req, res) {
+  res.json(await configService.cambiarRol(req.supabase, req.params.id, req.body));
+}
+
+module.exports = { obtener, guardar, equipo, invitar, borrarInvitacion, desactivarMiembro, reactivarMiembro, cambiarRol };

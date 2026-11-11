@@ -32,12 +32,20 @@ function Terminos() {
           haga con tu cuenta. Si creés que alguien más entró, cambiá la contraseña desde Mi perfil.
         </p>
         <p>Por seguridad, la sesión se cierra sola después de un tiempo sin actividad.</p>
+        <p>
+          Si usás Trackly como parte de un equipo, el acceso lo administra ese equipo: quien lo lidera puede desactivarlo. Tu email y tu
+          contraseña siguen siendo tuyos: si otro equipo te invita, podés unirte con la misma cuenta.
+        </p>
       </Seccion>
 
       <Seccion titulo="3. Equipos y roles">
         <p>
           Cada cuenta pertenece a un equipo. El líder del equipo puede invitar asesores, ver y reasignar los leads del equipo y configurar
           sus etapas, motivos y plantillas. Los asesores ven y gestionan sus propios leads.
+        </p>
+        <p>
+          Cada equipo tiene una cantidad de licencias y cada persona activa o invitada ocupa una. El plan gratuito incluye 1 licencia.
+          Cuando alguien deja el equipo, el líder lo desactiva y su licencia queda libre para otra persona.
         </p>
       </Seccion>
 
@@ -67,11 +75,13 @@ function Terminos() {
         </p>
       </Seccion>
 
-      <Seccion titulo="7. Baja de la cuenta">
+      <Seccion titulo="7. Bajas">
         <p>
-          Podés pedir la baja de tu cuenta cuando quieras. Al darla de baja se eliminan tus datos personales; los leads que cargaste siguen
-          siendo del equipo, salvo que el líder pida borrarlos.
+          Las personas de un equipo no se dan de baja solas: la baja la decide el equipo. Quien lo lidera desactiva a quien se va; esa
+          persona deja de tener acceso y lo que cargó (contactos, notas, cierres) queda en el equipo, a su nombre, porque es información del
+          equipo.
         </p>
+        <p>Si un equipo deja de usar Trackly, quien lo lidera puede pedir la baja del equipo completo, y sus datos se eliminan.</p>
       </Seccion>
 
       <Seccion titulo="8. Cambios">
@@ -153,6 +163,10 @@ function Privacidad() {
         <p>
           Podés pedir acceder a tus datos, corregirlos, actualizarlos o eliminarlos. Muchos se pueden cambiar directamente desde Mi perfil.
           Si sos un contacto cargado por un equipo, el pedido se lo hacés a ese equipo, que es el responsable; Trackly lo ayuda a cumplirlo.
+        </p>
+        <p>
+          Si sos parte de un equipo, los pedidos sobre tus datos se los hacés a ese equipo. Cuando alguien deja un equipo, su nombre se
+          conserva en el historial de lo que hizo, porque es parte del registro del equipo.
         </p>
         <p>
           El acceso es gratuito cada seis meses, salvo que se acredite un interés legítimo para pedirlo antes (art. 14, inc. 3 de la Ley

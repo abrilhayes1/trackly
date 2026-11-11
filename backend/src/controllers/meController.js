@@ -16,4 +16,12 @@ async function quitarFoto(req, res) {
   res.json(await meService.quitarFoto(req.supabase, req.user));
 }
 
-module.exports = { perfil, cambiarNombre, cambiarFoto, quitarFoto };
+async function aceptarInvitacion(req, res) {
+  res.json(await meService.aceptarInvitacion(req.supabase, req.user, req.params.id));
+}
+
+async function rechazarInvitacion(req, res) {
+  res.json(await meService.rechazarInvitacion(req.supabase, req.params.id));
+}
+
+module.exports = { perfil, cambiarNombre, cambiarFoto, quitarFoto, aceptarInvitacion, rechazarInvitacion };

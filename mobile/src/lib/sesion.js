@@ -12,6 +12,8 @@ export const useSesion = () => useContext(SesionContext)
 export function SesionProvider({ children }) {
   const [sesion, setSesion] = useState(undefined) // undefined = todavía leyendo la guardada
   const [perfil, setPerfil] = useState(null)
+  // { equipo } si el líder lo desactivó
+  const [desactivado, setDesactivado] = useState(null)
   const [config, setConfig] = useState(null)
   const [leads, setLeads] = useState([])
   const [agenda, setAgenda] = useState([])
@@ -34,12 +36,27 @@ export function SesionProvider({ children }) {
   const recargar = useCallback(async () => {
     setCargando(true)
     try {
-      const [yo, conf, lista, recordatorios] = await Promise.all([
+      const pedidos = await Promise.allSettled([
         apiFetch('/api/me'),
         apiFetch('/api/config'),
         apiFetch('/api/leads?estado=activo,vencido'),
         apiFetch(`/api/recordatorios?fecha=${fechaLocal()}`),
       ])
+      const yo = pedidos[0].status === 'fulfilled' ? pedidos[0].value : null
+      // el líder lo desactivó: no hay equipo que mostrar (los otros pedidos no importan)
+      if (yo?.desactivado) {
+        setDesactivado(yo)
+        setPerfil(null)
+        setConfig(null)
+        setLeads([])
+        setAgenda([])
+        setError(null)
+        return
+      }
+      const fallido = pedidos.find((p) => p.status === 'rejected')
+      if (fallido) throw fallido.reason
+      const [, conf, lista, recordatorios] = pedidos.map((p) => p.value)
+      setDesactivado(null)
       setPerfil(yo)
       setConfig(conf)
       setLeads(lista)
@@ -56,6 +73,7 @@ export function SesionProvider({ children }) {
   useEffect(() => {
     if (!userId) {
       setPerfil(null)
+      setDesactivado(null)
       setLeads([])
       return
     }
@@ -66,6 +84,7 @@ export function SesionProvider({ children }) {
     sesion,
     userId,
     perfil,
+    desactivado,
     config,
     leads,
     agenda,

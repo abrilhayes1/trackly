@@ -93,3 +93,17 @@ test('el límite de pedidos responde 429 y dice cuándo volver a intentar', asyn
   assert.ok(Number(cuarto.headers.get('retry-after')) > 0);
   s.close();
 });
+
+test('las rutas de miembros e invitaciones piden sesión', async () => {
+  const pedidos = [
+    ['POST', '/api/config/miembros/abc/desactivar'],
+    ['POST', '/api/config/miembros/abc/reactivar'],
+    ['PATCH', '/api/config/miembros/abc'],
+    ['POST', '/api/me/invitaciones/abc/aceptar'],
+    ['DELETE', '/api/me/invitaciones/abc'],
+  ];
+  for (const [method, ruta] of pedidos) {
+    const r = await fetch(`${base}${ruta}`, { method });
+    assert.equal(r.status, 401, `${method} ${ruta}`);
+  }
+});
