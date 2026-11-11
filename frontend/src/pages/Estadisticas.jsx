@@ -83,7 +83,7 @@ export default function Estadisticas({ userId, rol, cambios }) {
   )
 
   return (
-    <div className="p-5 max-w-[1040px]">
+    <div className="p-5">
       <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">Estadísticas</h1>
       <p className="text-xs text-text-secondary mb-4">
         {esLider ? 'La actividad comercial de todo el equipo' : 'Resumen de tu actividad comercial'}

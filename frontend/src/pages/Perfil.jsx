@@ -166,7 +166,7 @@ export default function Perfil({ perfil, usuario, cambios, onPerfilCambiado }) {
     'text-xs px-3 py-1.5 rounded-md border border-border-secondary bg-bg-primary text-text-secondary hover:text-text-primary disabled:opacity-50'
 
   return (
-    <div className="p-5 max-w-[760px]">
+    <div className="p-5">
       <h1 className="text-base font-semibold tracking-tight text-text-primary mb-5">Mi perfil</h1>
 
       {/* encabezado: quién sos */}

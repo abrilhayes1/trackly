@@ -202,7 +202,7 @@ export default function Configuracion({ rol, nombreEquipo, miId, onGuardado }) {
   }
 
   return (
-    <div className="p-5 max-w-[720px]">
+    <div className="p-5">
       <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">Configuración del equipo</h1>
       <p className="text-xs text-text-secondary mb-5">Lo que definas acá se refleja en toda la aplicación, para todo el equipo.</p>
 
