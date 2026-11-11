@@ -82,6 +82,12 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 - **Crear cuenta** pide nombre y apellido y muestra "Mínimo 6 caracteres", que se pone en verde al cumplirlo. Además exige tildar "Acepto los términos y condiciones y la política de privacidad". El nombre y la fecha de aceptación van a `user_metadata` (`full_name`, `terminos_aceptados`); el onboarding ya toma `full_name` como nombre sugerido.
 - Las páginas legales se abren sin sesión con `/?legal=terminos` y `/?legal=privacidad`: `main.jsx` carga `pages/Legal.jsx` en vez de la app. Se usa parámetro y no ruta porque Vercel no tiene reescrituras configuradas.
 
+## Esquema de la base versionado
+
+- `database/esquema_completo.sql` es una foto de toda la base de Supabase al 11/11/2026 (después del 19), incluida la parte que se creó a mano al principio: tablas base, `current_tenant_id()`, `current_user_rol()` y sus reglas RLS. Con ese archivo solo se reconstruye la base en un proyecto nuevo (probado en un Postgres local: quedan las mismas 12 tablas, 57 restricciones, 39 reglas, 47 funciones y 7 triggers).
+- Se genera con `database/exportar_esquema.sql` (solo lectura) en el SQL Editor, descargando el resultado como CSV. Si la base cambia, se vuelve a exportar y se reemplaza.
+- Revisión de seguridad del esquema: las 12 tablas tienen RLS y todas las reglas de lectura filtran por `current_tenant_id()`, así que un equipo no ve datos de otro.
+
 ## Licencias y miembros (19_licencias.sql)
 
 - `tenants.licencias` (default 1). Ocupan licencia los perfiles activos más las invitaciones pendientes (`licencias_usadas`). Se cargan a mano: `update tenants set licencias = 15 where nombre = '...'`. Un trigger impide que se cambien desde la app.

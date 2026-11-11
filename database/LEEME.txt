@@ -22,6 +22,11 @@ Ejecutar en este orden (se pueden volver a correr sin duplicar nada, salvo 2_cie
   19_licencias.sql               licencias por equipo, desactivar/reactivar miembros, cambiar rol y pasar de equipo
                                  (las licencias se cargan a mano: update tenants set licencias = 15 where nombre = '...')
 
+Base completa en un solo archivo:
+  esquema_completo.sql           foto de toda la base (tablas, reglas, funciones, triggers, bucket y tarea de
+                                 cada noche) después del 19. Sirve para reconstruir la base en un proyecto de
+                                 Supabase NUEVO y vacío, corriéndolo solo y una vez. No correrlo en la base actual.
+
 Herramienta (solo lectura):
   exportar_esquema.sql           devuelve como SQL la estructura completa de la base (para guardarla en el repo)
 
