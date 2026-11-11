@@ -82,6 +82,13 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 - **Crear cuenta** pide nombre y apellido y muestra "Mínimo 6 caracteres", que se pone en verde al cumplirlo. Además exige tildar "Acepto los términos y condiciones y la política de privacidad". El nombre y la fecha de aceptación van a `user_metadata` (`full_name`, `terminos_aceptados`); el onboarding ya toma `full_name` como nombre sugerido.
 - Las páginas legales se abren sin sesión con `/?legal=terminos` y `/?legal=privacidad`: `main.jsx` carga `pages/Legal.jsx` en vez de la app. Se usa parámetro y no ruta porque Vercel no tiene reescrituras configuradas.
 
+## Navegación con direcciones
+
+- La pantalla y el contacto abierto quedan en la dirección: `#/agenda`, `#/leads/lead/<id>` (`lib/navegacion.js`, con tests). Funcionan Atrás y Adelante del navegador, recargar deja en la misma pantalla y se puede compartir el enlace a un contacto. No se usa React Router: `App.jsx` sincroniza `vista` y el contacto abierto con `location.hash` (`pushState` al navegar, `popstate` para Atrás).
+- Al abrir un contacto desde la app se suma una entrada al historial, así que Atrás (o cerrarlo) vuelve a la pantalla. Si la dirección pide un contacto que no está en la lista de trabajo (por ejemplo, uno cerrado), se pide a `GET /api/leads/:id`; si no existe o es de otro equipo, queda la pantalla sin el contacto.
+- No se pisa la dirección cuando Supabase vuelve de Google o del email de recuperación (`#access_token=…`), y al cerrar sesión se limpia.
+- El login (ingresar, crear cuenta, recuperar contraseña) está en `pages/Login.jsx`; `App.jsx` pasó de unas 790 a 500 líneas.
+
 ## Esquema de la base versionado
 
 - `database/esquema_completo.sql` es una foto de toda la base de Supabase al 11/11/2026 (después del 19), incluida la parte que se creó a mano al principio: tablas base, `current_tenant_id()`, `current_user_rol()` y sus reglas RLS. Con ese archivo solo se reconstruye la base en un proyecto nuevo (probado en un Postgres local: quedan las mismas 12 tablas, 57 restricciones, 39 reglas, 47 funciones y 7 triggers).

@@ -6,6 +6,10 @@ async function listar(req, res) {
   res.json(await leadsService.listar(req.supabase, req.query.estado, req.query.campos));
 }
 
+async function obtener(req, res) {
+  res.json(await leadsService.obtener(req.supabase, req.params.id));
+}
+
 async function importar(req, res) {
   res.json(await leadsService.importar(req.supabase, req.body));
 }
@@ -47,6 +51,7 @@ async function reactivar(req, res) {
 }
 
 module.exports = {
+  obtener,
   listar,
   totales,
   importar,

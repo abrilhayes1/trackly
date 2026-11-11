@@ -6,6 +6,7 @@ const leads = require('../controllers/leadsController');
 router.get('/', requireAuth, leads.listar);
 router.get('/buscar', requireAuth, leads.buscar);
 router.get('/totales', requireAuth, leads.totales);
+router.get('/:id', requireAuth, leads.obtener);
 router.post('/', requireAuth, leads.crear);
 router.post('/importar', requireAuth, leads.importar);
 router.patch('/:id', requireAuth, leads.actualizar);

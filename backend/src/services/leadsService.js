@@ -126,6 +126,18 @@ async function buscar(supabase, consulta) {
   return data;
 }
 
+// Un lead por id (para abrir un enlace directo a su tarjeta). La regla de la base solo deja ver los
+// del propio equipo: si es de otro equipo, no existe para este usuario.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function obtener(supabase, id) {
+  if (!UUID.test(id)) throw new ErrorHttp(404, 'No se encontró el contacto');
+  const { data, error } = await supabase.from('leads').select('*, asesor:profiles!asesor_id(nombre)').eq('id', id).maybeSingle();
+  lanzarSiError(error);
+  if (!data) throw new ErrorHttp(404, 'No se encontró el contacto');
+  return data;
+}
+
 async function crear(supabase, user, body) {
   const { nombre, telefono, email, origen, consulta } = body ?? {};
 
@@ -309,6 +321,7 @@ async function reasignar(supabase, leadId, body) {
 const reactivar = (supabase, leadId) => tomarLead(supabase, 'reactivar_lead', leadId);
 
 module.exports = {
+  obtener,
   listar,
   totales,
   importar,
