@@ -16,7 +16,10 @@ function errorPermiso(error) {
 }
 
 async function listar(supabase) {
-  const { data, error } = await supabase.from('reportes').select('*, autor:profiles!creado_por(nombre)').order('created_at', { ascending: true });
+  const { data, error } = await supabase
+    .from('reportes')
+    .select('*, autor:profiles!creado_por(nombre)')
+    .order('created_at', { ascending: true });
   lanzarSiError(error);
   return data;
 }
