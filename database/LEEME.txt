@@ -22,6 +22,9 @@ Ejecutar en este orden (se pueden volver a correr sin duplicar nada, salvo 2_cie
   19_licencias.sql               licencias por equipo, desactivar/reactivar miembros, cambiar rol y pasar de equipo
                                  (las licencias se cargan a mano: update tenants set licencias = 15 where nombre = '...')
 
+Herramienta (solo lectura):
+  exportar_esquema.sql           devuelve como SQL la estructura completa de la base (para guardarla en el repo)
+
 Opcional, para probar:
   seed_equipo_demo.sql           equipo de prueba: líder + 3 asesores (contraseña Demo2026!) y ~40 contactos en todos los estados
   seed_equipo_demo_borrar.sql    borra ese equipo de prueba y sus usuarios
