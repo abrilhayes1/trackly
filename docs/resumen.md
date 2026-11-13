@@ -82,6 +82,13 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 - **Crear cuenta** pide nombre y apellido y muestra "Mínimo 6 caracteres", que se pone en verde al cumplirlo. Además exige tildar "Acepto los términos y condiciones y la política de privacidad". El nombre y la fecha de aceptación van a `user_metadata` (`full_name`, `terminos_aceptados`); el onboarding ya toma `full_name` como nombre sugerido.
 - Las páginas legales se abren sin sesión con `/?legal=terminos` y `/?legal=privacidad`: `main.jsx` carga `pages/Legal.jsx` en vez de la app. Se usa parámetro y no ruta porque Vercel no tiene reescrituras configuradas.
 
+## Prototipo navegable en un solo archivo
+
+- `docs/prototipos/trackly-prototipo.html`: la app web real con datos de ejemplo, en un solo archivo que se abre con doble clic (sin internet, sin Supabase y sin backend). Sirve para la documentación (prototipo de interfaz web).
+- Se genera con `npm run prototipo` en `frontend/` (modo `demo` de Vite, `.env.demo`). En ese modo `src/lib/supabaseClient.js` y `src/lib/api.js` se reemplazan por `src/demo/supabaseDemo.js` (inicio de sesión de mentira) y `src/demo/apiDemo.js`, que responde con `src/demo/servidor.js`: las mismas rutas y formato que el backend, sobre los datos de `src/demo/datos.js` (el equipo de `seed_equipo_demo.sql`). Al final, `vite.config.js` mete código, estilos, la letra y los logos en el HTML. La compilación normal (Vercel) no incluye nada de esto.
+- Se entra con `lider@demo.trackly`, `martin@demo.trackly`, `lucia@demo.trackly` o `diego@demo.trackly` y cualquier contraseña, o con la barra de abajo ("ver como"). Crear una cuenta lleva al onboarding. Los cambios duran mientras la pestaña está abierta ("Reiniciar datos" vuelve al inicio).
+- Si la app cambia, se vuelve a correr `npm run prototipo` y se reemplaza el archivo.
+
 ## El líder ve todo el equipo (RF30)
 
 - En Mis leads, Alertas de hoy y Agenda el líder tiene un filtro arriba (`components/FiltroAsesor.jsx`): Todo el equipo, Yo o cada persona activa. La elección se guarda en el navegador (`trackly-ver-asesor`) y vale para las tres pantallas (`lib/useVerAsesor.js`). Un asesor sigue viendo solo lo suyo.

@@ -6,6 +6,15 @@ import './index.css'
 
 const raiz = createRoot(document.getElementById('root'))
 
+// prototipo (npm run prototipo): barra para cambiar de usuario; en la app real esto no existe
+if (import.meta.env.VITE_DEMO) {
+  import('./demo/BarraDemo.jsx').then(({ default: BarraDemo }) => {
+    const lugar = document.createElement('div')
+    document.body.appendChild(lugar)
+    createRoot(lugar).render(<BarraDemo />)
+  })
+}
+
 // Las variables de entorno se meten en la app al construirla (en Vercel, en cada deploy).
 // Si falta alguna, se muestra qué falta en vez de una pantalla en blanco.
 const necesarias = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY']

@@ -144,7 +144,7 @@ Pantallas actuales (todas con modo claro y oscuro):
 - **App:** Mis leads, Alertas de hoy, Agenda (5 días / semana / mes), Charlas (lista y detalle), Archivo (Vencidos / Archivados), Casos exitosos, Cerrados perdidos, Estadísticas (con comparación entre asesores), Reportes personalizados, Mi perfil (datos, seguridad, plantillas, preferencias), Panel del equipo (Asesores / Leads del equipo / Sin asignar + detalle de asesor), Configuración (equipo, contactos, vencimiento, cierres, eventos, **miembros y licencias**).
 - **Ventanas:** tarjeta del lead (contactar con plantillas, interés, recordatorio, historial, cierre ganado/perdido, charlas, emails), nuevo lead, importar desde Excel, recordatorio, confirmaciones, invitación de otro equipo.
 - **Logo nuevo** (versión clara y oscura), favicon e ícono.
-- **Plan:** generar un **prototipo HTML navegable** de un solo archivo a partir de la app real con datos de ejemplo (pendiente de hacer).
+- **Prototipo navegable:** `docs/prototipos/trackly-prototipo.html`, la app real con datos de ejemplo en un solo archivo que se abre sin internet. Usuarios: `lider@demo.trackly`, `martin@demo.trackly`, `lucia@demo.trackly`, `diego@demo.trackly` (cualquier contraseña) o la barra "ver como". Se regenera con `npm run prototipo`.
 
 ---
 
@@ -291,5 +291,5 @@ Agregar filas: RF45→CU18→`pages/Reportes.jsx`, `lib/reportes.js`, `/api/repo
 6. **Exportar a Excel** y **copias de respaldo** programadas.
 7. **Accesibilidad:** foco en ventanas, etiquetas asociadas, contraste del texto secundario.
 8. **Tutorial** de primer ingreso y rediseño del onboarding.
-9. **Prototipo HTML** navegable para la documentación.
+9. **Prototipo de la app mobile** en HTML (el de la web ya está).
 10. Plan **Hobby de Railway** (el de prueba vence) y dominio propio.

@@ -191,18 +191,18 @@ export default function Legal({ tipo }) {
     <div className="min-h-screen bg-bg-secondary">
       <header className="border-b border-border-tertiary bg-bg-primary">
         <div className="max-w-[720px] mx-auto px-5 py-4 flex items-center justify-between gap-4">
-          <a href="/" aria-label="Ir a Trackly">
+          <a href={window.location.pathname} aria-label="Ir a Trackly">
             <Logo alto="h-6" />
           </a>
           <nav className="flex gap-4 text-[13px]">
             <a
-              href="/?legal=terminos"
+              href="?legal=terminos"
               className={esPrivacidad ? 'text-text-secondary hover:text-text-primary' : 'text-text-primary font-medium'}
             >
               Términos
             </a>
             <a
-              href="/?legal=privacidad"
+              href="?legal=privacidad"
               className={esPrivacidad ? 'text-text-primary font-medium' : 'text-text-secondary hover:text-text-primary'}
             >
               Privacidad

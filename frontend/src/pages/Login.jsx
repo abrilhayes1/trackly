@@ -227,11 +227,11 @@ export default function Login({ modoInicial = 'ingresar', emailInicial = '', men
               />
               <span>
                 Acepto los{' '}
-                <a href="/?legal=terminos" target="_blank" rel="noopener" className="text-accent hover:underline">
+                <a href="?legal=terminos" target="_blank" rel="noopener" className="text-accent hover:underline">
                   términos y condiciones
                 </a>{' '}
                 y la{' '}
-                <a href="/?legal=privacidad" target="_blank" rel="noopener" className="text-accent hover:underline">
+                <a href="?legal=privacidad" target="_blank" rel="noopener" className="text-accent hover:underline">
                   política de privacidad
                 </a>
                 .
