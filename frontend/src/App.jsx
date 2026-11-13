@@ -382,10 +382,10 @@ function App() {
               <Suspense fallback={<p className="p-5 text-sm text-text-secondary">Cargando...</p>}>
                 {buscando && <ResultadosBusqueda q={textoBusqueda} userId={userId} onAbrirLead={abrirLead} cambios={cambios} />}
 
-                {!buscando && vista === 'alertas' && <AlertasHoy userId={userId} onAbrirLead={abrirLead} />}
+                {!buscando && vista === 'alertas' && <AlertasHoy userId={userId} rol={perfil?.rol} onAbrirLead={abrirLead} />}
 
                 {!buscando && vista === 'agenda' && (
-                  <Agenda userId={userId} onAbrirLead={abrirLead} onCambioLead={alCambiarLead} cambios={cambios} />
+                  <Agenda userId={userId} rol={perfil?.rol} onAbrirLead={abrirLead} onCambioLead={alCambiarLead} cambios={cambios} />
                 )}
 
                 {!buscando && vista === 'charlas' && (

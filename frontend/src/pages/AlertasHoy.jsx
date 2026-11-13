@@ -4,6 +4,9 @@ import { useLeadsEquipo } from '../lib/leadsEquipo'
 import { calcularAlertas } from '../lib/alertas'
 import { colorPorInteres, sinCategoria, etiquetaInteres } from '../lib/interes'
 import { fechaHoraCorta } from '../lib/formato'
+import FiltroAsesor from '../components/FiltroAsesor'
+import { useVerAsesor } from '../lib/useVerAsesor'
+import { TODO_EL_EQUIPO, duenoDe } from '../lib/miembros'
 
 const secciones = [
   { clave: 'vencenHoy', titulo: 'Vencen hoy', badge: 'bg-red-bg text-urgent-red', dot: 'bg-dot-red' },
@@ -38,7 +41,7 @@ function etiquetaAlerta(clave, lead, ahora) {
   }
 }
 
-function AlertaCard({ lead, seccion, ahora, onAbrir }) {
+function AlertaCard({ lead, seccion, ahora, onAbrir, dueno }) {
   const etiqueta = etiquetaAlerta(seccion.clave, lead, ahora)
   const colores = lead.interes ? colorPorInteres[lead.interes] : sinCategoria
 
@@ -52,6 +55,7 @@ function AlertaCard({ lead, seccion, ahora, onAbrir }) {
       <div className="flex-1 min-w-0">
         <div className="text-[13px] font-medium text-text-primary">{lead.nombre}</div>
         <div className="text-[11px] text-text-secondary truncate mt-px">
+          {dueno && <span className="font-medium text-text-primary">{dueno} · </span>}
           {[lead.telefono, lead.origen].filter(Boolean).join(' · ') || 'Sin datos de contacto'}
         </div>
       </div>
@@ -66,24 +70,29 @@ function AlertaCard({ lead, seccion, ahora, onAbrir }) {
   )
 }
 
-export default function AlertasHoy({ userId, onAbrirLead }) {
+export default function AlertasHoy({ userId, rol, onAbrirLead }) {
   // la lista y la configuración las carga App una sola vez para toda la app
   const { leads, listo, error } = useLeadsEquipo()
   const { config } = useConfigEquipo()
   const cargando = !listo
+  // el líder elige de quién ver las alertas (todo el equipo, él o una persona)
+  const ver = useVerAsesor(rol, userId)
 
   // la hora de referencia se toma cada vez que cambian los datos
   const { alertas, ahora } = useMemo(() => {
     const ahora = new Date()
-    return { ahora, alertas: calcularAlertas(leads, config, userId, ahora) }
-  }, [leads, config, userId])
+    return { ahora, alertas: calcularAlertas(leads, config, ver.asesor, ahora) }
+  }, [leads, config, ver.asesor])
 
   const total = secciones.reduce((acc, s) => acc + alertas[s.clave].length, 0)
 
   return (
     <div className="p-5">
       <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">Alertas de hoy</h1>
-      <p className="text-xs text-text-secondary mb-5">Lo que necesitás atender hoy</p>
+      <p className="text-xs text-text-secondary mb-5">
+        {ver.asesor === TODO_EL_EQUIPO ? 'Lo que el equipo necesita atender hoy' : 'Lo que necesitás atender hoy'}
+      </p>
+      {ver.esLider && <FiltroAsesor asesor={ver.asesor} onElegir={ver.elegir} miembros={ver.miembros} userId={userId} />}
 
       {cargando && <p className="text-sm text-text-secondary">Cargando...</p>}
 
@@ -91,7 +100,8 @@ export default function AlertasHoy({ userId, onAbrirLead }) {
 
       {!cargando && !error && total === 0 && (
         <p className="text-sm text-text-secondary">
-          No tenés nada urgente para hoy. Los leads por vencer y los recordatorios del día van a aparecer acá.
+          {ver.verOtros ? 'No hay nada urgente para hoy.' : 'No tenés nada urgente para hoy.'} Los leads por vencer y los recordatorios del
+          día van a aparecer acá.
         </p>
       )}
 
@@ -107,7 +117,14 @@ export default function AlertasHoy({ userId, onAbrirLead }) {
                 </span>
               </div>
               {alertas[seccion.clave].map((lead) => (
-                <AlertaCard key={lead.id} lead={lead} seccion={seccion} ahora={ahora} onAbrir={onAbrirLead} />
+                <AlertaCard
+                  key={lead.id}
+                  lead={lead}
+                  seccion={seccion}
+                  ahora={ahora}
+                  onAbrir={onAbrirLead}
+                  dueno={ver.verOtros ? duenoDe(lead) : undefined}
+                />
               ))}
             </div>
           ) : null,

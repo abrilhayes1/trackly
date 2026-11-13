@@ -82,6 +82,13 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 - **Crear cuenta** pide nombre y apellido y muestra "Mínimo 6 caracteres", que se pone en verde al cumplirlo. Además exige tildar "Acepto los términos y condiciones y la política de privacidad". El nombre y la fecha de aceptación van a `user_metadata` (`full_name`, `terminos_aceptados`); el onboarding ya toma `full_name` como nombre sugerido.
 - Las páginas legales se abren sin sesión con `/?legal=terminos` y `/?legal=privacidad`: `main.jsx` carga `pages/Legal.jsx` en vez de la app. Se usa parámetro y no ruta porque Vercel no tiene reescrituras configuradas.
 
+## El líder ve todo el equipo (RF30)
+
+- En Mis leads, Alertas de hoy y Agenda el líder tiene un filtro arriba (`components/FiltroAsesor.jsx`): Todo el equipo, Yo o cada persona activa. La elección se guarda en el navegador (`trackly-ver-asesor`) y vale para las tres pantallas (`lib/useVerAsesor.js`). Un asesor sigue viendo solo lo suyo.
+- La lógica compartida (`agruparLeads`, `calcularAlertas`, `recordatoriosDeLeads`) acepta `'*'` (`TODO_EL_EQUIPO` en `lib/miembros.js`) además de un id; "todo el equipo" incluye los sin asignar. Cuando se ve a otras personas, cada tarjeta y recordatorio muestra de quién es.
+- Backend: `GET /api/recordatorios?asesor=*` o `?asesor=<id>` solo para el líder (403 para el resto). Completar y editar recordatorios ya no se limita al dueño en el backend: lo controla la regla de la base, que permite al dueño o al líder del equipo.
+- Los contadores del menú siguen siendo personales.
+
 ## Navegación con direcciones
 
 - La pantalla y el contacto abierto quedan en la dirección: `#/agenda`, `#/leads/lead/<id>` (`lib/navegacion.js`, con tests). Funcionan Atrás y Adelante del navegador, recargar deja en la misma pantalla y se puede compartir el enlace a un contacto. No se usa React Router: `App.jsx` sincroniza `vista` y el contacto abierto con `location.hash` (`pushState` al navegar, `popstate` para Atrás).

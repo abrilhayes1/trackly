@@ -1,3 +1,4 @@
+import { esDe } from './miembros'
 const MS_DIA = 1000 * 60 * 60 * 24
 const DIAS_ESTA_SEMANA = 3
 
@@ -44,7 +45,7 @@ export function agruparLeads(leads, config, userId) {
   const habiles = !!config?.dias_habiles
 
   leads
-    .filter((l) => l.asesor_id === userId && l.estado === 'activo')
+    .filter((l) => esDe(l, userId) && l.estado === 'activo')
     .forEach((lead) => {
       // si nunca lo contactaron, los días se cuentan desde que ingresó
       const dias = diasDesde(lead.ultimo_contacto || lead.fecha_ingreso, habiles)

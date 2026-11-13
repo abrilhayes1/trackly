@@ -2,6 +2,9 @@
 // vistas (5 días, semana y mes). Al tocar uno se abre su detalle.
 import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../lib/api'
+import FiltroAsesor from '../components/FiltroAsesor'
+import { useVerAsesor } from '../lib/useVerAsesor'
+import { TODO_EL_EQUIPO } from '../lib/miembros'
 import RecordatorioModal from '../components/RecordatorioModal'
 import { useLeadsEquipo } from '../lib/leadsEquipo'
 import { agendaDiasOcultos } from '../lib/preferencias'
@@ -90,6 +93,7 @@ function Evento({ item, estado, compacto, onAbrir, onCompletar }) {
         />
       </div>
       <div className={`text-xs text-text-primary truncate mt-0.5 ${item.hecho ? 'line-through' : ''}`}>{item.contacto}</div>
+      {item.dueno && <div className="text-[10px] font-medium text-accent-text truncate mt-0.5">{item.dueno}</div>}
       {!compacto && item.nota && <div className="text-[11px] text-text-tertiary truncate mt-0.5">{item.nota}</div>}
     </div>
   )
@@ -193,7 +197,7 @@ function Mes({ dias, cursor, hoy, porDia, ahora, onAbrir, onVerDia }) {
   )
 }
 
-export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
+export default function Agenda({ userId, rol, onAbrirLead, onCambioLead, cambios }) {
   const [ahora, setAhora] = useState(() => new Date())
   const hoy = fechaLocal(ahora)
   const [vista, setVista] = useState(leerVista)
@@ -201,7 +205,9 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
   const [items, setItems] = useState([])
   // los recordatorios de las tarjetas salen de la lista compartida de leads (no se vuelve a pedir)
   const { leads, listo, error: errorLeads } = useLeadsEquipo()
-  const deLeads = useMemo(() => recordatoriosDeLeads(leads, userId), [leads, userId])
+  // el líder elige de quién ver la agenda (todo el equipo, él o una persona)
+  const ver = useVerAsesor(rol, userId)
+  const deLeads = useMemo(() => recordatoriosDeLeads(leads, ver.asesor), [leads, ver.asesor])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   // { item } para ver uno; { fecha } para crear uno nuevo
@@ -221,16 +227,22 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
 
   // los recordatorios manuales del período en pantalla (más los atrasados sin hacer)
   useEffect(() => {
-    apiFetch(`/api/recordatorios?fecha=${desde}&hasta=${hasta}`)
+    if (!ver.asesor) return
+    const deQuien = ver.verOtros ? `&asesor=${encodeURIComponent(ver.asesor)}` : ''
+    apiFetch(`/api/recordatorios?fecha=${desde}&hasta=${hasta}${deQuien}`)
       .then((datos) => {
         setItems(datos)
         setError(null)
       })
       .catch((e) => setError(e.message))
       .finally(() => setCargando(false))
-  }, [desde, hasta, cambios])
+  }, [desde, hasta, cambios, ver.asesor, ver.verOtros])
 
-  const todos = [...items, ...deLeads].sort(ordenarRecordatorios)
+  // viendo a otras personas, cada recordatorio dice de quién es
+  const nombreDe = (id) => (id === userId ? 'Vos' : ver.miembros.find((m) => m.id === id)?.nombre || 'Otro asesor')
+  const todos = [...items, ...deLeads]
+    .map((r) => (ver.verOtros ? { ...r, dueno: nombreDe(r.lead ? r.lead.asesor_id : r.asesor_id) } : r))
+    .sort(ordenarRecordatorios)
   const atrasados = todos.filter((r) => !r.hecho && r.fecha < hoy)
   const porDia = (fecha) => todos.filter((r) => r.fecha === fecha)
   // columnas de Días y Semana: sin los días ocultos que no tengan recordatorios
@@ -283,7 +295,9 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
   }
 
   function guardado(r) {
-    setItems((actuales) => [...actuales.filter((x) => x.id !== r.id), r].sort(ordenarRecordatorios))
+    // uno nuevo es siempre del usuario: si se está viendo a otra persona, no se suma a su agenda
+    const seVe = ver.asesor === TODO_EL_EQUIPO || r.asesor_id === ver.asesor
+    setItems((actuales) => [...actuales.filter((x) => x.id !== r.id), ...(seVe ? [r] : [])].sort(ordenarRecordatorios))
     setModal(null)
   }
 
@@ -295,7 +309,11 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
       <div className="flex items-start justify-between mb-4">
         <div>
           <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">Agenda</h1>
-          <p className="text-xs text-text-secondary">Tus recordatorios y los de tus contactos. Tocá uno para ver el detalle.</p>
+          <p className="text-xs text-text-secondary">
+            {ver.asesor === TODO_EL_EQUIPO
+              ? 'Los recordatorios de todo el equipo. Tocá uno para ver el detalle.'
+              : 'Tus recordatorios y los de tus contactos. Tocá uno para ver el detalle.'}
+          </p>
         </div>
         <button
           onClick={() => setModal({ fecha: cursor > hoy && vista === 'dias' ? cursor : hoy })}
@@ -304,6 +322,8 @@ export default function Agenda({ userId, onAbrirLead, onCambioLead, cambios }) {
           + Nuevo recordatorio
         </button>
       </div>
+
+      {ver.esLider && <FiltroAsesor asesor={ver.asesor} onElegir={ver.elegir} miembros={ver.miembros} userId={userId} />}
 
       <div className="flex items-center gap-2 mb-4">
         <button onClick={() => setCursor(moverCursor(vista, cursor, -1, ocultos))} className={flecha} title="Anterior">

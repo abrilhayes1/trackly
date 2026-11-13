@@ -2,6 +2,9 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { agruparLeads } from '../lib/urgencia'
 import LeadCard from '../components/LeadCard'
+import FiltroAsesor from '../components/FiltroAsesor'
+import { useVerAsesor } from '../lib/useVerAsesor'
+import { TODO_EL_EQUIPO, duenoDe } from '../lib/miembros'
 import NuevoLeadModal from '../components/NuevoLeadModal'
 // la ventana de importar (y las librerías para leer Excel) se descarga recién al abrirla
 const ImportarLeads = lazy(() => import('../components/ImportarLeads'))
@@ -76,7 +79,16 @@ export default function MisLeads({ rol, onAbrirLead, onCambio }) {
     })
   }, [])
 
-  const grupos = useMemo(() => agruparLeads(leads, config, userId), [leads, config, userId])
+  // el líder elige de quién ver (todo el equipo, él o una persona); un asesor ve lo suyo
+  const ver = useVerAsesor(rol, userId)
+  const grupos = useMemo(() => agruparLeads(leads, config, ver.asesor), [leads, config, ver.asesor])
+  const dueno = (lead) => (ver.verOtros ? duenoDe(lead) : undefined)
+  const titulo =
+    ver.asesor === TODO_EL_EQUIPO
+      ? `${varios.charAt(0).toUpperCase()}${varios.slice(1)} del equipo`
+      : ver.verOtros
+        ? `${varios.charAt(0).toUpperCase()}${varios.slice(1)} de ${ver.miembros.find((m) => m.id === ver.asesor)?.nombre.split(' ')[0] || 'otra persona'}`
+        : `Mis ${varios}`
 
   const totalVisibles = Object.values(grupos).reduce((acc, g) => acc + g.length, 0)
 
@@ -132,7 +144,7 @@ export default function MisLeads({ rol, onAbrirLead, onCambio }) {
       {seccionAbierta ? (
         <>
           <button onClick={() => setAbierta(null)} className="text-xs text-text-secondary hover:text-text-primary mb-3">
-            ← Volver a Mis {varios}
+            ← Volver a {titulo}
           </button>
           <div className="flex items-center justify-between gap-3 mb-1">
             <div className="flex items-center gap-2">
@@ -151,7 +163,7 @@ export default function MisLeads({ rol, onAbrirLead, onCambio }) {
           </div>
           <p className="text-xs text-text-secondary mb-4">{seccionAbierta.ayuda || 'Ordenados por urgencia'}</p>
           {itemsAbiertos.map(({ lead, grupo }) => (
-            <LeadCard key={lead.id} lead={lead} grupo={grupo} onAbrir={onAbrirLead} />
+            <LeadCard dueno={dueno(lead)} key={lead.id} lead={lead} grupo={grupo} onAbrir={onAbrirLead} />
           ))}
           {itemsAbiertos.length === 0 && (
             <p className="text-center py-8 text-xs text-text-tertiary">
@@ -163,7 +175,7 @@ export default function MisLeads({ rol, onAbrirLead, onCambio }) {
         <>
           <div className="flex items-start justify-between gap-3 mb-5">
             <div>
-              <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">Mis {varios}</h1>
+              <h1 className="text-base font-semibold tracking-tight text-text-primary mb-[3px]">{titulo}</h1>
               <p className="text-xs text-text-secondary">{subtitulo}</p>
             </div>
             <button
@@ -177,6 +189,8 @@ export default function MisLeads({ rol, onAbrirLead, onCambio }) {
               Importar desde Excel
             </button>
           </div>
+
+          {ver.esLider && <FiltroAsesor asesor={ver.asesor} onElegir={ver.elegir} miembros={ver.miembros} userId={userId} />}
 
           {cargando && <p className="text-sm text-text-secondary">Cargando...</p>}
 
@@ -215,7 +229,7 @@ export default function MisLeads({ rol, onAbrirLead, onCambio }) {
                 <div id="seccion-destacados" className="mb-4">
                   <Titulo titulo="★ Destacados" badge="bg-purple-bg text-purple-text" cantidad={destacados.length} />
                   {recortar(destacados).map(({ lead, grupo }) => (
-                    <LeadCard key={lead.id} lead={lead} grupo={grupo} onAbrir={onAbrirLead} />
+                    <LeadCard dueno={dueno(lead)} key={lead.id} lead={lead} grupo={grupo} onAbrir={onAbrirLead} />
                   ))}
                   <VerTodos total={destacados.length} limite={limite} onClick={() => abrir('destacados')} />
                 </div>
@@ -228,7 +242,7 @@ export default function MisLeads({ rol, onAbrirLead, onCambio }) {
                   <div key={clave} id={`seccion-${clave}`} className="mb-4">
                     <Titulo titulo={titulo} badge={badge} cantidad={lista.length} ayuda={ayuda} />
                     {recortar(lista).map((lead) => (
-                      <LeadCard key={lead.id} lead={lead} grupo={clave} onAbrir={onAbrirLead} />
+                      <LeadCard dueno={dueno(lead)} key={lead.id} lead={lead} grupo={clave} onAbrir={onAbrirLead} />
                     ))}
                     <VerTodos total={lista.length} limite={limite} onClick={() => abrir(clave)} />
                   </div>

@@ -1,4 +1,5 @@
 import { contarDias } from './urgencia'
+import { esDe } from './miembros'
 
 // Arma las alertas de hoy del usuario.
 // - Solo cuenta leads propios y activos (un lead cerrado no genera alertas, RNF10).
@@ -19,7 +20,7 @@ export function calcularAlertas(leads, config, userId, ahora = new Date()) {
   const resultado = { vencenHoy: [], porVencer: [], recordatorios: [] }
 
   leads
-    .filter((l) => l.asesor_id === userId && l.estado === 'activo')
+    .filter((l) => esDe(l, userId) && l.estado === 'activo')
     .forEach((lead) => {
       const dias = contarDias(lead.ultimo_contacto || lead.fecha_ingreso, ahora, !!config?.dias_habiles)
 

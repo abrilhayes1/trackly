@@ -36,3 +36,10 @@ export function miembrosConDatos(miembros = [], leads = []) {
   const conLeads = new Set(leads.map((l) => l.asesor_id))
   return miembros.filter((m) => estaActivo(m) || conLeads.has(m.id)).map((m) => ({ ...m, nombre: nombreMiembro(m) }))
 }
+
+// el líder puede ver Mis leads, Alertas y Agenda de todo el equipo ('*') o de una persona
+export const TODO_EL_EQUIPO = '*'
+export const esDe = (lead, asesor) => asesor === TODO_EL_EQUIPO || lead.asesor_id === asesor
+
+// de quién es un contacto, para mostrarlo en la tarjeta cuando se ve más de una persona
+export const duenoDe = (lead) => lead.asesor?.nombre || (lead.asesor_id ? 'Otro asesor' : 'Sin asignar')

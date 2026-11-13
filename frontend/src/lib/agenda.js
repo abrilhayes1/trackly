@@ -1,3 +1,4 @@
+import { esDe } from './miembros'
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 const dos = (n) => String(n).padStart(2, '0')
 
@@ -54,7 +55,7 @@ export function diasDespues(fecha, n) {
 // la agenda, para mostrarlos juntos. Cuentan como hechos si después se registró un contacto.
 export function recordatoriosDeLeads(leads, userId) {
   return leads
-    .filter((l) => l.asesor_id === userId && l.estado === 'activo' && l.recordatorio)
+    .filter((l) => esDe(l, userId) && l.estado === 'activo' && l.recordatorio)
     .map((l) => {
       const f = new Date(l.recordatorio)
       return {

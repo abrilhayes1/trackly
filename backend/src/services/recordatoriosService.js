@@ -5,7 +5,11 @@ const { fechaValida, validarRecordatorio, ordenarRecordatorios } = require('../l
 // Agenda del usuario: los recordatorios desde el día que manda el navegador (?fecha=2026-10-05)
 // hasta ?hasta= (opcional, para ver los próximos días), más los de días anteriores que todavía no
 // se marcaron como hechos. La "fecha de hoy" la manda el navegador porque el servidor trabaja en UTC.
-async function listar(supabase, user, fecha, hasta) {
+// El líder puede ver los de todo el equipo (?asesor=*) o los de una persona (?asesor=<id>); la regla
+// de la base igual solo le deja ver los de su equipo. Los demás ven solo los propios.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function listar(supabase, user, fecha, hasta, asesor) {
   if (!fechaValida(fecha)) {
     throw new ErrorHttp(400, 'Falta la fecha (formato AAAA-MM-DD)');
   }
@@ -13,7 +17,19 @@ async function listar(supabase, user, fecha, hasta) {
     throw new ErrorHttp(400, 'La fecha "hasta" no es válida');
   }
 
-  const propios = () => supabase.from('recordatorios').select('*').eq('asesor_id', user.id);
+  let quien = user.id;
+  if (asesor && asesor !== user.id) {
+    if (asesor !== '*' && !UUID.test(asesor)) throw new ErrorHttp(400, 'El asesor no es válido');
+    const { data: yo, error: errorYo } = await supabase.from('profiles').select('rol').eq('id', user.id).maybeSingle();
+    lanzarSiError(errorYo);
+    if (yo?.rol !== 'lider') throw new ErrorHttp(403, 'Solo el líder puede ver la agenda de otras personas');
+    quien = asesor;
+  }
+
+  const propios = () => {
+    const consulta = supabase.from('recordatorios').select('*');
+    return quien === '*' ? consulta : consulta.eq('asesor_id', quien);
+  };
 
   const [delPeriodo, atrasados] = await Promise.all([
     propios()
@@ -61,8 +77,8 @@ async function marcar(supabase, user, id, body) {
   const { data, error } = await supabase
     .from('recordatorios')
     .update({ hecho })
+    // la regla de la base deja editar al dueño o al líder del equipo
     .eq('id', id)
-    .eq('asesor_id', user.id)
     .select()
     .maybeSingle();
 
@@ -93,8 +109,8 @@ async function actualizar(supabase, user, id, body) {
   const { data, error } = await supabase
     .from('recordatorios')
     .update({ ...valores, ...(datos.hecho !== undefined && { hecho: datos.hecho }) })
+    // la regla de la base deja editar al dueño o al líder del equipo
     .eq('id', id)
-    .eq('asesor_id', user.id)
     .select()
     .maybeSingle();
 

@@ -8,7 +8,7 @@ const estiloPorGrupo = {
   alDia: { dot: 'bg-green-border', dias: 'text-text-tertiary' },
 }
 
-export default function LeadCard({ lead, grupo, onAbrir }) {
+export default function LeadCard({ lead, grupo, onAbrir, dueno }) {
   const estilo = estiloPorGrupo[grupo]
   const colores = lead.interes ? colorPorInteres[lead.interes] : sinCategoria
   const etiqueta = lead.interes ? etiquetaInteres[lead.interes] : 'Sin categoría'
@@ -29,7 +29,10 @@ export default function LeadCard({ lead, grupo, onAbrir }) {
           )}
           {lead.nombre}
         </div>
-        <div className="text-[11px] text-text-secondary truncate mt-px">{lead.consulta || lead.origen || 'Sin consulta registrada'}</div>
+        <div className="text-[11px] text-text-secondary truncate mt-px">
+          {dueno && <span className="font-medium text-text-primary">{dueno} · </span>}
+          {lead.consulta || lead.origen || 'Sin consulta registrada'}
+        </div>
       </div>
 
       <div className="flex flex-col items-end gap-[3px] shrink-0">
