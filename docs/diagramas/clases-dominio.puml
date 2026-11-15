@@ -1,4 +1,5 @@
 @startuml
+title Trackly - Diagrama de clases de dominio
 hide circle
 hide empty methods
 skinparam classAttributeIconSize 0
@@ -17,12 +18,12 @@ enum EstadoLead {
 }
 
 enum NivelInteres {
-  muy interesado
+  muy_interesado
   interesado
   duda
-  poco interesado
+  poco_interesado
   frio
-  no interesado
+  no_interesado
 }
 
 enum TipoCierre {
@@ -46,6 +47,7 @@ class Equipo {
   nombre : texto
   plan : texto
   licencias : entero
+  fechaCreacion : fechaHora
 }
 
 class ConfiguracionEquipo {
@@ -78,6 +80,7 @@ class Usuario {
   foto : texto
   activo : booleano
   historico : booleano
+  fechaAlta : fechaHora
   fechaDesactivacion : fechaHora
 }
 
@@ -177,8 +180,11 @@ Equipo "1" -- "0..*" Evento : organiza
 Evento "0..*" -- "0..*" Lead : invitados
 (Evento, Lead) .. InvitacionEvento
 Usuario "0..1" -- "0..*" InvitacionEvento : invitó
+Usuario "1" -- "0..*" Evento : crea
 
-' Plantillas y reportes
+' Plantillas y reportes (personales o compartidos con el equipo)
+Equipo "1" -- "0..*" Plantilla : tiene
+Equipo "1" -- "0..*" Reporte : tiene
 Usuario "1" -- "0..*" Plantilla : crea
 Usuario "1" -- "0..*" Reporte : crea
 
