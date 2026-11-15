@@ -1,0 +1,193 @@
+@startuml
+title Trackly - Diagrama de clases de dominio
+skinparam classAttributeIconSize 0
+left to right direction
+hide empty members
+
+class Equipo {
+  +nombre : String
+  +plan : String
+  +licencias : int
+  +licenciasLibres() : int
+  +invitar(email)
+}
+
+class ConfiguracionEquipo {
+  +rubro : String
+  +terminoContacto : String
+  +terminoContactoPlural : String
+  +vencimientoHabilitado : boolean
+  +diasVencimiento : int
+  +diasAlertaPrevia : int
+  +diasArchivo : int
+  +diasHabiles : boolean
+  +categoriasOrigen : String[]
+  +eventosHabilitado : boolean
+  +terminoEvento : String
+  +emailDiario : boolean
+  +motivosPerdida : String[]
+}
+
+class CampoCierre {
+  +nombre : String
+  +tipo : TipoCampo
+  +obligatorio : boolean
+  +opciones : String[]
+}
+
+class Usuario {
+  +nombre : String
+  +email : String
+  +rol : Rol
+  +foto : String
+  +activo : boolean
+  +historico : boolean
+  +desactivadoEn : Date
+  +desactivar()
+  +reactivar()
+  +cambiarRol(rol)
+}
+
+class Invitacion {
+  +email : String
+  +rol : Rol
+  +creadaEn : Date
+  +aceptadaEn : Date
+  +aceptar()
+  +rechazar()
+}
+
+class Lead {
+  +nombre : String
+  +telefono : String
+  +email : String
+  +emailsExtra : String[]
+  +origen : String
+  +consulta : String
+  +interes : NivelInteres
+  +estado : EstadoLead
+  +destacado : boolean
+  +fechaIngreso : Date
+  +ultimoContacto : Date
+  +recordatorio : Date
+  +vencidoEn : Date
+  +archivadoEn : Date
+  +registrarContacto()
+  +programarRecordatorio(fecha)
+  +cerrar(tipo, datos, motivo)
+  +reclamar(asesor)
+  +reactivar(asesor)
+  +reasignar(asesor)
+  +diasSinContacto() : int
+}
+
+class EntradaHistorial {
+  +texto : String
+  +fecha : Date
+}
+
+class Recordatorio {
+  +fecha : Date
+  +hora : Time
+  +contacto : String
+  +nota : String
+  +hecho : boolean
+  +completar()
+}
+
+class Cierre {
+  +tipo : TipoCierre
+  +datos : Map
+  +motivo : String
+  +fecha : Date
+  +editar(tipo, datos, motivo)
+}
+
+class Charla {
+  +nombre : String
+  +categoria : String
+  +fecha : Date
+  +link : String
+  +invitar(lead)
+}
+
+class InvitacionCharla {
+  +asistio : Boolean
+  +fechaNotificacion : Date
+  +marcarAsistencia(asistio)
+}
+
+class Plantilla {
+  +nombre : String
+  +canal : Canal
+  +asunto : String
+  +texto : String
+  +compartida : boolean
+  +completarPara(lead) : String
+}
+
+class Reporte {
+  +nombre : String
+  +definicion : Map
+  +compartido : boolean
+  +calcular() : Resultado
+}
+
+enum Rol {
+  ASESOR
+  LIDER
+}
+
+enum EstadoLead {
+  ACTIVO
+  VENCIDO
+  ARCHIVO
+  GANADO
+  PERDIDO
+}
+
+enum NivelInteres {
+  MUY_INTERESADO
+  INTERESADO
+  DUDA
+  POCO_INTERESADO
+  FRIO
+  NO_INTERESADO
+}
+
+enum TipoCierre {
+  GANADO
+  PERDIDO
+}
+
+enum Canal {
+  WHATSAPP
+  EMAIL
+  AMBOS
+}
+
+enum TipoCampo {
+  TEXTO
+  NUMERO
+  LISTA
+}
+
+Equipo "1" *-- "1" ConfiguracionEquipo : se configura con
+ConfiguracionEquipo "1" *-- "0..*" CampoCierre : pide al ganar
+Equipo "1" o-- "1..*" Usuario : integra
+Equipo "1" *-- "0..*" Invitacion : tiene pendientes
+Usuario "1" --> "0..*" Invitacion : envía
+Equipo "1" *-- "0..*" Lead : gestiona
+Usuario "0..1" --> "0..*" Lead : es asesor de
+Lead "1" *-- "0..*" EntradaHistorial : registra
+Usuario "0..1" --> "0..*" EntradaHistorial : escribe
+Usuario "1" --> "0..*" Recordatorio : agenda
+Recordatorio "0..*" --> "0..1" Lead : sobre
+Lead "1" *-- "0..1" Cierre : termina en
+Usuario "1" --> "0..*" Cierre : registra
+Equipo "1" *-- "0..*" Charla : organiza
+Charla "1" *-- "0..*" InvitacionCharla : convoca
+InvitacionCharla "0..*" --> "1" Lead : invitado
+Usuario "1" --> "0..*" Plantilla : crea
+Usuario "1" --> "0..*" Reporte : crea
+@enduml
