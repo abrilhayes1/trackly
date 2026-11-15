@@ -1,0 +1,261 @@
+classDiagram
+    direction LR
+
+    class Servidor {
+        <<Express>>
+        +usar(middleware)
+        +montar(ruta, router)
+    }
+    class AuthMiddleware {
+        <<middleware>>
+        +requireAuth(req, res, next)
+    }
+    class SeguridadMiddleware {
+        <<middleware>>
+        +encabezados(req, res, next)
+        +limitarPedidos(maximo, mensaje)
+    }
+    class ErroresMiddleware {
+        <<middleware>>
+        +manejarErrores(err, req, res, next)
+    }
+    class ErrorHttp {
+        +entero status
+        +texto mensaje
+    }
+    class ClienteSupabase {
+        <<creado en cada pedido>>
+        -texto token
+        +from(tabla)
+        +rpc(funcion, parametros)
+        +storage()
+    }
+
+    class LeadsController {
+        <<controller>>
+    }
+    class MeController {
+        <<controller>>
+    }
+    class ConfigController {
+        <<controller>>
+    }
+    class CierresController {
+        <<controller>>
+    }
+    class RecordatoriosController {
+        <<controller>>
+    }
+    class CharlasController {
+        <<controller>>
+    }
+    class ReportesController {
+        <<controller>>
+    }
+    class PlantillasController {
+        <<controller>>
+    }
+    class OnboardingController {
+        <<controller>>
+    }
+
+    class LeadsService {
+        <<service>>
+        +listar(estados, campos)
+        +obtener(id)
+        +buscar(texto)
+        +totales(usuario)
+        +crear(usuario, datos)
+        +actualizar(usuario, id, cambios)
+        +importar(filas, asesorId, sinAsignar)
+        +listarHistorial(leadId)
+        +agregarHistorial(usuario, leadId, texto)
+        +reclamar(leadId)
+        +reactivar(leadId)
+        +reasignar(leadId, asesorId)
+    }
+    class MeService {
+        <<service>>
+        +perfil(usuario)
+        +cambiarNombre(usuario, nombre)
+        +cambiarFoto(usuario, imagen)
+        +quitarFoto(usuario)
+        +aceptarInvitacion(usuario, id)
+        +rechazarInvitacion(id)
+    }
+    class ConfigService {
+        <<service>>
+        +obtener()
+        +guardar(config)
+        +equipo()
+        +invitar(emails)
+        +borrarInvitacion(id)
+        +desactivarMiembro(id)
+        +reactivarMiembro(id)
+        +cambiarRol(id, rol)
+    }
+    class CierresService {
+        <<service>>
+        +listar(tipo, campos, limite, desde, asesor)
+        +obtener(leadId)
+        +cerrar(leadId, tipo, datos, motivo)
+    }
+    class RecordatoriosService {
+        <<service>>
+        +listar(usuario, fecha, hasta, asesor)
+        +crear(usuario, datos)
+        +marcar(id, hecho)
+        +actualizar(id, datos)
+    }
+    class CharlasService {
+        <<service>>
+        +listar()
+        +contarProximas()
+        +obtener(id)
+        +guardar(id, datos)
+        +eliminar(id)
+        +invitar(charlaId, leadId)
+        +marcarAsistencia(invitacionId, asistio)
+        +delLead(leadId)
+    }
+    class ReportesService {
+        <<service>>
+        +listar()
+        +crear(usuario, datos)
+        +editar(id, datos)
+        +borrar(id)
+    }
+    class PlantillasService {
+        <<service>>
+        +listar()
+        +crear(usuario, datos)
+        +editar(id, datos)
+        +borrar(id)
+    }
+    class OnboardingService {
+        <<service>>
+        +completar(usuario, datos)
+    }
+
+    class App {
+        <<componente web>>
+        -sesion
+        -perfil
+        -vista
+        -leadAbierto
+        +navegar(vista)
+        +abrirLead(lead)
+        +cerrarLead()
+        +cerrarSesion()
+    }
+    class ApiCliente {
+        <<módulo web>>
+        +apiFetch(ruta, opciones)
+    }
+    class ConfigEquipoContext {
+        <<contexto web>>
+        +config
+        +recargar()
+    }
+    class LeadsEquipoContext {
+        <<contexto web>>
+        +leads
+        +listo
+        +error
+    }
+    class Urgencia {
+        <<lógica web>>
+        +agruparLeads(leads, config, asesor)
+    }
+    class Alertas {
+        <<lógica web>>
+        +calcularAlertas(leads, config, asesor, ahora)
+    }
+    class Agenda {
+        <<lógica web>>
+        +recordatoriosDeLeads(leads, asesor)
+        +ordenarRecordatorios(a, b)
+    }
+    class Navegacion {
+        <<lógica web>>
+        +leerDireccion(hash)
+        +armarDireccion(vista, leadId)
+    }
+    class Miembros {
+        <<lógica web>>
+        +licenciasUsadas(miembros, invitaciones)
+        +miembrosActivos(miembros)
+        +leadsDeDesactivados(leads, miembros)
+    }
+    class MisLeadsPage {
+        <<página>>
+    }
+    class AgendaPage {
+        <<página>>
+    }
+    class PanelLiderPage {
+        <<página>>
+    }
+    class ConfiguracionPage {
+        <<página>>
+    }
+    class DetalleLead {
+        <<componente web>>
+    }
+
+    Servidor --> SeguridadMiddleware
+    Servidor --> AuthMiddleware
+    Servidor --> ErroresMiddleware
+    AuthMiddleware ..> ClienteSupabase : crea con el token
+    ErroresMiddleware ..> ErrorHttp
+
+    Servidor --> LeadsController
+    Servidor --> MeController
+    Servidor --> ConfigController
+    Servidor --> CierresController
+    Servidor --> RecordatoriosController
+    Servidor --> CharlasController
+    Servidor --> ReportesController
+    Servidor --> PlantillasController
+    Servidor --> OnboardingController
+
+    LeadsController --> LeadsService
+    MeController --> MeService
+    ConfigController --> ConfigService
+    CierresController --> CierresService
+    RecordatoriosController --> RecordatoriosService
+    CharlasController --> CharlasService
+    ReportesController --> ReportesService
+    PlantillasController --> PlantillasService
+    OnboardingController --> OnboardingService
+
+    LeadsService ..> ClienteSupabase
+    MeService ..> ClienteSupabase
+    ConfigService ..> ClienteSupabase
+    CierresService ..> ClienteSupabase
+    RecordatoriosService ..> ClienteSupabase
+    CharlasService ..> ClienteSupabase
+    ReportesService ..> ClienteSupabase
+    PlantillasService ..> ClienteSupabase
+    OnboardingService ..> ClienteSupabase
+    LeadsService ..> ErrorHttp : lanza
+
+    App --> ConfigEquipoContext : provee
+    App --> LeadsEquipoContext : provee
+    App ..> Navegacion
+    App ..> Alertas
+    App --> MisLeadsPage
+    App --> AgendaPage
+    App --> PanelLiderPage
+    App --> ConfiguracionPage
+    App --> DetalleLead
+    MisLeadsPage ..> Urgencia
+    MisLeadsPage ..> LeadsEquipoContext
+    AgendaPage ..> Agenda
+    AgendaPage ..> ApiCliente
+    PanelLiderPage ..> Miembros
+    ConfiguracionPage ..> Miembros
+    ConfiguracionPage ..> ApiCliente
+    DetalleLead ..> ApiCliente
+    ApiCliente ..> LeadsController : HTTP /api/leads
+    ApiCliente ..> MeController : HTTP /api/me

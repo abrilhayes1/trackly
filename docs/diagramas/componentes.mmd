@@ -1,0 +1,73 @@
+flowchart TB
+    subgraph frontend["Aplicación web (frontend)"]
+        AppWeb["App<br/>(sesión, perfil, navegación por dirección)"]
+        Paginas["Páginas<br/>(Mis leads, Alertas, Agenda, Archivo, Cerrados,<br/>Charlas, Estadísticas, Reportes, Panel del equipo,<br/>Configuración, Perfil, Onboarding, Login, Landing, Legal)"]
+        UI["Componentes de interfaz<br/>(DetalleLead, LeadCard, ImportarLeads,<br/>RecordatorioModal, CierreLead, FiltroAsesor,<br/>Invitaciones, Sidebar, Topbar)"]
+        Contextos["Contextos compartidos<br/>(ConfigEquipo, LeadsEquipo)"]
+        Logica["Lógica de negocio compartida<br/>(urgencia, alertas, agenda, contadores,<br/>estadísticas, reportes, importar,<br/>plantillas, miembros, navegación)"]
+        ClienteApi["Cliente API<br/>(apiFetch)"]
+        ClienteAuth["Cliente de autenticación<br/>(supabase-js)"]
+    end
+
+    subgraph mobile["Aplicación mobile"]
+        Pantallas["Pantallas<br/>(Expo Router)"]
+        UIMobile["Componentes mobile<br/>(Hoja, Formulario, FilaLead)"]
+        SesionMobile["Proveedor de sesión<br/>(SesionProvider)"]
+        ApiMobile["Cliente API mobile"]
+    end
+
+    IApi(("API REST<br/>/api/*"))
+    IAuth(("API de<br/>autenticación"))
+
+    subgraph backend["Backend (API REST)"]
+        Middleware["Middleware<br/>(encabezados, límite de pedidos,<br/>requireAuth, manejo de errores)"]
+        Rutas["Rutas<br/>(/api/leads, /api/me, /api/config, /api/cierres,<br/>/api/recordatorios, /api/charlas, /api/reportes,<br/>/api/plantillas, /api/onboarding)"]
+        Controladores["Controladores"]
+        Servicios["Servicios<br/>(reglas de negocio y consultas)"]
+        Utilidades["Utilidades<br/>(errores, historial, validaciones)"]
+    end
+
+    subgraph supabase["Supabase"]
+        Auth["Auth"]
+        PostgREST["PostgREST + RPC"]
+        Funciones["Funciones SQL y triggers<br/>(cerrar, reclamar, reasignar,<br/>importar, licencias, vencimientos)"]
+        RLS["Reglas RLS<br/>(aislamiento por equipo y rol)"]
+        Tablas[("Tablas")]
+        Storage["Storage"]
+    end
+
+    AppWeb --> Paginas
+    AppWeb --> Contextos
+    Paginas --> UI
+    Paginas --> Contextos
+    Paginas --> Logica
+    UI --> Logica
+    Paginas --> ClienteApi
+    UI --> ClienteApi
+    AppWeb --> ClienteAuth
+    ClienteApi -.->|"token de sesión"| ClienteAuth
+
+    Pantallas --> UIMobile
+    Pantallas --> SesionMobile
+    Pantallas -->|"reutiliza"| Logica
+    SesionMobile --> ApiMobile
+
+    ClienteApi --> IApi
+    ApiMobile --> IApi
+    ClienteAuth --> IAuth
+    SesionMobile --> IAuth
+
+    IApi --> Middleware
+    Middleware --> Rutas
+    Rutas --> Controladores
+    Controladores --> Servicios
+    Servicios --> Utilidades
+    Middleware -.->|"valida el token"| Auth
+    Servicios --> PostgREST
+    Servicios --> Storage
+
+    IAuth --> Auth
+    PostgREST --> Funciones
+    PostgREST --> RLS
+    RLS --> Tablas
+    Funciones --> Tablas
