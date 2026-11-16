@@ -9,6 +9,7 @@ Proyecto final de la carrera Analista de Sistemas (Escuela Da Vinci). Autora: Ab
 - **Web:** https://trackly-six-delta.vercel.app
 - **API:** https://trackly-production-6424.up.railway.app (`/api/health` responde si está en línea)
 - **Prototipo navegable sin servidor:** [`docs/prototipos/trackly-prototipo.html`](docs/prototipos/trackly-prototipo.html)
+- **Prototipo de la app mobile (online):** https://trackly-six-delta.vercel.app/prototipo-mobile
 - **App mobile:** ver [`mobile/README.md`](mobile/README.md)
 
 ## Qué hace
@@ -123,6 +124,7 @@ Si falta alguna variable, la web muestra cuál en lugar de quedar en blanco.
 | `frontend` | `npm test` | Tests (Vitest) |
 | `frontend` | `npm run lint` / `npm run formato` | ESLint / Prettier |
 | `frontend` | `npm run prototipo` | Genera `docs/prototipos/trackly-prototipo.html` (la app con datos de ejemplo, en un solo archivo) |
+| `mobile` | `npm run prototipo` | Genera el prototipo mobile en `frontend/public/prototipo-mobile` (se publica con la web) |
 | `backend` | `npm run dev` / `npm start` | Servidor con recarga / servidor |
 | `backend` | `npm test` | Tests (`node:test`) |
 

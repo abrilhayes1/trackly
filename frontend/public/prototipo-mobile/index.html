@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Trackly · Prototipo mobile</title>
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  <link rel="icon" href="/prototipo-mobile/favicon.ico"/>
+<style>
+  @media (min-width: 640px) {
+    html, body { background: #e9e7e1 !important; }
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding-top: 50px; box-sizing: border-box; }
+    #barra-prototipo { bottom: auto !important; top: 12px; }
+    #root {
+      position: relative; flex: none !important; width: 390px; height: min(844px, calc(100vh - 80px));
+      border: 10px solid #1c1c1a; border-radius: 44px; overflow: hidden; transform: translateZ(0);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+    }
+  }
+  #barra-prototipo { position: fixed; bottom: 12px; left: 0; right: 0; margin: 0 auto; width: fit-content; z-index: 9999;
+    font: 500 12px Inter, system-ui, sans-serif; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    justify-content: center; max-width: calc(100vw - 24px); }
+  #barra-prototipo button { font: inherit; border-radius: 999px; padding: 6px 11px; cursor: pointer;
+    border: 1px solid #d3d1c7; background: #fff; color: #444; }
+  #barra-prototipo button.activo { background: #534ab7; border-color: #534ab7; color: #fff; }
+  #barra-prototipo .titulo { background: #1c1c1a; color: #fff; border-color: #1c1c1a; }
+  @media (max-width: 639px) { #barra-prototipo { bottom: auto; top: 6px; } #barra-prototipo:not(.abierta) button:not(.titulo) { display: none; } }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var usuarios = [["bbbbbbbb-0000-4000-8000-000000000001","Carolina (líder)"],["bbbbbbbb-0000-4000-8000-000000000002","Martín (asesor)"],["bbbbbbbb-0000-4000-8000-000000000003","Lucía (asesora)"],["bbbbbbbb-0000-4000-8000-000000000004","Diego (asesor)"]]
+    var actual = null
+    try { actual = sessionStorage.getItem('trackly-prototipo-sesion') } catch (e) {}
+    var barra = document.createElement('div')
+    barra.id = 'barra-prototipo'
+    var titulo = document.createElement('button')
+    titulo.className = 'titulo'
+    titulo.textContent = 'Prototipo mobile · ver como'
+    titulo.onclick = function () { barra.classList.toggle('abierta') }
+    barra.appendChild(titulo)
+    usuarios.forEach(function (u) {
+      var b = document.createElement('button')
+      b.textContent = u[1]
+      if (u[0] === actual) b.className = 'activo'
+      b.onclick = function () {
+        try { sessionStorage.setItem('trackly-prototipo-sesion', u[0]) } catch (e) {}
+        location.href = '/prototipo-mobile/'
+      }
+      barra.appendChild(b)
+    })
+    var reiniciar = document.createElement('button')
+    reiniciar.textContent = 'Reiniciar datos'
+    reiniciar.onclick = function () {
+      try { sessionStorage.clear() } catch (e) {}
+      location.href = '/prototipo-mobile/'
+    }
+    barra.appendChild(reiniciar)
+    document.body.appendChild(barra)
+  })
+</script>
+</head>
+
+  <body>
+    <!-- Use static rendering with Expo Router to support running without JavaScript. -->
+    <noscript> You need to enable JavaScript to run this app. </noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+  <script src="/prototipo-mobile/_expo/static/js/web/__expo-metro-runtime-ed4c1cfa6193d76fc294130e42bd1916.js" defer></script><script src="/prototipo-mobile/_expo/static/js/web/__common-48570dc4895bb2e8907defa65c7b05ee.js" defer></script><script src="/prototipo-mobile/_expo/static/js/web/entry-61c22bbcf00a3fed66f2889d7f34af15.js" defer></script>
+</body>
+</html>

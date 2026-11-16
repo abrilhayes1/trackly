@@ -65,6 +65,19 @@ Se arma en la nube con **EAS Build** (no hace falta Android Studio). La configur
 
 El APK es solo para Android. En iPhone se usa Expo Go.
 
+## Prototipo
+
+**https://trackly-six-delta.vercel.app/prototipo-mobile**: la app real con los datos de ejemplo del
+prototipo web (el equipo Instituto Horizonte), sin Supabase ni backend. En la compu se ve dentro de un
+marco de teléfono y en un celular, a pantalla completa. Se entra con `lider@demo.trackly`,
+`martin@demo.trackly`, `lucia@demo.trackly` o `diego@demo.trackly` (cualquier contraseña), o con la
+barra "ver como". Los cambios duran mientras la pestaña está abierta.
+
+Se genera con `npm run prototipo` (en esta carpeta): exporta la versión web de la app en modo
+prototipo (en `metro.config.js`, `src/lib/supabase.js` y `src/lib/api.js` se cambian por los de
+`frontend/src/demo`) y la copia a `frontend/public/prototipo-mobile`, que Vercel publica con la web.
+No funciona abriendo el archivo con doble clic porque la app navega cambiando la dirección.
+
 ## Chequeos
 
 - `npm run formato` / `npm run formato:revisar`: Prettier.

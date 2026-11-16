@@ -44,3 +44,4 @@ example
 
 # datos de conexión (el ejemplo es .env.example)
 .env
+dist-prototipo/

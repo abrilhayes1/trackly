@@ -36,7 +36,8 @@
     "lint": "expo lint",
     "formato": "prettier --write src metro.config.js",
     "formato:revisar": "prettier --check src metro.config.js",
-    "compilar": "expo export --platform web --output-dir dist"
+    "compilar": "expo export --platform web --output-dir dist",
+    "prototipo": "node scripts/prototipo.js"
   },
   "private": true,
   "devDependencies": {

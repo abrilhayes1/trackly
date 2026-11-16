@@ -1,0 +1,3 @@
+{
+  "rewrites": [{ "source": "/prototipo-mobile/:ruta*", "destination": "/prototipo-mobile/index.html" }]
+}
