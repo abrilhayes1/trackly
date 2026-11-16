@@ -1,5 +1,5 @@
 // Panel del líder (RF38, RF39, RF40 · CU14, CU15): el estado de todo el equipo, el resumen por
-// asesor, los leads sin asignar y la reasignación. Sigue el panel del prototipo (docs/prototipos).
+// asesor, los leads sin asignar y la reasignación.
 import { useEffect, useMemo, useState } from 'react'
 import { apiFetch } from '../lib/api'
 import { agruparLeads } from '../lib/urgencia'

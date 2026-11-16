@@ -1,5 +1,4 @@
 // Onboarding (RF05, CU12): la primera vez que alguien entra sin equipo, arma el suyo en 4 pasos.
-// Sigue el diseño del onboarding del prototipo (docs/prototipos).
 import { useState } from 'react'
 import { apiFetch } from '../lib/api'
 import { RUBROS, CONTACTOS, EVENTOS, ORIGENES_SUGERIDOS, pluralizar, etiquetaRubro, errorVencimiento } from '../lib/configEquipo'

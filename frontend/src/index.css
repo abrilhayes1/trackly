@@ -3,8 +3,8 @@
 @theme {
   --font-sans: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
-  /* curva para lo que aparece o responde a un toque: arranca rápido y frena suave (pautas de diseño,
-     docs/diseno/emil-design-eng.md) */
+  /* curva para lo que aparece o responde a un toque: arranca rápido y frena suave (pautas de diseño
+     de Emil Kowalski) */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   --color-bg-primary: #ffffff;
@@ -93,7 +93,7 @@ textarea {
   outline-offset: 2px;
 }
 
-/* Movimiento (pautas de docs/diseno/emil-design-eng.md). Va fuera de las capas de Tailwind para que
+/* Movimiento (pautas de diseño de Emil Kowalski). Va fuera de las capas de Tailwind para que
    valga en todos los botones aunque tengan sus propias clases de transición. */
 
 /* los botones se achican un poco al apretarlos: confirma que la app registró el clic */

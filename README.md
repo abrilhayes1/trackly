@@ -47,7 +47,6 @@ flowchart LR
 - **Frontend** (`frontend/`): SPA en React. Las pantallas están en `src/pages`, los componentes en `src/components` y la lógica de negocio pura (urgencia, alertas, agenda, estadísticas, importar…) en `src/lib`, con tests. La pantalla y el contacto abierto quedan en la dirección (`#/agenda`, `#/leads/lead/<id>`).
 - **Backend** (`backend/`): API REST en capas: `routes` → `controllers` → `services` → `lib`, con middleware de seguridad, autenticación y errores. **No usa clave de servicio:** cada pedido crea un cliente de Supabase con el token del usuario, así la base aplica sus reglas de seguridad (RLS) y un equipo nunca ve datos de otro.
 - **Base de datos** (`database/`): PostgreSQL en Supabase. Las operaciones de negocio delicadas (cerrar, reclamar, reasignar, importar, licencias, vencimientos) son funciones SQL que validan equipo y rol y guardan el historial en la misma transacción. El esquema completo está en `database/esquema_completo.sql`.
-- Más diagramas (clases, componentes, arquitectura) en [`docs/diagramas/`](docs/diagramas).
 
 ## Librerías principales
 
@@ -151,5 +150,5 @@ trackly/
 ├── backend/      API REST (Express)
 ├── mobile/       app mobile (Expo)
 ├── database/     scripts SQL y esquema completo
-└── docs/         resumen técnico, diagramas, prototipos y diseño
+└── docs/         prototipo navegable y planilla de ejemplo para importar
 ```
