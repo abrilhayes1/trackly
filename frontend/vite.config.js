@@ -45,6 +45,31 @@ function prototipo() {
   }
 }
 
+// En desarrollo (npm run dev), /prototipo-mobile y sus pantallas (/prototipo-mobile/lead/...) muestran el
+// prototipo de la app mobile (public/prototipo-mobile), como en Vercel con vercel.json
+function prototipoMobile() {
+  return {
+    name: 'trackly-prototipo-mobile',
+    configureServer(servidor) {
+      servidor.middlewares.use((pedido, respuesta, siguiente) => {
+        const ruta = (pedido.url || '').split('?')[0]
+        if (ruta === '/prototipo-mobile' || ruta === '/prototipo-mobile/index.html') {
+          respuesta.writeHead(302, { Location: '/prototipo-mobile/' })
+          return respuesta.end()
+        }
+        if (ruta.startsWith('/prototipo-mobile/') && !ruta.slice(1).includes('.')) {
+          const indice = path.resolve(aqui, 'public/prototipo-mobile/index.html')
+          if (fs.existsSync(indice)) {
+            respuesta.setHeader('Content-Type', 'text/html')
+            return respuesta.end(fs.readFileSync(indice))
+          }
+        }
+        siguiente()
+      })
+    },
+  }
+}
+
 export default defineConfig(({ mode }) =>
   mode === 'demo'
     ? {
@@ -58,5 +83,5 @@ export default defineConfig(({ mode }) =>
           rollupOptions: { output: { codeSplitting: false } },
         },
       }
-    : { plugins: [react(), tailwindcss()] },
+    : { plugins: [prototipoMobile(), react(), tailwindcss()] },
 )

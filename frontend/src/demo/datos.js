@@ -354,6 +354,10 @@ export function guardar() {
   }
 }
 
+// se guarda desde el principio: así, al recargar, los contactos conservan sus identificadores (y una
+// dirección como /lead/<id> sigue funcionando)
+guardar()
+
 export function reiniciarDatos() {
   try {
     sessionStorage.removeItem(CLAVE)

@@ -73,6 +73,8 @@ marco de teléfono y en un celular, a pantalla completa. Se entra con `lider@dem
 `martin@demo.trackly`, `lucia@demo.trackly` o `diego@demo.trackly` (cualquier contraseña), o con la
 barra "ver como". Los cambios duran mientras la pestaña está abierta.
 
+Para verlo en la compu sin internet: `npm run dev` en `frontend` y abrir `http://localhost:5173/prototipo-mobile/`.
+
 Se genera con `npm run prototipo` (en esta carpeta): exporta la versión web de la app en modo
 prototipo (en `metro.config.js`, `src/lib/supabase.js` y `src/lib/api.js` se cambian por los de
 `frontend/src/demo`) y la copia a `frontend/public/prototipo-mobile`, que Vercel publica con la web.

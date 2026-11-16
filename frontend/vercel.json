@@ -1,3 +1,4 @@
 {
-  "rewrites": [{ "source": "/prototipo-mobile/:ruta*", "destination": "/prototipo-mobile/index.html" }]
+  "redirects": [{ "source": "/prototipo-mobile/index.html", "destination": "/prototipo-mobile/" }],
+  "rewrites": [{ "source": "/prototipo-mobile/:ruta([^.]*)", "destination": "/prototipo-mobile/index.html" }]
 }
