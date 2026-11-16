@@ -158,7 +158,7 @@ lead (ganado/perdido), Casos exitosos, Cerrados perdidos y **Archivo** (vencidos
 
 ## App mobile (RF41 a RF44): etapa 1
 
-- Carpeta `mobile/`: Expo SDK 58 con Expo Router (`src/app`), JavaScript. Ver `mobile/LEEME.md`.
+- Carpeta `mobile/`: Expo SDK 58 con Expo Router (`src/app`), JavaScript. Ver `mobile/README.md`.
 - Mismo diseño que la web: colores de `index.css` en `src/lib/tema.js` (claro y oscuro, sigue al
   celular), letra **Inter** (`@expo-google-fonts/inter`). Pautas de diseño de Emil Kowalski en
   `docs/diseno/emil-design-eng.md`: todo lo que se toca se achica a 0,97 al apretarlo (100 ms de ida,
@@ -491,7 +491,6 @@ pedir en cada cambio de vista para los contadores. Ahora:
   constructor con vista previa en vivo. `lib/reportes.js` calcula cada reporte con `/api/leads` y
   `/api/cierres`. Los gráficos se comparten en `components/Graficos.jsx` (las columnas se miden
   con el ancho real de la tarjeta).
-- Los cambios a pasar a la documentación están en `docs/cambios-documentacion.md`.
 
 ## Anterior: Estadísticas (RF37 · CU11)
 
