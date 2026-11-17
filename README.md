@@ -131,7 +131,7 @@ Si falta alguna variable, la web muestra cuál en lugar de quedar en blanco.
 ## Publicación
 
 - **Web:** Vercel, carpeta raíz `frontend`, con las tres variables `VITE_…`.
-- **Backend:** Railway, carpeta raíz `backend`, con `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `FRONTEND_URL`.
+- **Backend:** Railway o Render (la misma API; la web usa la que diga `VITE_API_URL`). En los dos, carpeta raíz `backend`, con `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `FRONTEND_URL`. Para Render, `render.yaml` ya tiene la configuración (New → Blueprint).
 - Cada push a `main` dispara **GitHub Actions** (`.github/workflows/chequeo.yml`): tests, lint, formato y build de la web y el backend, y compilación de la app mobile. Vercel y Railway publican la versión nueva solos.
 
 ## Buenas prácticas aplicadas

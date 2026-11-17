@@ -6,7 +6,7 @@ const { encabezados, limitarPedidos } = require('./middleware/seguridad');
 
 const app = express();
 
-// Railway pone un proxy adelante: así req.ip es la IP real de quien hace el pedido
+// Railway y Render ponen un proxy adelante: así req.ip es la IP real de quien hace el pedido
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
 app.use(encabezados);

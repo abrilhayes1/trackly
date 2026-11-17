@@ -1,0 +1,21 @@
+# Backend de Trackly en Render (la misma API que en Railway; se puede usar una u otra).
+# En Render: New → Blueprint → elegir este repositorio. Pide SUPABASE_URL y SUPABASE_ANON_KEY.
+services:
+  - type: web
+    name: trackly-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: FRONTEND_URL
+        value: https://trackly-six-delta.vercel.app
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
