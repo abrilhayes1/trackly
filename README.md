@@ -7,7 +7,7 @@ cada interacción y cierre, y le da al líder la vista de todo el equipo.
 Proyecto final de la carrera Analista de Sistemas (Escuela Da Vinci). Autora: Abril Hayes.
 
 - **Web:** https://trackly-six-delta.vercel.app
-- **API:** https://trackly-production-6424.up.railway.app (`/api/health` responde si está en línea)
+- **API:** https://trackly-api-sciy.onrender.com (en Render; `/api/health` responde si está en línea). También se puede publicar en Railway.
 - **Prototipo navegable sin servidor:** [`docs/prototipos/trackly-prototipo.html`](docs/prototipos/trackly-prototipo.html)
 - **Prototipo de la app mobile (online):** https://trackly-six-delta.vercel.app/prototipo-mobile
 - **App mobile:** ver [`mobile/README.md`](mobile/README.md)

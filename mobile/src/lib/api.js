@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 
-// el mismo servidor que usa la web (Railway); los mensajes de error son los mismos
-const API_URL = (process.env.EXPO_PUBLIC_API_URL || 'https://trackly-production-6424.up.railway.app').replace(/\/$/, '')
+// el mismo servidor que usa la web (Render); los mensajes de error son los mismos
+const API_URL = (process.env.EXPO_PUBLIC_API_URL || 'https://trackly-api-sciy.onrender.com').replace(/\/$/, '')
 
 const SIN_CONEXION = 'No se pudo conectar con el servidor. Revisá tu conexión y probá de nuevo.'
 const POR_ESTADO = {

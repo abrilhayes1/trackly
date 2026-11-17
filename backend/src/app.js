@@ -25,6 +25,11 @@ app.use('/api', limitarPedidos({ maximo: 1000 }));
 // 1 MB alcanza para una tanda de importación de contactos (500 filas)
 app.use(express.json({ limit: '1mb' }));
 
+// la raíz no es una página: avisa dónde está la API (así no aparece "Cannot GET /")
+app.get('/', (req, res) => {
+  res.json({ servicio: 'API de Trackly', estado: '/api/health' });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, mensaje: 'Trackly backend funcionando' });
 });
